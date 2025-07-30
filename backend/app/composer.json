@@ -16,6 +16,7 @@
         "nelmio/cors-bundle": "^2.5",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.1",
+        "stof/doctrine-extensions-bundle": "*",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
@@ -80,13 +81,21 @@
             "./vendor/bin/php-cs-fixer fix src/ --rules=@Symfony,@PSR1,@PSR2,@PSR12",
             "./vendor/bin/phpcbf --standard=Symfony tests/ --ignore=object-mapper.php",
             "./vendor/bin/php-cs-fixer fix tests/ --rules=@Symfony,@PSR1,@PSR2,@PSR12"
+        ],
+        "init-app" : [
+            "./bin/console --no-interaction doctrine:migrations:migrate",
+            "./bin/console --no-interaction doctrine:fixtures:load"
         ]
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "*",
         "escapestudios/symfony2-coding-standard": "^3.16",
+        "fakerphp/faker": "*",
         "friendsofphp/php-cs-fixer": "^3.82",
         "squizlabs/php_codesniffer": "^3.13",
         "symfony/browser-kit": "*",
-        "symfony/phpunit-bridge": "^7.3"
+        "symfony/maker-bundle": "*",
+        "phpunit/phpunit": "^10.0",
+        "dama/doctrine-test-bundle": "*"
     }
 }

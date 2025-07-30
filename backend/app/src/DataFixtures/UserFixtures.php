@@ -32,6 +32,7 @@ class UserFixtures extends AbstractBaseFixtures
                 )
             );
 
+
             return $user;
         });
 

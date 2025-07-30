@@ -7,6 +7,7 @@
          colors="true"
          bootstrap="tests/bootstrap.php"
          convertDeprecationsToExceptions="false"
+         testdox="true"
 >
     <php>
         <ini name="display_errors" value="1" />
@@ -18,7 +19,6 @@
         <env name="KERNEL_CLASS" value="App\Kernel" />
 
         <!-- ###+ symfony/framework-bundle ### -->
-<!--        <env name="APP_ENV" value="dev"/>-->
         <env name="APP_SECRET" value="0b1ab57adc5064e43e8d98a6b9f54344"/>
         <!-- ###- symfony/framework-bundle ### -->
 
@@ -29,7 +29,7 @@
         <!-- DATABASE_URL="sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db" -->
         <!-- DATABASE_URL="mysql://app:!ChangeMe!@127.0.0.1:3306/app?serverVersion=8.0.32&charset=utf8mb4" -->
         <!-- DATABASE_URL="mysql://app:!ChangeMe!@127.0.0.1:3306/app?serverVersion=10.11.2-MariaDB&charset=utf8mb4" -->
-        <env name="DATABASE_URL" value="postgresql://app:!ChangeMe!@127.0.0.1:5432/app?serverVersion=16&amp;charset=utf8"/>
+        <env name="DATABASE_URL" value="mysql://symfony_test:symfony_test@mysql_test:3306/symfony_test"/>
         <!-- ###- doctrine/doctrine-bundle ### -->
 
         <!-- ###+ nelmio/cors-bundle ### -->
@@ -52,5 +52,9 @@
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
+
+    <extensions>
+        <extension class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+    </extensions>
 
 </phpunit>
