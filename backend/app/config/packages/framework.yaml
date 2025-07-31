@@ -16,6 +16,8 @@ framework:
     #fragments: true
     php_errors:
         log: true
+    serializer:
+        enabled: true
 
 when@test:
     framework:
