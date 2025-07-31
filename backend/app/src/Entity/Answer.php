@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AnswerRepository::class)]
 #[ORM\Table(name: 'answers')]
@@ -15,35 +16,43 @@ class Answer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['answer:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     #[Assert\Type('string')]
+    #[Groups(['answer:read', 'answer:write'])]
     private ?string $content = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(['answer:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[Groups(['answer:read', 'answer:write'])]
     private bool $isBest = false;
 
     #[ORM\ManyToOne(targetEntity: Question::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
+    #[Groups(['answer:read'])]
     private ?Question $question = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['answer:read'])]
     private ?User $author = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Assert\Type('string')]
+    #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorNickname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Assert\Email]
+    #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorEmail = null;
 
     public function getId(): ?int
@@ -116,7 +125,6 @@ class Answer
         $this->authorEmail = $authorEmail;
     }
 
-
     public function isFromAnonymous(): bool
     {
         return $this->author === null;
@@ -125,8 +133,7 @@ class Answer
     public function getDisplayName(): ?string
     {
         return $this->author !== null
-            ? $this->author->getNickname() // lub getUsername()
+            ? $this->author->getNickname()
             : $this->authorNickname;
     }
-
 }
