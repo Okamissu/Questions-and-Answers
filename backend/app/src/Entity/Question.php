@@ -22,42 +22,32 @@ class Question
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\Type('string')]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 255)]
     #[Groups(['question:read', 'question:write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\Type('string')]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 10)]
     #[Groups(['question:read', 'question:write'])]
     private ?string $content = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
-    #[Assert\Type(\DateTimeImmutable::class)]
     #[Groups(['question:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'update')]
-    #[Assert\Type(\DateTimeImmutable::class)]
     #[Groups(['question:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Assert\Type(User::class)]
     #[Groups(['question:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Assert\Type(Category::class)]
     #[Groups(['question:read'])]
     private ?Category $category = null;
 
@@ -66,7 +56,6 @@ class Question
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, fetch: 'EXTRA_LAZY', orphanRemoval: true)]
     #[ORM\JoinTable(name: 'questions_tags')]
-    #[Assert\Valid]
     #[Groups(['question:read'])]
     private Collection $tags;
 

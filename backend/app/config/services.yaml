@@ -25,3 +25,11 @@ services:
     Gedmo\Timestampable\TimestampableListener:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+    App\Resolver\CategoryValueResolver:
+        tags: [ 'controller.argument_value_resolver' ]
+    App\Resolver\QuestionValueResolver:
+        tags: [ 'controller.argument_value_resolver' ]
+    App\Resolver\AnswerValueResolver:
+        tags: [ 'controller.argument_value_resolver' ]
+    App\Resolver\TagValueResolver:
+        tags: [ 'controller.argument_value_resolver' ]

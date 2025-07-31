@@ -19,8 +19,6 @@ class Tag
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 50)]
     #[Groups(['tag:read', 'tag:write', 'question:read'])]
     private ?string $name = null;
 

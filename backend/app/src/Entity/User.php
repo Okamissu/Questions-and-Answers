@@ -25,8 +25,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank]
-    #[Assert\Email]
     #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
@@ -58,7 +56,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $updatedAt = null;
 
     // dla edycji hasła — przechowujemy tymczasowo plainPassword, nie mapujemy do bazy
-    #[Assert\Length(min: 6, max: 4096)]
     private ?string $plainPassword = null;
 
     public function getId(): ?int

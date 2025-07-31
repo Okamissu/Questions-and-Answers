@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Dto;
 
+use App\Entity\Category;
+use App\Entity\Tag;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateQuestionDto
@@ -14,15 +17,16 @@ class CreateQuestionDto
     public ?string $content = null;
 
     #[Assert\NotNull]
-    public ?int $categoryId = null;
-
-    // author nie podajemy tu — ustawimy ją w kontrolerze z aktualnie zalogowanego usera
+    public ?Category $category = null;
 
     /**
-     * @var int[]|null
+     * @var Tag[]|null
      */
     #[Assert\All([
-        new Assert\Type('int')
+        new Assert\Type(Tag::class),
     ])]
-    public ?array $tagIds = null;
+    public ?array $tags = null;
+
+    // Author nie jest tutaj —  w kontrolerze z zalogowanego usera
 }
+

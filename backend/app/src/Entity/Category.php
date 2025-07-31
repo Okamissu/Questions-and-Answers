@@ -19,8 +19,6 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 255)]
     #[Groups(['category:read', 'category:write', 'question:read'])]
     private ?string $name = null;
 

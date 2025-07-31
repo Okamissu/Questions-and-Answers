@@ -6,8 +6,8 @@ use App\Repository\AnswerRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnswerRepository::class)]
 #[ORM\Table(name: 'answers')]
@@ -20,8 +20,6 @@ class Answer
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank]
-    #[Assert\Type('string')]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $content = null;
 
@@ -46,12 +44,10 @@ class Answer
     private ?User $author = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\Type('string')]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorNickname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\Email]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorEmail = null;
 
@@ -75,7 +71,7 @@ class Answer
         return $this->createdAt;
     }
 
-    public function isBest(): bool
+    public function GetIsBest(): bool
     {
         return $this->isBest;
     }
@@ -127,12 +123,12 @@ class Answer
 
     public function isFromAnonymous(): bool
     {
-        return $this->author === null;
+        return null === $this->author;
     }
 
     public function getDisplayName(): ?string
     {
-        return $this->author !== null
+        return null !== $this->author
             ? $this->author->getNickname()
             : $this->authorNickname;
     }

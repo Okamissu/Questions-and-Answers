@@ -15,8 +15,12 @@ class UpdateQuestionDto
 
     public ?Category $category = null;
 
+
     /**
      * @var Tag[]|null
      */
+    #[Assert\All([
+        new Assert\Type(Tag::class),
+    ])]
     public ?array $tags = null;
 }

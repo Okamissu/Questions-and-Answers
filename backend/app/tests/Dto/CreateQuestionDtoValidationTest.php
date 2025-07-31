@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Tests\Dto;
 
 use App\Dto\CreateQuestionDto;
@@ -39,7 +40,7 @@ class CreateQuestionDtoValidationTest extends KernelTestCase
         $errors = $this->validator->validate($dto);
 
         $this->assertGreaterThan(0, count($errors));
-        $this->assertStringContainsString('This value should not be blank', (string)$errors);
+        $this->assertStringContainsString('This value should not be blank', (string) $errors);
     }
 
     public function testShortContentFails(): void
@@ -52,7 +53,7 @@ class CreateQuestionDtoValidationTest extends KernelTestCase
         $errors = $this->validator->validate($dto);
 
         $this->assertGreaterThan(0, count($errors));
-        $this->assertStringContainsString('This value is too short', (string)$errors);
+        $this->assertStringContainsString('This value is too short', (string) $errors);
     }
 
     public function testNullCategoryFails(): void
@@ -65,7 +66,7 @@ class CreateQuestionDtoValidationTest extends KernelTestCase
         $errors = $this->validator->validate($dto);
 
         $this->assertGreaterThan(0, count($errors));
-        $this->assertStringContainsString('This value should not be null', (string)$errors);
+        $this->assertStringContainsString('This value should not be null', (string) $errors);
     }
 
     public function testInvalidTagsTypeFails(): void
@@ -79,6 +80,6 @@ class CreateQuestionDtoValidationTest extends KernelTestCase
         $errors = $this->validator->validate($dto);
 
         $this->assertGreaterThan(0, count($errors));
-        $this->assertStringContainsString('This value should be of type', (string)$errors);
+        $this->assertStringContainsString('This value should be of type', (string) $errors);
     }
 }
