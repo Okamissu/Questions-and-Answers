@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpFoundation\Response;
+
 
 #[Route('/api/categories')]
 class CategoryController extends AbstractController
@@ -63,10 +65,10 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    public function delete(Category $category): JsonResponse
+    public function delete(Category $category): Response
     {
         $this->categoryService->delete($category);
 
-        return new JsonResponse(null, 204);
+        return new Response(null, 204);
     }
 }

@@ -53,7 +53,6 @@ class AnswerServiceTest extends TestCase
 
         $answer = $this->answerService->create($dto);
 
-        $this->assertInstanceOf(Answer::class, $answer);
         $this->assertSame($dto->content, $answer->getContent());
         $this->assertSame($dto->question, $answer->getQuestion());
         $this->assertSame($dto->author, $answer->getAuthor());

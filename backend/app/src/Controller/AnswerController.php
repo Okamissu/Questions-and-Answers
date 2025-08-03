@@ -10,6 +10,7 @@ use App\Service\AnswerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -97,11 +98,11 @@ class AnswerController extends AbstractController
     // DELETE /api/answers/{id}
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
-    public function delete(Answer $answer): JsonResponse
+    public function delete(Answer $answer): Response
     {
         $this->answerService->delete($answer);
 
-        return new JsonResponse(null, 204);
+        return new Response(null, 204);
     }
 
     // POST /api/answers/{id}/mark-best

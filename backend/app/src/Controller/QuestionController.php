@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -98,9 +99,9 @@ class QuestionController extends AbstractController
     // DELETE /api/questions/{id}
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
-    public function delete(Question $question): JsonResponse
+    public function delete(Question $question): Response
     {
         $this->questionService->delete($question);
-        return new JsonResponse(null, 204);
+        return new Response(null, 204);
     }
 }

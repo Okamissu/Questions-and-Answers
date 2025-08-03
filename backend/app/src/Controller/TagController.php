@@ -9,6 +9,7 @@ use App\Service\TagService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -61,9 +62,9 @@ class TagController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    public function delete(Tag $tag): JsonResponse
+    public function delete(Tag $tag): Response
     {
         $this->tagService->delete($tag);
-        return new JsonResponse(null, 204);
+        return new Response(null, 204);
     }
 }
