@@ -35,17 +35,16 @@ class QuestionRepository extends ServiceEntityRepository
      *
      * @param Category $category
      *
-     * @return Question[]
+     * @return QueryBuilder
      */
-    public function findByCategory(Category $category): array
+    public function queryByCategory(Category $category): QueryBuilder
     {
         return $this->createQueryBuilder('question')
             ->andWhere('question.category = :category')
             ->setParameter('category', $category)
-            ->orderBy('question.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('question.createdAt', 'DESC');
     }
+
 
     /**
      * Save question entity.
