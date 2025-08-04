@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Dto\CreateCategoryDto;
@@ -6,13 +7,15 @@ use App\Dto\UpdateCategoryDto;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 class CategoryService
 {
     public function __construct(
         private EntityManagerInterface $em,
         private CategoryRepository $categoryRepository,
-    ) {}
+    ) {
+    }
 
     public function create(CreateCategoryDto $dto): Category
     {
@@ -27,7 +30,7 @@ class CategoryService
 
     public function update(Category $category, UpdateCategoryDto $dto): Category
     {
-        if ($dto->name !== null) {
+        if (null !== $dto->name) {
             $category->setName($dto->name);
         }
 
@@ -47,8 +50,13 @@ class CategoryService
         return $this->categoryRepository->findBySlug($slug);
     }
 
-    public function getAllCategories()
-    {
-        return $this->categoryRepository->queryAll()->getQuery()->getResult();
+    public function queryAll(
+        ?string $search = null,
+        string $sortField = 'name',
+        string $sortDirection = 'asc',
+        ?int $limit = null,
+        ?int $offset = null,
+    ): QueryBuilder {
+        return $this->categoryRepository->queryAll($search, $sortField, $sortDirection, $limit, $offset);
     }
 }

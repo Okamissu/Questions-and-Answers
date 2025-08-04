@@ -9,11 +9,10 @@ use App\Service\CategoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\HttpFoundation\Response;
-
 
 #[Route('/api/categories')]
 class CategoryController extends AbstractController
@@ -26,13 +25,44 @@ class CategoryController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $categories = $this->categoryService->getAllCategories();
-        $json = $this->serializer->serialize($categories, 'json', ['groups' => ['category:read']]);
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
 
-        return new JsonResponse($json, 200, [], true);
+        $sort = $request->query->get('sort', 'name_asc');
+        $search = $request->query->get('search', '');
+
+        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
+
+        // QueryBuilder z repozytorium
+        $qb = $this->categoryService->queryAll($search, $sortField, $sortDirection, $limit, $offset);
+
+        // Total count bez paginacji
+        $countQb = clone $qb;
+        $totalItems = (int) $countQb->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
+
+        $categories = $qb->getQuery()->getResult();
+
+        $json = json_decode(
+            $this->serializer->serialize($categories, 'json', ['groups' => ['category:read']]),
+            true
+        );
+
+        return $this->json([
+            'items' => $json,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'totalItems' => $totalItems,
+                'totalPages' => max(1, (int) ceil($totalItems / $limit)),
+                'sort' => $sort,
+                'search' => $search,
+            ],
+        ]);
     }
+
 
     #[Route('', methods: ['POST'])]
     public function create(Request $request): JsonResponse

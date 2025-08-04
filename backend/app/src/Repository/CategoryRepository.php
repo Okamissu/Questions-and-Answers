@@ -17,11 +17,44 @@ class CategoryRepository extends ServiceEntityRepository
     /**
      * Query all categories.
      */
-    public function queryAll(): QueryBuilder
-    {
-        return $this->createQueryBuilder('c')
-            ->orderBy('c.name', 'ASC');
+    public function queryAll(
+        ?string $search = null,
+        string $sortField = 'name',
+        string $sortDirection = 'asc',
+        ?int $limit = null,
+        ?int $offset = null
+    ): QueryBuilder {
+        $qb = $this->createQueryBuilder('c');
+
+        if ($search) {
+            $qb->andWhere('c.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $allowedFields = ['name'];
+        $allowedDirections = ['asc', 'desc'];
+
+        if (!in_array($sortField, $allowedFields, true)) {
+            $sortField = 'name';
+        }
+
+        if (!in_array(strtolower($sortDirection), $allowedDirections, true)) {
+            $sortDirection = 'asc';
+        }
+
+        $qb->orderBy('c.'.$sortField, $sortDirection);
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        if ($offset !== null) {
+            $qb->setFirstResult($offset);
+        }
+
+        return $qb;
     }
+
 
     /**
      * Save category entity.
@@ -43,7 +76,6 @@ class CategoryRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-
     /**
      * Find one category by slug.
      */
@@ -55,5 +87,4 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
 }
