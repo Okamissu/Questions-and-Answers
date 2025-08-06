@@ -26,21 +26,7 @@ class TagRepository extends ServiceEntityRepository
             ->orderBy('tag.name', 'ASC');
     }
 
-    /**
-     * Find tag by slug.
-     *
-     * @param string $slug
-     *
-     * @return Tag|null
-     */
-    public function findOneBySlug(string $slug): ?Tag
-    {
-        return $this->createQueryBuilder('tag')
-            ->andWhere('tag.slug = :slug')
-            ->setParameter('slug', $slug)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+
 
     /**
      * Save tag entity.

@@ -22,11 +22,6 @@ class Category
     #[Groups(['category:read', 'category:write', 'question:read'])]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, unique: true)]
-    #[Gedmo\Slug(fields: ['name'])]
-    #[Groups(['category:read'])]
-    private ?string $slug = null;
-
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['category:read'])]
@@ -50,11 +45,6 @@ class Category
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getSlug(): ?string
-    {
-        return $this->slug;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable

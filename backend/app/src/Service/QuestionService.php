@@ -7,12 +7,11 @@ use App\Dto\UpdateQuestionDto;
 use App\Entity\Question;
 use App\Entity\User;
 use App\Repository\QuestionRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class QuestionService
 {
     public function __construct(
-        private EntityManagerInterface $em,
         private QuestionRepository $questionRepository,
     ) {
     }
@@ -25,16 +24,12 @@ class QuestionService
         $question->setAuthor($author);
         $question->setCategory($dto->category);
 
-        // tags to Collection, usuń wszystkie i dodaj nowe z DTO
         $question->getTags()->clear();
-        if ($dto->tags) {
-            foreach ($dto->tags as $tag) {
-                $question->addTag($tag);
-            }
+        foreach ($dto->tags ?? [] as $tag) {
+            $question->addTag($tag);
         }
 
-        $this->em->persist($question);
-        $this->em->flush();
+        $this->questionRepository->save($question);
 
         return $question;
     }
@@ -58,16 +53,30 @@ class QuestionService
             }
         }
 
-        $this->em->flush();
+        $this->questionRepository->save($question);
+
 
         return $question;
     }
 
     public function delete(Question $question): void
     {
-        $this->em->remove($question);
-        $this->em->flush();
+        $this->questionRepository->delete($question);
     }
 
-    // TODO: dodać metody do paginacji lub filtrów na repozytorium itd.
+    public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null): array
+    {
+        $qb = $this->questionRepository->queryWithFilters($search, $sort, $categoryId);
+        $paginator = new Paginator($qb);
+
+        $totalItems = count($paginator);
+
+        $qb->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return [
+            'items' => $qb->getQuery()->getResult(),
+            'totalItems' => $totalItems,
+        ];
+    }
 }

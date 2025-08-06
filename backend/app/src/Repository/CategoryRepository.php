@@ -7,6 +7,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Category>
+ */
 class CategoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -15,49 +18,32 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Query all categories.
+     * Returns a query builder to fetch all categories with optional filtering, sorting, and pagination.
      */
-    public function queryAll(
-        ?string $search = null,
-        string $sortField = 'name',
-        string $sortDirection = 'asc',
-        ?int $limit = null,
-        ?int $offset = null
-    ): QueryBuilder {
+    public function queryWithFilters(?string $search = null, ?string $sort = null): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('c');
 
         if ($search) {
-            $qb->andWhere('c.name LIKE :search')
+            $qb->andWhere('c.name LIKE :search OR c.description LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        $allowedFields = ['name'];
-        $allowedDirections = ['asc', 'desc'];
-
-        if (!in_array($sortField, $allowedFields, true)) {
-            $sortField = 'name';
-        }
-
-        if (!in_array(strtolower($sortDirection), $allowedDirections, true)) {
-            $sortDirection = 'asc';
-        }
-
-        $qb->orderBy('c.'.$sortField, $sortDirection);
-
-        if ($limit !== null) {
-            $qb->setMaxResults($limit);
-        }
-
-        if ($offset !== null) {
-            $qb->setFirstResult($offset);
+        if ($sort) {
+            [$field, $direction] = explode('_', $sort);
+            $allowedFields = ['name', 'createdAt'];
+            if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
+                $qb->orderBy('c.'.$field, strtoupper($direction));
+            }
+        } else {
+            $qb->orderBy('c.createdAt', 'DESC');
         }
 
         return $qb;
     }
 
-
     /**
-     * Save category entity.
+     * Saves a category entity.
      */
     public function save(Category $category): void
     {
@@ -67,24 +53,12 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Delete category entity.
+     * Deletes a category entity.
      */
     public function delete(Category $category): void
     {
         $em = $this->getEntityManager();
         $em->remove($category);
         $em->flush();
-    }
-
-    /**
-     * Find one category by slug.
-     */
-    public function findBySlug(string $slug): ?Category
-    {
-        return $this->createQueryBuilder('category')
-            ->andWhere('category.slug = :slug')
-            ->setParameter('slug', $slug)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 }

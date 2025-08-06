@@ -22,10 +22,6 @@ class Tag
     #[Groups(['tag:read', 'tag:write', 'question:read'])]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, unique: true)]
-    #[Gedmo\Slug(fields: ['name'])]
-    #[Groups(['tag:read'])]
-    private ?string $slug = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
@@ -53,10 +49,7 @@ class Tag
         return $this;
     }
 
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
+
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {

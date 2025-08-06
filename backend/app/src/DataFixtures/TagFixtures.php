@@ -13,7 +13,6 @@ class TagFixtures extends AbstractBaseFixtures
             $tag = new Tag();
             $tag->setName($this->faker->unique()->word());
 
-            // Slug wygeneruje Gedmo automatycznie na podstawie nazwy.
             return $tag;
         });
     }

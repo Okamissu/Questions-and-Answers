@@ -6,12 +6,10 @@ use App\Dto\CreateAnswerDto;
 use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
 use App\Repository\AnswerRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 class AnswerService
 {
     public function __construct(
-        private EntityManagerInterface $em,
         private AnswerRepository $answerRepository,
     ) {
     }
@@ -26,8 +24,7 @@ class AnswerService
         $answer->setAuthorEmail($dto->authorEmail);
         $answer->setIsBest($dto->isBest);
 
-        $this->em->persist($answer);
-        $this->em->flush();
+        $this->answerRepository->save($answer);
 
         return $answer;
     }
@@ -39,15 +36,14 @@ class AnswerService
         }
         $answer->setIsBest($dto->isBest);
 
-        $this->em->flush();
+        $this->answerRepository->save($answer);
 
         return $answer;
     }
 
     public function delete(Answer $answer): void
     {
-        $this->em->remove($answer);
-        $this->em->flush();
+        $this->answerRepository->delete($answer);
     }
 
     /**
@@ -59,7 +55,7 @@ class AnswerService
         // albo zostawić to do osobnego serwisu
 
         $answer->setIsBest(true);
-        $this->em->flush();
+        $this->answerRepository->save($answer);
 
         return $answer;
     }

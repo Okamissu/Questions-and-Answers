@@ -12,12 +12,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class AnswerValueResolver implements ValueResolverInterface
 {
     public function __construct(
-        private AnswerRepository $answerRepository
-    ) {}
+        private AnswerRepository $answerRepository,
+    ) {
+    }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        if ($argument->getType() !== Answer::class) {
+        if (Answer::class !== $argument->getType()) {
             return [];
         }
 

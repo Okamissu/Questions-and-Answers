@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -24,47 +25,41 @@ class CategoryController extends AbstractController
     ) {
     }
 
+    // GET /api/categories
+    // Queries: page, sort, search
     #[Route('', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
         $page = max(1, (int) $request->query->get('page', 1));
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
+        $limit = (int) $request->query->get('limit', 10);
+        $search = $request->query->get('search');
+        $sort = $request->query->get('sort');
 
-        $sort = $request->query->get('sort', 'name_asc');
-        $search = $request->query->get('search', '');
-
-        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
-
-        // QueryBuilder z repozytorium
-        $qb = $this->categoryService->queryAll($search, $sortField, $sortDirection, $limit, $offset);
-
-        // Total count bez paginacji
-        $countQb = clone $qb;
-        $totalItems = (int) $countQb->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
-
-        $categories = $qb->getQuery()->getResult();
-
-        $json = json_decode(
-            $this->serializer->serialize($categories, 'json', ['groups' => ['category:read']]),
-            true
-        );
+        $result = $this->categoryService->getPaginatedList($page, $limit, $search, $sort);
 
         return $this->json([
-            'items' => $json,
+            'items' => $result['items'],
             'pagination' => [
                 'page' => $page,
                 'limit' => $limit,
-                'totalItems' => $totalItems,
-                'totalPages' => max(1, (int) ceil($totalItems / $limit)),
+                'totalItems' => $result['totalItems'],
+                'totalPages' => max(1, (int) ceil($result['totalItems'] / $limit)),
                 'sort' => $sort,
                 'search' => $search,
             ],
-        ]);
+        ], Response::HTTP_OK, [], ['groups' => 'category:read']);
     }
 
+    #[Route('/{id}', methods: ['GET'])]
+    public function show(Category $category): JsonResponse
+    {
+        $data = $this->serializer->serialize($category, 'json', ['groups' => ['category:read']]);
+
+        return new JsonResponse($data, 200, [], true);
+    }
 
     #[Route('', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
         $dto = $this->serializer->deserialize($request->getContent(), CreateCategoryDto::class, 'json');
@@ -80,6 +75,7 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ROLE_USER')]
     public function update(Request $request, Category $category): JsonResponse
     {
         $dto = $this->serializer->deserialize($request->getContent(), UpdateCategoryDto::class, 'json');

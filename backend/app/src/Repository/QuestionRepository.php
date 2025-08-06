@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Category;
 use App\Entity\Question;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -15,37 +14,35 @@ class QuestionRepository extends ServiceEntityRepository
         parent::__construct($registry, Question::class);
     }
 
-    /**
-     * Query all questions.
-     *
-     * @return QueryBuilder
-     */
-    public function queryAll(): QueryBuilder
+    public function queryWithFilters(?string $search = null, ?string $sort = null, ?int $categoryId = null): QueryBuilder
     {
-        return $this->createQueryBuilder('question')
-            ->select('question', 'author', 'category', 'tags')
-            ->join('question.author', 'author')
-            ->join('question.category', 'category')
-            ->leftJoin('question.tags', 'tags')
-            ->orderBy('question.createdAt', 'DESC');
+        $qb = $this->createQueryBuilder('q')
+            ->leftJoin('q.category', 'c')
+            ->addSelect('c');
+
+        if ($search) {
+            $qb->andWhere('q.title LIKE :search OR q.content LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($categoryId) {
+            $qb->andWhere('c.id = :categoryId')
+                ->setParameter('categoryId', $categoryId);
+        }
+
+
+        if ($sort) {
+            [$field, $direction] = explode('_', $sort);
+            $allowedFields = ['title', 'createdAt'];
+            if (in_array($field, $allowedFields) && in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+                $qb->orderBy('q.'.$field, strtoupper($direction));
+            }
+        } else {
+            $qb->orderBy('q.createdAt', 'DESC');
+        }
+
+        return $qb;
     }
-
-    /**
-     * Find questions by category.
-     *
-     * @param Category $category
-     *
-     * @return QueryBuilder
-     */
-    public function queryByCategory(Category $category): QueryBuilder
-    {
-        return $this->createQueryBuilder('question')
-            ->andWhere('question.category = :category')
-            ->setParameter('category', $category)
-            ->orderBy('question.createdAt', 'DESC');
-    }
-
-
     /**
      * Save question entity.
      *
@@ -58,15 +55,11 @@ class QuestionRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    /**
-     * Delete question entity.
-     *
-     * @param Question $question
-     */
     public function delete(Question $question): void
     {
         $em = $this->getEntityManager();
         $em->remove($question);
         $em->flush();
     }
+
 }

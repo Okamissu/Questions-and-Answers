@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Dto\CreateQuestionDto;
 use App\Dto\UpdateQuestionDto;
-use App\Entity\Category;
 use App\Entity\Question;
 use App\Entity\User;
 use App\Repository\QuestionRepository;
@@ -23,7 +22,6 @@ class QuestionController extends AbstractController
 {
     public function __construct(
         private QuestionService $questionService,
-        private QuestionRepository $questionRepository,
         private ValidatorInterface $validator,
         private SerializerInterface $serializer,
     ) {
@@ -35,62 +33,28 @@ class QuestionController extends AbstractController
     public function list(Request $request): JsonResponse
     {
         $page = max(1, (int) $request->query->get('page', 1));
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
+        $limit = (int) $request->query->get('limit', 10);
+        $search = $request->query->get('search');
+        $sort = $request->query->get('sort');
+        $categoryId = $request->query->get('category');
 
-        $sort = $request->query->get('sort', 'createdAt_desc');
-        $search = $request->query->get('search', '');
+        $result = $this->questionService->getPaginatedList($page, $limit, $search, $sort, $categoryId);
 
-        $qb = $this->questionRepository->createQueryBuilder('q');
 
-        // Filtracja po tytule
-        if ('' !== $search) {
-            $qb->andWhere('q.title LIKE :search')
-                ->setParameter('search', '%'.$search.'%');
-        }
-
-        // Sortowanie
-        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
-
-        $allowedFields = ['createdAt', 'title'];
-        $allowedDirections = ['asc', 'desc'];
-
-        if (!in_array($sortField, $allowedFields, true)) {
-            $sortField = 'createdAt';
-        }
-        if (!in_array(strtolower($sortDirection), $allowedDirections, true)) {
-            $sortDirection = 'desc';
-        }
-
-        $qb->orderBy('q.'.$sortField, $sortDirection);
-
-        // Liczenie totalItems
-        $countQb = clone $qb;
-        $totalItems = (int) $countQb->select('COUNT(q.id)')->getQuery()->getSingleScalarResult();
-
-        // Paginacja
-        $qb->setFirstResult($offset)->setMaxResults($limit);
-        $questions = $qb->getQuery()->getResult();
-
-        $jsonQuestions = json_decode(
-            $this->serializer->serialize($questions, 'json', ['groups' => ['question:read']]),
-            true
-        );
-
-        $responseData = [
-            'items' => $jsonQuestions,
+        return $this->json([
+            'items' => $result['items'],
             'pagination' => [
                 'page' => $page,
                 'limit' => $limit,
-                'totalItems' => $totalItems,
-                'totalPages' => max(1, (int) ceil($totalItems / $limit)),
+                'totalItems' => $result['totalItems'],
+                'totalPages' => max(1, (int) ceil($result['totalItems'] / $limit)),
                 'sort' => $sort,
                 'search' => $search,
             ],
-        ];
-
-        return $this->json($responseData);
+        ], Response::HTTP_OK, [], ['groups' => 'question:read']);
     }
+
+
 
     // GET /api/questions/{id}
     #[Route('/{id}', methods: ['GET'])]
@@ -99,67 +63,6 @@ class QuestionController extends AbstractController
         $data = $this->serializer->serialize($question, 'json', ['groups' => ['question:read']]);
 
         return new JsonResponse($data, 200, [], true);
-    }
-
-    // GET /api/questions/{id}
-    // Queries: page, sort, search
-    #[Route('/by-category/{categoryId}', methods: ['GET'])]
-    public function listByCategory(Request $request, Category $category): JsonResponse
-    {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
-
-        $sort = $request->query->get('sort', 'createdAt_desc');
-        $search = $request->query->get('search', '');
-
-        $qb = $this->questionRepository->createQueryBuilder('q')
-            ->andWhere('q.category = :category')
-            ->setParameter('category', $category);
-
-        if ('' !== $search) {
-            $qb->andWhere('q.title LIKE :search')
-                ->setParameter('search', '%'.$search.'%');
-        }
-
-        [$sortField, $sortDirection] = explode('_', $sort) + [null, null];
-
-        $allowedFields = ['createdAt', 'title'];
-        $allowedDirections = ['asc', 'desc'];
-
-        if (!in_array($sortField, $allowedFields, true)) {
-            $sortField = 'createdAt';
-        }
-        if (!in_array(strtolower($sortDirection), $allowedDirections, true)) {
-            $sortDirection = 'desc';
-        }
-
-        $qb->orderBy('q.'.$sortField, $sortDirection);
-
-        $countQb = clone $qb;
-        $totalItems = (int) $countQb->select('COUNT(q.id)')->getQuery()->getSingleScalarResult();
-
-        $qb->setFirstResult($offset)->setMaxResults($limit);
-        $questions = $qb->getQuery()->getResult();
-
-        $jsonQuestions = json_decode(
-            $this->serializer->serialize($questions, 'json', ['groups' => ['question:read']]),
-            true
-        );
-
-        $responseData = [
-            'items' => $jsonQuestions,
-            'pagination' => [
-                'page' => $page,
-                'limit' => $limit,
-                'totalItems' => $totalItems,
-                'totalPages' => max(1, (int) ceil($totalItems / $limit)),
-                'sort' => $sort,
-                'search' => $search,
-            ],
-        ];
-
-        return $this->json($responseData);
     }
 
     // POST /api/questions

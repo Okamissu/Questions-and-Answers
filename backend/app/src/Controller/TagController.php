@@ -26,7 +26,7 @@ class TagController extends AbstractController
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $tags = $this->tagService->getAllTags(); // metoda do dodania w serwisie
+        $tags = $this->tagService->getAllTags(); 
         $json = $this->serializer->serialize($tags, 'json', ['groups' => ['tag:read']]);
         return new JsonResponse($json, 200, [], true);
     }
