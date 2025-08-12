@@ -7,6 +7,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Tag>
+ */
 class TagRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -15,23 +18,32 @@ class TagRepository extends ServiceEntityRepository
     }
 
     /**
-     * Query all tags.
-     *
-     * @return QueryBuilder
+     * Returns a query builder to fetch all tags with optional filtering and sorting.
      */
-    public function queryAll(): QueryBuilder
+    public function queryWithFilters(?string $search = null, ?string $sort = null): QueryBuilder
     {
-        return $this->createQueryBuilder('tag')
-            ->select('tag')
-            ->orderBy('tag.name', 'ASC');
+        $qb = $this->createQueryBuilder('t');
+
+        if ($search) {
+            $qb->andWhere('t.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($sort) {
+            [$field, $direction] = explode('_', $sort);
+            $allowedFields = ['name', 'createdAt', 'updatedAt'];
+            if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
+                $qb->orderBy('t.'.$field, strtoupper($direction));
+            }
+        } else {
+            $qb->orderBy('t.createdAt', 'DESC');
+        }
+
+        return $qb;
     }
 
-
-
     /**
-     * Save tag entity.
-     *
-     * @param Tag $tag
+     * Saves a tag entity.
      */
     public function save(Tag $tag): void
     {
@@ -41,9 +53,7 @@ class TagRepository extends ServiceEntityRepository
     }
 
     /**
-     * Delete tag entity.
-     *
-     * @param Tag $tag
+     * Deletes a tag entity.
      */
     public function delete(Tag $tag): void
     {

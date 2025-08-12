@@ -71,7 +71,7 @@ class Answer
         return $this->createdAt;
     }
 
-    public function GetIsBest(): bool
+    public function getIsBest(): bool
     {
         return $this->isBest;
     }

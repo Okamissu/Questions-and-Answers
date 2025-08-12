@@ -55,7 +55,6 @@ class QuestionService
 
         $this->questionRepository->save($question);
 
-
         return $question;
     }
 
@@ -64,10 +63,18 @@ class QuestionService
         $this->questionRepository->delete($question);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
+    protected function createPaginator($qb): Paginator
+    {
+        return new Paginator($qb);
+    }
+
     public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null): array
     {
         $qb = $this->questionRepository->queryWithFilters($search, $sort, $categoryId);
-        $paginator = new Paginator($qb);
+        $paginator = $this->createPaginator($qb);
 
         $totalItems = count($paginator);
 

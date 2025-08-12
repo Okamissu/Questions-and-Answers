@@ -7,6 +7,7 @@ use App\Dto\UpdateUserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserServiceTest extends TestCase
 {
-    private $userRepository;
+    private userRepository|MockObject $userRepository;
     private $passwordHasher;
     private $validator;
     private UserService $userService;

@@ -18,9 +18,9 @@ class AnswerTest extends TestCase
     public function testIsBest()
     {
         $answer = new Answer();
-        $this->assertFalse($answer->GetIsBest());
+        $this->assertFalse($answer->getIsBest());
         $answer->setIsBest(true);
-        $this->assertTrue($answer->GetIsBest());
+        $this->assertTrue($answer->getIsBest());
     }
 
     public function testIsFromAnonymous()

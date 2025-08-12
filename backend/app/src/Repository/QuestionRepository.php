@@ -30,7 +30,6 @@ class QuestionRepository extends ServiceEntityRepository
                 ->setParameter('categoryId', $categoryId);
         }
 
-
         if ($sort) {
             [$field, $direction] = explode('_', $sort);
             $allowedFields = ['title', 'createdAt'];
@@ -43,10 +42,9 @@ class QuestionRepository extends ServiceEntityRepository
 
         return $qb;
     }
+
     /**
      * Save question entity.
-     *
-     * @param Question $question
      */
     public function save(Question $question): void
     {
@@ -61,5 +59,4 @@ class QuestionRepository extends ServiceEntityRepository
         $em->remove($question);
         $em->flush();
     }
-
 }

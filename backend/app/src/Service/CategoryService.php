@@ -11,7 +11,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class CategoryService
 {
     public function __construct(
-        private CategoryRepository $categoryRepository,
+        protected CategoryRepository $categoryRepository,
     ) {
     }
 
@@ -50,6 +50,14 @@ class CategoryService
         $this->categoryRepository->delete($category);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
+    protected function createPaginator($qb): Paginator
+    {
+        return new Paginator($qb);
+    }
+
     public function getPaginatedList(
         int $page,
         int $limit,
@@ -57,7 +65,7 @@ class CategoryService
         ?string $sort = null,
     ): array {
         $qb = $this->categoryRepository->queryWithFilters($search, $sort);
-        $paginator = new Paginator($qb);
+        $paginator = $this->createPaginator($qb);
 
         $totalItems = count($paginator);
 

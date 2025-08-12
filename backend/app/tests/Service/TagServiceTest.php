@@ -7,89 +7,117 @@ use App\Dto\UpdateTagDto;
 use App\Entity\Tag;
 use App\Repository\TagRepository;
 use App\Service\TagService;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use PHPUnit\Framework\TestCase;
 
 class TagServiceTest extends TestCase
 {
-    private EntityManagerInterface $entityManager;
-    private TagRepository $tagRepository;
-    private TagService $tagService;
-
-    protected function setUp(): void
-    {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->tagRepository = $this->createMock(TagRepository::class);
-
-        $this->tagService = new TagService(
-            $this->entityManager,
-            $this->tagRepository,
-        );
-    }
-
     public function testCreate(): void
     {
         $dto = new CreateTagDto();
-        $dto->name = 'example-tag';
+        $dto->name = 'Test Tag';
 
-        $this->entityManager->expects($this->once())
-            ->method('persist')
-            ->with($this->callback(function (Tag $tag) use ($dto) {
-                return $tag->getName() === $dto->name;
+        $tagRepository = $this->createMock(TagRepository::class);
+        $tagRepository->expects($this->once())
+            ->method('save')
+            ->with($this->callback(function (Tag $tag) {
+                return 'Test Tag' === $tag->getName();
             }));
 
-        $this->entityManager->expects($this->once())
-            ->method('flush');
+        $service = new TagService($tagRepository);
 
-        $tag = $this->tagService->create($dto);
+        $tag = $service->create($dto);
 
         $this->assertInstanceOf(Tag::class, $tag);
-        $this->assertSame('example-tag', $tag->getName());
+        $this->assertSame('Test Tag', $tag->getName());
     }
 
     public function testUpdate(): void
     {
-        $tag = new Tag();
-        $tag->setName('old-name');
-
         $dto = new UpdateTagDto();
-        $dto->name = 'new-name';
+        $dto->name = 'Updated Tag';
 
-        $this->entityManager->expects($this->once())
-            ->method('flush');
+        $tag = new Tag();
+        $tag->setName('Old Tag');
 
-        $updatedTag = $this->tagService->update($tag, $dto);
+        $tagRepository = $this->createMock(TagRepository::class);
+        $tagRepository->expects($this->once())
+            ->method('save')
+            ->with($this->callback(function (Tag $t) {
+                return 'Updated Tag' === $t->getName();
+            }));
 
-        $this->assertSame('new-name', $updatedTag->getName());
+        $service = new TagService($tagRepository);
+
+        $updated = $service->update($tag, $dto);
+
+        $this->assertSame('Updated Tag', $updated->getName());
     }
 
     public function testDelete(): void
     {
         $tag = new Tag();
+        $tag->setName('To be deleted');
 
-        $this->entityManager->expects($this->once())
-            ->method('remove')
+        $tagRepository = $this->createMock(TagRepository::class);
+        $tagRepository->expects($this->once())
+            ->method('delete')
             ->with($tag);
 
-        $this->entityManager->expects($this->once())
-            ->method('flush');
+        $service = new TagService($tagRepository);
 
-        $this->tagService->delete($tag);
+        $service->delete($tag);
     }
 
-    public function testFindBySlug(): void
+    public function testGetPaginatedList(): void
     {
-        $slug = 'example-slug';
-        $tag = new Tag();
-        $tag->setName('Example');
+        $mockRepo = $this->createMock(TagRepository::class);
 
-        $this->tagRepository->expects($this->once())
-            ->method('findOneBySlug')
-            ->with($slug)
-            ->willReturn($tag);
+        $mockQb = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getQuery', 'setFirstResult', 'setMaxResults'])
+            ->getMock();
 
-        $result = $this->tagService->findBySlug($slug);
+        $mockQb->method('setFirstResult')->willReturnSelf();
+        $mockQb->method('setMaxResults')->willReturnSelf();
 
-        $this->assertSame($tag, $result);
+        $mockQuery = $this->getMockBuilder(Query::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getResult'])
+            ->getMock();
+
+        $mockQuery->method('getResult')->willReturn([
+            ['id' => 1, 'name' => 'Tag 1'],
+            ['id' => 2, 'name' => 'Tag 2'],
+        ]);
+
+        $mockQb->method('getQuery')->willReturn($mockQuery);
+
+        $mockRepo->method('queryWithFilters')->willReturn($mockQb);
+
+        $mockPaginator = $this->getMockBuilder(Paginator::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['count', 'getIterator'])
+            ->getMock();
+
+        $mockPaginator->method('count')->willReturn(2);
+        $mockPaginator->method('getIterator')->willReturn(new \ArrayIterator([
+            ['id' => 1, 'name' => 'Tag 1'],
+            ['id' => 2, 'name' => 'Tag 2'],
+        ]));
+
+        $service = $this->getMockBuilder(TagService::class)
+            ->setConstructorArgs([$mockRepo])
+            ->onlyMethods(['createPaginator'])
+            ->getMock();
+
+        $service->method('createPaginator')->willReturn($mockPaginator);
+
+        $result = $service->getPaginatedList(1, 10);
+
+        $this->assertCount(2, $result['items']);
+        $this->assertEquals(2, $result['totalItems']);
     }
 }

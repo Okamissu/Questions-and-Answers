@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\TagRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
@@ -21,7 +20,6 @@ class Tag
     #[ORM\Column(length: 255)]
     #[Groups(['tag:read', 'tag:write', 'question:read'])]
     private ?string $name = null;
-
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
@@ -46,10 +44,9 @@ class Tag
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
-
-
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {

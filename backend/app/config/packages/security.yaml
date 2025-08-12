@@ -18,12 +18,32 @@ security:
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-    access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+#        api:
+#            pattern: ^/api
+#            stateless: true
+#            jwt: ~
+#            # anonymous allowed for some endpoints
+#
+#    # Easy way to control access for large sections of your site
+#    # Note: Only the *first* access control that matches will be used
+#    access_control:
+#        # Admin-only (CRUD for categories, tags, user management, deleting answers, marking best)
+#        - { path: ^/api/categories, roles: ROLE_ADMIN }
+#        - { path: ^/api/tags, roles: ROLE_ADMIN }
+#        - { path: ^/api/users, roles: ROLE_ADMIN }
+#        - { path: ^/api/answers/.+/mark-best, roles: ROLE_ADMIN }
+#        - { path: ^/api/answers/.+/delete, roles: ROLE_ADMIN }
+#
+#        # Logged-in users (creating questions and answers, editing own content)
+#        - { path: ^/api/questions, roles: ROLE_USER }
+#        - { path: ^/api/answers, roles: ROLE_USER }
+#
+#        # Public access for viewing questions and answers
+#        - { path: ^/api/questions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
+#        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
+#
+#        # Allow anonymous to post answers (with email and nickname, no login)
+#        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ POST ] }
 
 when@test:
     security:

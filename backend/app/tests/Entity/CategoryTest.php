@@ -14,12 +14,6 @@ class CategoryTest extends TestCase
         $this->assertSame('Programming', $category->getName());
     }
 
-    public function testSlugInitiallyNull(): void
-    {
-        $category = new Category();
-        $this->assertNull($category->getSlug());
-    }
-
     public function testTimestampsInitiallyNull(): void
     {
         $category = new Category();

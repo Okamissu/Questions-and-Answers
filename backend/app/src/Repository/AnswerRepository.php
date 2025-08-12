@@ -16,38 +16,45 @@ class AnswerRepository extends ServiceEntityRepository
     }
 
     /**
-     * Query all answers.
+     * Query answers with optional filters (e.g. by question, search text) and sorting.
      *
+     * @param Question|null $question
+     * @param string|null $search
+     * @param string|null $sort
      * @return QueryBuilder
      */
-    public function queryAll(): QueryBuilder
+    public function queryWithFilters(?Question $question = null, ?string $search = null, ?string $sort = null): QueryBuilder
     {
-        return $this->createQueryBuilder('answer')
-            ->select('answer', 'question')
-            ->join('answer.question', 'question');
-    }
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.question', 'q')
+            ->addSelect('q');
 
-    /**
-     * Find answers by question.
-     *
-     * @param Question $question
-     *
-     * @return Answer[]
-     */
-    public function findByQuestion(Question $question): array
-    {
-        return $this->createQueryBuilder('answer')
-            ->andWhere('answer.question = :question')
-            ->setParameter('question', $question)
-            ->orderBy('answer.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+        if ($question) {
+            $qb->andWhere('a.question = :question')
+                ->setParameter('question', $question);
+        }
+
+        if ($search) {
+            // Assuming Answer has a 'content' field to search in
+            $qb->andWhere('a.content LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($sort) {
+            [$field, $direction] = explode('_', $sort);
+            $allowedFields = ['content', 'createdAt'];
+            if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
+                $qb->orderBy('a.'.$field, strtoupper($direction));
+            }
+        } else {
+            $qb->orderBy('a.createdAt', 'DESC');
+        }
+
+        return $qb;
     }
 
     /**
      * Save answer entity.
-     *
-     * @param Answer $answer
      */
     public function save(Answer $answer): void
     {
@@ -58,8 +65,6 @@ class AnswerRepository extends ServiceEntityRepository
 
     /**
      * Delete answer entity.
-     *
-     * @param Answer $answer
      */
     public function delete(Answer $answer): void
     {

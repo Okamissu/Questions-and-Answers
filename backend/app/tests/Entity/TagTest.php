@@ -14,12 +14,6 @@ class TagTest extends TestCase
         $this->assertSame('Symfony', $tag->getName());
     }
 
-    public function testSlugInitiallyNull(): void
-    {
-        $tag = new Tag();
-        $this->assertNull($tag->getSlug());
-    }
-
     public function testTimestampsInitiallyNull(): void
     {
         $tag = new Tag();

@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Dto\CreateAnswerDto;
 use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
-use App\Repository\AnswerRepository;
+use App\Entity\Question;
+use App\Entity\User;
+use App\Repository\QuestionRepository;
 use App\Service\AnswerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,40 +23,53 @@ class AnswerController extends AbstractController
 {
     public function __construct(
         private AnswerService $answerService,
-        private AnswerRepository $answerRepository,
+        private QuestionRepository $questionRepository,
         private ValidatorInterface $validator,
         private SerializerInterface $serializer,
     ) {
     }
 
-    // GET /api/answers?questionId=123
+    // GET /api/answers?questionId=123&page=1&limit=10&search=foo&sort=createdAt_DESC
     #[Route('', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
         $questionId = $request->query->get('questionId');
         if (!$questionId) {
-            return new JsonResponse(['error' => 'Missing questionId parameter'], 400);
+            return $this->json(['error' => 'Missing questionId parameter'], Response::HTTP_BAD_REQUEST);
         }
 
-        $answers = $this->answerRepository->createQueryBuilder('a')
-            ->andWhere('a.question = :questionId')
-            ->setParameter('questionId', $questionId)
-            ->orderBy('a.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+        /** @var Question|null $question */
+        $question = $this->questionRepository->find($questionId);
+        if (!$question) {
+            return $this->json(['error' => 'Question not found'], Response::HTTP_NOT_FOUND);
+        }
 
-        $data = $this->serializer->serialize($answers, 'json', ['groups' => ['answer:read']]);
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, min(100, (int) $request->query->get('limit', 10))); // limit between 1 and 100
+        $search = $request->query->get('search');
+        $sort = $request->query->get('sort');
 
-        return new JsonResponse($data, 200, [], true);
+        $result = $this->answerService->getPaginatedList($page, $limit, $question, $search, $sort);
+
+        return $this->json([
+            'items' => $result['items'],
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'totalItems' => $result['totalItems'],
+                'totalPages' => max(1, (int) ceil($result['totalItems'] / $limit)),
+                'sort' => $sort,
+                'search' => $search,
+                'questionId' => $questionId,
+            ],
+        ], Response::HTTP_OK, [], ['groups' => 'answer:read']);
     }
 
     // GET /api/answers/{id}
     #[Route('/{id}', methods: ['GET'])]
     public function show(Answer $answer): JsonResponse
     {
-        $data = $this->serializer->serialize($answer, 'json', ['groups' => ['answer:read']]);
-
-        return new JsonResponse($data, 200, [], true);
+        return $this->json($answer, Response::HTTP_OK, [], ['groups' => 'answer:read']);
     }
 
     // POST /api/answers
@@ -66,14 +81,21 @@ class AnswerController extends AbstractController
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+            return $this->json(['error' => (string) $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($user) {
+            $dto->author = $user;
+            $dto->authorNickname = $user->getNickname();
+            $dto->authorEmail = $user->getEmail();
         }
 
         $answer = $this->answerService->create($dto);
 
-        $data = $this->serializer->serialize($answer, 'json', ['groups' => ['answer:read']]);
-
-        return new JsonResponse($data, 201, [], true);
+        return $this->json($answer, Response::HTTP_CREATED, [], ['groups' => 'answer:read']);
     }
 
     // PUT /api/answers/{id}
@@ -85,14 +107,12 @@ class AnswerController extends AbstractController
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+            return $this->json(['error' => (string) $errors], Response::HTTP_BAD_REQUEST);
         }
 
         $answer = $this->answerService->update($answer, $dto);
 
-        $data = $this->serializer->serialize($answer, 'json', ['groups' => ['answer:read']]);
-
-        return new JsonResponse($data, 200, [], true);
+        return $this->json($answer, Response::HTTP_OK, [], ['groups' => 'answer:read']);
     }
 
     // DELETE /api/answers/{id}
@@ -102,7 +122,7 @@ class AnswerController extends AbstractController
     {
         $this->answerService->delete($answer);
 
-        return new Response(null, 204);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     // POST /api/answers/{id}/mark-best
@@ -112,8 +132,6 @@ class AnswerController extends AbstractController
     {
         $answer = $this->answerService->markAsBest($answer);
 
-        $data = $this->serializer->serialize($answer, 'json', ['groups' => ['answer:read']]);
-
-        return new JsonResponse($data, 200, [], true);
+        return $this->json($answer, Response::HTTP_OK, [], ['groups' => 'answer:read']);
     }
 }
