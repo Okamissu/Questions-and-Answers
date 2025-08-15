@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Dto\CreateUserDto;
 use App\Dto\UpdateUserDto;
 use App\Entity\User;
-use App\Service\UserService;
+use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     public function __construct(
-        private UserService $userService,
+        private UserServiceInterface $userService,
         private ValidatorInterface $validator,
         private SerializerInterface $serializer,
     ) {
@@ -55,7 +55,6 @@ class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function showUser(User $user): JsonResponse
     {
-        /** @var User|null $currentUser */
         $currentUser = $this->getUser();
 
         if (!$currentUser instanceof User) {
@@ -105,10 +104,6 @@ class UserController extends AbstractController
 
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
-    /**
-     * @param User $user
-     * @return Response
-     */
     public function delete(User $user): Response
     {
         $currentUser = $this->getUser();

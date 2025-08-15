@@ -7,8 +7,7 @@ use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\User;
-use App\Repository\QuestionRepository;
-use App\Service\AnswerService;
+use App\Service\AnswerServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,28 +21,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class AnswerController extends AbstractController
 {
     public function __construct(
-        private AnswerService $answerService,
-        private QuestionRepository $questionRepository,
+        private AnswerServiceInterface $answerService,
         private ValidatorInterface $validator,
         private SerializerInterface $serializer,
     ) {
     }
 
-    // GET /api/answers?questionId=123&page=1&limit=10&search=foo&sort=createdAt_DESC
     #[Route('', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
+    public function list(Request $request, Question $question): JsonResponse
     {
-        $questionId = $request->query->get('questionId');
-        if (!$questionId) {
-            return $this->json(['error' => 'Missing questionId parameter'], Response::HTTP_BAD_REQUEST);
-        }
-
-        /** @var Question|null $question */
-        $question = $this->questionRepository->find($questionId);
-        if (!$question) {
-            return $this->json(['error' => 'Question not found'], Response::HTTP_NOT_FOUND);
-        }
-
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = max(1, min(100, (int) $request->query->get('limit', 10))); // limit between 1 and 100
         $search = $request->query->get('search');
@@ -60,7 +46,7 @@ class AnswerController extends AbstractController
                 'totalPages' => max(1, (int) ceil($result['totalItems'] / $limit)),
                 'sort' => $sort,
                 'search' => $search,
-                'questionId' => $questionId,
+                'questionId' => $question->getId(),
             ],
         ], Response::HTTP_OK, [], ['groups' => 'answer:read']);
     }

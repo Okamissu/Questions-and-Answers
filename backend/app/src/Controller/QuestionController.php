@@ -1,13 +1,11 @@
 <?php
-
 namespace App\Controller;
 
 use App\Dto\CreateQuestionDto;
 use App\Dto\UpdateQuestionDto;
 use App\Entity\Question;
 use App\Entity\User;
-use App\Repository\QuestionRepository;
-use App\Service\QuestionService;
+use App\Service\QuestionServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,14 +19,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class QuestionController extends AbstractController
 {
     public function __construct(
-        private QuestionService $questionService,
+        private QuestionServiceInterface $questionService,
         private ValidatorInterface $validator,
         private SerializerInterface $serializer,
     ) {
     }
 
-    // GET /api/questions
-    // Queries: page, sort, search
     #[Route('', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
@@ -39,7 +35,6 @@ class QuestionController extends AbstractController
         $categoryId = $request->query->get('category');
 
         $result = $this->questionService->getPaginatedList($page, $limit, $search, $sort, $categoryId);
-
 
         return $this->json([
             'items' => $result['items'],
@@ -54,9 +49,6 @@ class QuestionController extends AbstractController
         ], Response::HTTP_OK, [], ['groups' => 'question:read']);
     }
 
-
-
-    // GET /api/questions/{id}
     #[Route('/{id}', methods: ['GET'])]
     public function show(Question $question): JsonResponse
     {
@@ -65,7 +57,6 @@ class QuestionController extends AbstractController
         return new JsonResponse($data, 200, [], true);
     }
 
-    // POST /api/questions
     #[Route('', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
@@ -74,9 +65,7 @@ class QuestionController extends AbstractController
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            $errorsString = (string) $errors;
-
-            return new JsonResponse(['error' => $errorsString], 400);
+            return new JsonResponse(['error' => (string) $errors], 400);
         }
 
         /** @var User $user */
@@ -89,7 +78,6 @@ class QuestionController extends AbstractController
         return new JsonResponse($data, 201, [], true);
     }
 
-    // PUT /api/questions/{id}
     #[Route('/{id}', methods: ['PUT'])]
     #[IsGranted('ROLE_USER')]
     public function update(Request $request, Question $question): JsonResponse
@@ -98,9 +86,7 @@ class QuestionController extends AbstractController
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            $errorsString = (string) $errors;
-
-            return new JsonResponse(['error' => $errorsString], 400);
+            return new JsonResponse(['error' => (string) $errors], 400);
         }
 
         $question = $this->questionService->update($question, $dto);
@@ -110,7 +96,6 @@ class QuestionController extends AbstractController
         return new JsonResponse($data, 200, [], true);
     }
 
-    // DELETE /api/questions/{id}
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
     public function delete(Question $question): Response

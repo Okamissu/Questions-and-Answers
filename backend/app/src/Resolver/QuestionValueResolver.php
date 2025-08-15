@@ -8,19 +8,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Traversable;
 
 class QuestionValueResolver implements ValueResolverInterface
 {
     public function __construct(
-        private QuestionRepository $questionRepository
-    ) {}
+        private QuestionRepository $questionRepository,
+    ) {
+    }
+
     /**
-     * @return Traversable<Question>
+     * @return \Traversable<Question>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        if ($argument->getType() !== Question::class) {
+        if (Question::class !== $argument->getType()) {
             return [];
         }
 

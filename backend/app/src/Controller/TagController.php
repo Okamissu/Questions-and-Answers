@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Dto\CreateTagDto;
 use App\Dto\UpdateTagDto;
 use App\Entity\Tag;
-use App\Service\TagService;
+use App\Service\TagServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,14 +19,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class TagController extends AbstractController
 {
     public function __construct(
-        private TagService $tagService,
+        private TagServiceInterface $tagService,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
     ) {
     }
 
-    // GET /api/tags
-    // Queries: page, sort, search
     #[Route('', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
@@ -50,7 +48,6 @@ class TagController extends AbstractController
         ], Response::HTTP_OK, [], ['groups' => 'tag:read']);
     }
 
-    // GET /api/tags/{id}
     #[Route('/{id}', methods: ['GET'])]
     public function show(Tag $tag): JsonResponse
     {
@@ -59,7 +56,6 @@ class TagController extends AbstractController
         return new JsonResponse($json, 200, [], true);
     }
 
-    // POST /api/tags
     #[Route('', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
@@ -76,7 +72,6 @@ class TagController extends AbstractController
         return new JsonResponse($json, 201, [], true);
     }
 
-    // PUT /api/tags/{id}
     #[Route('/{id}', methods: ['PUT'])]
     #[IsGranted('ROLE_USER')]
     public function update(Request $request, Tag $tag): JsonResponse
@@ -93,7 +88,6 @@ class TagController extends AbstractController
         return new JsonResponse($json, 200, [], true);
     }
 
-    // DELETE /api/tags/{id}
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('ROLE_USER')]
     public function delete(Tag $tag): Response
