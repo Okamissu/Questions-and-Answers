@@ -17,11 +17,6 @@ class AnswerRepository extends ServiceEntityRepository
 
     /**
      * Query answers with optional filters (e.g. by question, search text) and sorting.
-     *
-     * @param Question|null $question
-     * @param string|null $search
-     * @param string|null $sort
-     * @return QueryBuilder
      */
     public function queryWithFilters(?Question $question = null, ?string $search = null, ?string $sort = null): QueryBuilder
     {
@@ -35,18 +30,25 @@ class AnswerRepository extends ServiceEntityRepository
         }
 
         if ($search) {
-            // Assuming Answer has a 'content' field to search in
             $qb->andWhere('a.content LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
         }
 
+        $allowedFields = ['content', 'createdAt'];
+
         if ($sort) {
-            [$field, $direction] = explode('_', $sort);
-            $allowedFields = ['content', 'createdAt'];
-            if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
+            [$field, $direction] = explode('_', $sort) + [null, null];
+            if (
+                in_array($field, $allowedFields, true)
+                && in_array(strtoupper($direction), ['ASC', 'DESC'], true)
+            ) {
                 $qb->orderBy('a.'.$field, strtoupper($direction));
+            } else {
+                // fallback if sort is invalid
+                $qb->orderBy('a.createdAt', 'DESC');
             }
         } else {
+            // default if no sort provided
             $qb->orderBy('a.createdAt', 'DESC');
         }
 

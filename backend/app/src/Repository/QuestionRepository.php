@@ -35,6 +35,9 @@ class QuestionRepository extends ServiceEntityRepository
             $allowedFields = ['title', 'createdAt'];
             if (in_array($field, $allowedFields) && in_array(strtoupper($direction), ['ASC', 'DESC'])) {
                 $qb->orderBy('q.'.$field, strtoupper($direction));
+            } else {
+                // fallback if sort is invalid
+                $qb->orderBy('q.createdAt', 'DESC');
             }
         } else {
             $qb->orderBy('q.createdAt', 'DESC');

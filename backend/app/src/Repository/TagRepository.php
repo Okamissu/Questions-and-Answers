@@ -34,6 +34,9 @@ class TagRepository extends ServiceEntityRepository
             $allowedFields = ['name', 'createdAt', 'updatedAt'];
             if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
                 $qb->orderBy('t.'.$field, strtoupper($direction));
+            } else {
+                // fallback if sort is invalid
+                $qb->orderBy('t.createdAt', 'DESC');
             }
         } else {
             $qb->orderBy('t.createdAt', 'DESC');

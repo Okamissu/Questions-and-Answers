@@ -34,6 +34,9 @@ class CategoryRepository extends ServiceEntityRepository
             $allowedFields = ['name', 'createdAt'];
             if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
                 $qb->orderBy('c.'.$field, strtoupper($direction));
+            } else {
+                // fallback if sort is invalid
+                $qb->orderBy('c.createdAt', 'DESC');
             }
         } else {
             $qb->orderBy('c.createdAt', 'DESC');
