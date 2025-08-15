@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Traversable;
 
 class TagValueResolver implements ValueResolverInterface
 {
@@ -15,6 +16,9 @@ class TagValueResolver implements ValueResolverInterface
         private TagRepository $tagRepository
     ) {}
 
+    /**
+     * @return Traversable<Tag>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         if ($argument->getType() !== Tag::class) {

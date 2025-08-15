@@ -53,4 +53,16 @@ class UserTest extends TestCase
         $this->assertNull($user->getCreatedAt());
         $this->assertNull($user->getUpdatedAt());
     }
+
+    public function testGetId(): void
+    {
+        $user = new User();
+        $this->assertNull($user->getId());
+
+        // Simulate DB-assigned ID
+        $reflection = new \ReflectionProperty(User::class, 'id');
+        $reflection->setValue($user, 42);
+
+        $this->assertSame(42, $user->getId());
+    }
 }

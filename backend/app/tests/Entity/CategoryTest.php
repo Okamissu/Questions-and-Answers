@@ -20,4 +20,18 @@ class CategoryTest extends TestCase
         $this->assertNull($category->getCreatedAt());
         $this->assertNull($category->getUpdatedAt());
     }
+
+    public function testGetId(): void
+    {
+        $category = new Category();
+        $this->assertNull($category->getId());
+
+        // Optionally set id via reflection to simulate DB-assigned id
+        $reflection = new \ReflectionProperty(Category::class, 'id');
+        $reflection->setValue($category, 123);
+
+        $this->assertSame(123, $category->getId());
+    }
 }
+
+

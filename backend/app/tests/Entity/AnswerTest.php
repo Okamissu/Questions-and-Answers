@@ -49,4 +49,31 @@ class AnswerTest extends TestCase
         $answer->setAuthor($user);
         $this->assertSame('UserNick', $answer->getDisplayName());
     }
+
+    public function testGetId(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getId());
+
+        // Optionally set id via reflection to simulate DB-assigned id
+        $reflection = new \ReflectionProperty(Answer::class, 'id');
+        $reflection->setValue($answer, 123);
+
+        $this->assertSame(123, $answer->getId());
+    }
+
+    public function testGetCreatedAt(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getCreatedAt());
+
+        // Optionally set createdAt via reflection to simulate DB-assigned timestamp
+        $date = new \DateTimeImmutable('2025-08-15 12:00:00');
+        $reflection = new \ReflectionProperty(Answer::class, 'createdAt');
+        $reflection->setValue($answer, $date);
+
+        $this->assertSame($date, $answer->getCreatedAt());
+    }
+
 }
+

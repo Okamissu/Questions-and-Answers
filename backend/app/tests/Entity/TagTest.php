@@ -20,4 +20,16 @@ class TagTest extends TestCase
         $this->assertNull($tag->getCreatedAt());
         $this->assertNull($tag->getUpdatedAt());
     }
+
+    public function testGetId(): void
+    {
+        $tag = new Tag();
+        $this->assertNull($tag->getId());
+
+        // Simulate DB-assigned ID
+        $reflection = new \ReflectionProperty(Tag::class, 'id');
+        $reflection->setValue($tag, 42);
+
+        $this->assertSame(42, $tag->getId());
+    }
 }

@@ -66,4 +66,42 @@ class QuestionTest extends TestCase
         $question->removeTag($tag);
         $this->assertCount(0, $question->getTags());
     }
+
+    public function testGetId(): void
+    {
+        $question = new Question();
+        $this->assertNull($question->getId());
+
+        // Simulate DB-assigned ID
+        $reflection = new \ReflectionProperty(Question::class, 'id');
+        $reflection->setValue($question, 42);
+
+        $this->assertSame(42, $question->getId());
+    }
+
+    public function testGetCreatedAt(): void
+    {
+        $question = new Question();
+        $this->assertNull($question->getCreatedAt());
+
+        // Simulate DB-assigned createdAt
+        $date = new \DateTimeImmutable('2025-08-15 12:00:00');
+        $reflection = new \ReflectionProperty(Question::class, 'createdAt');
+        $reflection->setValue($question, $date);
+
+        $this->assertSame($date, $question->getCreatedAt());
+    }
+
+    public function testGetUpdatedAt(): void
+    {
+        $question = new Question();
+        $this->assertNull($question->getUpdatedAt());
+
+        // Simulate DB-assigned updatedAt
+        $date = new \DateTimeImmutable('2025-08-15 13:00:00');
+        $reflection = new \ReflectionProperty(Question::class, 'updatedAt');
+        $reflection->setValue($question, $date);
+
+        $this->assertSame($date, $question->getUpdatedAt());
+    }
 }
