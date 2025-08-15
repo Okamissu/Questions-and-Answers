@@ -77,9 +77,19 @@ class UserRepositoryTest extends TestCase
         $this->expectException(UnsupportedUserException::class);
 
         $this->repository->upgradePassword(new class implements PasswordAuthenticatedUserInterface {
-            public function getPassword(): ?string { return null; }
-            public function getSalt(): ?string { return null; }
-            public function eraseCredentials(): void {}
+            public function getPassword(): ?string
+            {
+                return null;
+            }
+
+            public function getSalt(): ?string
+            {
+                return null;
+            }
+
+            public function eraseCredentials(): void
+            {
+            }
         }, 'hash');
     }
 
@@ -121,6 +131,7 @@ class UserRepositoryTest extends TestCase
             $refObject = $parent;
         }
         $refProperty = $refObject->getProperty($property);
+        /* @noinspection PhpExpressionResultUnusedInspection */
         $refProperty->setAccessible(true);
         $refProperty->setValue($object, $value);
     }

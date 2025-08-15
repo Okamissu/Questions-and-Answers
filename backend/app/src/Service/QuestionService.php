@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Repository\QuestionRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class QuestionService
+class QuestionService implements QuestionServiceInterface
 {
     public function __construct(
         private QuestionRepository $questionRepository,

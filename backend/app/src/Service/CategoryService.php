@@ -8,7 +8,7 @@ use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class CategoryService
+class CategoryService implements CategoryServiceInterface
 {
     public function __construct(
         protected CategoryRepository $categoryRepository,

@@ -8,7 +8,7 @@ use App\Entity\Tag;
 use App\Repository\TagRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class TagService
+class TagService implements TagServiceInterface
 {
     public function __construct(
         protected TagRepository $tagRepository,
