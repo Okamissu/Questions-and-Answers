@@ -26,7 +26,5 @@ class CreateQuestionDto
         new Assert\Type(Tag::class),
     ])]
     public ?array $tags = null;
-
-    // Author nie jest tutaj —  w kontrolerze z zalogowanego usera
 }
 

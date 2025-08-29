@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Dto\CreateTagDto;
@@ -11,7 +10,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -52,18 +50,18 @@ class TagController extends AbstractController
     public function show(Tag $tag): JsonResponse
     {
         $json = $this->serializer->serialize($tag, 'json', ['groups' => ['tag:read']]);
-
         return new JsonResponse($json, 200, [], true);
     }
 
     #[Route('', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $dto = $this->serializer->deserialize($request->getContent(), CreateTagDto::class, 'json');
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+            return $this->json(['error' => (string) $errors], 400);
         }
 
         $tag = $this->tagService->create($dto);
@@ -73,13 +71,14 @@ class TagController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
-    #[IsGranted('ROLE_USER')]
     public function update(Request $request, Tag $tag): JsonResponse
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $dto = $this->serializer->deserialize($request->getContent(), UpdateTagDto::class, 'json');
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+            return $this->json(['error' => (string) $errors], 400);
         }
 
         $updatedTag = $this->tagService->update($tag, $dto);
@@ -89,9 +88,10 @@ class TagController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    #[IsGranted('ROLE_USER')]
     public function delete(Tag $tag): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $this->tagService->delete($tag);
 
         return new Response(null, 204);

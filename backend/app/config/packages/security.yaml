@@ -1,59 +1,54 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+        App\Entity\User: 'auto'
+
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+        login:
+            pattern:  ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-#        api:
-#            pattern: ^/api
-#            stateless: true
-#            jwt: ~
-#            # anonymous allowed for some endpoints
-#
-#    # Easy way to control access for large sections of your site
-#    # Note: Only the *first* access control that matches will be used
-#    access_control:
-#        # Admin-only (CRUD for categories, tags, user management, deleting answers, marking best)
-#        - { path: ^/api/categories, roles: ROLE_ADMIN }
-#        - { path: ^/api/tags, roles: ROLE_ADMIN }
-#        - { path: ^/api/users, roles: ROLE_ADMIN }
-#        - { path: ^/api/answers/.+/mark-best, roles: ROLE_ADMIN }
-#        - { path: ^/api/answers/.+/delete, roles: ROLE_ADMIN }
-#
-#        # Logged-in users (creating questions and answers, editing own content)
-#        - { path: ^/api/questions, roles: ROLE_USER }
-#        - { path: ^/api/answers, roles: ROLE_USER }
-#
-#        # Public access for viewing questions and answers
-#        - { path: ^/api/questions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
-#        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ GET ] }
-#
-#        # Allow anonymous to post answers (with email and nickname, no login)
-#        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [ POST ] }
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~   # Lexik JWT bundle will handle token authentication
+
+    access_control:
+        # Admin-only rzeczy (np. edycja/usuwanie kategorii, tagów, userów)
+        - { path: ^/api/categories, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
+        - { path: ^/api/tags, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
+        - { path: ^/api/users/\d+$, roles: ROLE_ADMIN, methods: [DELETE] }
+
+        # Public
+        - { path: ^/api/questions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET, POST] }
+        - { path: ^/api/users$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+
+        # Reszta – JWT wymagany
+        - { path: ^/api, roles: ROLE_USER }
+
 
 when@test:
     security:
         password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

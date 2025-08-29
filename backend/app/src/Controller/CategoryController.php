@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Controller;
 
 use App\Dto\CreateCategoryDto;
 use App\Dto\UpdateCategoryDto;
 use App\Entity\Category;
+use App\Security\Voter\CategoryVoter;
 use App\Service\CategoryServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,7 +29,7 @@ class CategoryController extends AbstractController
     public function list(Request $request): JsonResponse
     {
         $page = max(1, (int) $request->query->get('page', 1));
-        $limit = (int) $request->query->get('limit', 10);
+        $limit = max(1, min(100, (int) $request->query->get('limit', 10)));
         $search = $request->query->get('search');
         $sort = $request->query->get('sort');
 
@@ -56,9 +57,10 @@ class CategoryController extends AbstractController
     }
 
     #[Route('', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
+        $this->denyAccessUnlessGranted(CategoryVoter::CREATE);
+
         $dto = $this->serializer->deserialize($request->getContent(), CreateCategoryDto::class, 'json');
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
@@ -72,9 +74,10 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
-    #[IsGranted('ROLE_USER')]
     public function update(Request $request, Category $category): JsonResponse
     {
+        $this->denyAccessUnlessGranted(CategoryVoter::UPDATE, $category);
+
         $dto = $this->serializer->deserialize($request->getContent(), UpdateCategoryDto::class, 'json');
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
@@ -90,6 +93,8 @@ class CategoryController extends AbstractController
     #[Route('/{id}', methods: ['DELETE'])]
     public function delete(Category $category): Response
     {
+        $this->denyAccessUnlessGranted(CategoryVoter::DELETE, $category);
+
         $this->categoryService->delete($category);
 
         return new Response(null, 204);

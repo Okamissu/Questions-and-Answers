@@ -5,13 +5,13 @@ use App\Dto\CreateQuestionDto;
 use App\Dto\UpdateQuestionDto;
 use App\Entity\Question;
 use App\Entity\User;
+use App\Security\Voter\QuestionVoter;
 use App\Service\QuestionServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -53,53 +53,52 @@ class QuestionController extends AbstractController
     public function show(Question $question): JsonResponse
     {
         $data = $this->serializer->serialize($question, 'json', ['groups' => ['question:read']]);
-
         return new JsonResponse($data, 200, [], true);
     }
 
     #[Route('', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
     public function create(Request $request): JsonResponse
     {
-        $dto = $this->serializer->deserialize($request->getContent(), CreateQuestionDto::class, 'json');
-
-        $errors = $this->validator->validate($dto);
-        if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
-        }
-
         /** @var User $user */
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Not authenticated'], 401);
+        }
+
+        $dto = $this->serializer->deserialize($request->getContent(), CreateQuestionDto::class, 'json');
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json(['error' => (string) $errors], 400);
+        }
 
         $question = $this->questionService->create($dto, $user);
-
         $data = $this->serializer->serialize($question, 'json', ['groups' => ['question:read']]);
 
         return new JsonResponse($data, 201, [], true);
     }
 
     #[Route('/{id}', methods: ['PUT'])]
-    #[IsGranted('ROLE_USER')]
     public function update(Request $request, Question $question): JsonResponse
     {
-        $dto = $this->serializer->deserialize($request->getContent(), UpdateQuestionDto::class, 'json');
+        $this->denyAccessUnlessGranted(QuestionVoter::UPDATE, $question);
 
+        $dto = $this->serializer->deserialize($request->getContent(), UpdateQuestionDto::class, 'json');
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return new JsonResponse(['error' => (string) $errors], 400);
+            return $this->json(['error' => (string) $errors], 400);
         }
 
         $question = $this->questionService->update($question, $dto);
-
         $data = $this->serializer->serialize($question, 'json', ['groups' => ['question:read']]);
 
         return new JsonResponse($data, 200, [], true);
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    #[IsGranted('ROLE_USER')]
     public function delete(Question $question): Response
     {
+        $this->denyAccessUnlessGranted(QuestionVoter::DELETE, $question);
+
         $this->questionService->delete($question);
 
         return new Response(null, 204);

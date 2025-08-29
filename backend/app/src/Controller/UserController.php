@@ -5,13 +5,13 @@ namespace App\Controller;
 use App\Dto\CreateUserDto;
 use App\Dto\UpdateUserDto;
 use App\Entity\User;
+use App\Security\Voter\UserVoter;
 use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -34,9 +34,11 @@ class UserController extends AbstractController
         if (count($errors) > 0) {
             $errorsArray = [];
             foreach ($errors as $error) {
-                $errorsArray[] = ['field' => $error->getPropertyPath(), 'message' => $error->getMessage()];
+                $errorsArray[] = [
+                    'field' => $error->getPropertyPath(),
+                    'message' => $error->getMessage(),
+                ];
             }
-
             return new JsonResponse(['errors' => $errorsArray], 400);
         }
 
@@ -47,37 +49,22 @@ class UserController extends AbstractController
         }
 
         $data = $this->serializer->serialize($user, 'json', ['groups' => ['user:read']]);
-
         return new JsonResponse($data, 201, [], true);
     }
 
     #[Route('/{id}', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')]
-    public function showUser(User $user): JsonResponse
+    public function show(User $user): JsonResponse
     {
-        $currentUser = $this->getUser();
-
-        if (!$currentUser instanceof User) {
-            return new JsonResponse(['error' => 'User not authenticated'], 401);
-        }
-
-        if ($currentUser->getId() !== $user->getId() && !in_array('ROLE_ADMIN', $currentUser->getRoles(), true)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
+        $this->denyAccessUnlessGranted(UserVoter::VIEW, $user);
 
         $data = $this->serializer->serialize($user, 'json', ['groups' => ['user:read']]);
-
         return new JsonResponse($data, 200, [], true);
     }
 
     #[Route('/{id}', methods: ['PUT'])]
-    #[IsGranted('ROLE_USER')]
     public function update(Request $request, User $user): JsonResponse
     {
-        $currentUser = $this->getUser();
-        if ($currentUser !== $user && !in_array('ROLE_ADMIN', $currentUser->getRoles(), true)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
+        $this->denyAccessUnlessGranted(UserVoter::UPDATE, $user);
 
         $dto = $this->serializer->deserialize($request->getContent(), UpdateUserDto::class, 'json');
         $errors = $this->validator->validate($dto);
@@ -85,9 +72,11 @@ class UserController extends AbstractController
         if (count($errors) > 0) {
             $errorsArray = [];
             foreach ($errors as $error) {
-                $errorsArray[] = ['field' => $error->getPropertyPath(), 'message' => $error->getMessage()];
+                $errorsArray[] = [
+                    'field' => $error->getPropertyPath(),
+                    'message' => $error->getMessage(),
+                ];
             }
-
             return new JsonResponse(['errors' => $errorsArray], 400);
         }
 
@@ -98,21 +87,15 @@ class UserController extends AbstractController
         }
 
         $data = $this->serializer->serialize($updatedUser, 'json', ['groups' => ['user:read']]);
-
         return new JsonResponse($data, 200, [], true);
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
-    #[IsGranted('ROLE_USER')]
     public function delete(User $user): Response
     {
-        $currentUser = $this->getUser();
-        if ($currentUser !== $user && !in_array('ROLE_ADMIN', $currentUser->getRoles(), true)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
+        $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
 
         $this->userService->deleteUser($user);
-
         return new Response(null, 204);
     }
 }
