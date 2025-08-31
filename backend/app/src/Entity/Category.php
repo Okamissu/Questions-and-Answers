@@ -20,33 +20,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'categories')]
 class Category
 {
-    /**
-     * @var int|null the unique identifier of the category
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['category:read', 'question:read'])]
     private ?int $id = null;
 
-    /**
-     * @var string|null the name of the category
-     */
     #[ORM\Column(length: 255)]
     #[Groups(['category:read', 'category:write', 'question:read'])]
     private ?string $name = null;
 
-    /**
-     * @var \DateTimeImmutable|null the creation date of the category
-     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['category:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var \DateTimeImmutable|null the last update date of the category
-     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'update')]
     #[Groups(['category:read'])]
@@ -55,7 +43,7 @@ class Category
     /**
      * Get the category ID.
      *
-     * @return int|null
+     * @return int|null The unique identifier of the category
      */
     public function getId(): ?int
     {
@@ -65,7 +53,7 @@ class Category
     /**
      * Get the name of the category.
      *
-     * @return string|null
+     * @return string|null The name of the category
      */
     public function getName(): ?string
     {
@@ -75,7 +63,7 @@ class Category
     /**
      * Set the name of the category.
      *
-     * @param string $name
+     * @param string $name The name to assign to the category
      */
     public function setName(string $name): void
     {
@@ -85,7 +73,7 @@ class Category
     /**
      * Get the creation timestamp.
      *
-     * @return \DateTimeImmutable|null
+     * @return \DateTimeImmutable|null The date and time when the category was created
      */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -95,7 +83,7 @@ class Category
     /**
      * Get the last update timestamp.
      *
-     * @return \DateTimeImmutable|null
+     * @return \DateTimeImmutable|null The date and time when the category was last updated
      */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {

@@ -74,6 +74,7 @@ class Tag
      * Set the tag name.
      *
      * @param string $name The name to set for the tag
+     *
      * @return static Returns the current Tag instance for method chaining
      */
     public function setName(string $name): static

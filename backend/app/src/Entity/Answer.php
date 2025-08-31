@@ -22,72 +22,48 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'answers')]
 class Answer
 {
-    /**
-     * @var int|null the unique identifier of the answer
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['answer:read'])]
     private ?int $id = null;
 
-    /**
-     * @var string|null the content of the answer
-     */
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $content = null;
 
-    /**
-     * @var \DateTimeImmutable|null the creation date of the answer
-     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['answer:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var bool whether this answer is marked as the best answer
-     */
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     #[Groups(['answer:read', 'answer:write'])]
     private bool $isBest = false;
 
-    /**
-     * @var Question|null the question associated with this answer
-     */
     #[ORM\ManyToOne(targetEntity: Question::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['answer:read'])]
     private ?Question $question = null;
 
-    /**
-     * @var User|null The author of the answer. Null if anonymous.
-     */
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: true)]
     #[Groups(['answer:read'])]
     private ?User $author = null;
 
-    /**
-     * @var string|null nickname for anonymous authors
-     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorNickname = null;
 
-    /**
-     * @var string|null email for anonymous authors
-     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['answer:read', 'answer:write'])]
     private ?string $authorEmail = null;
 
     /**
-     * Get the answer ID.
+     * Get the unique identifier of the answer.
      *
-     * @return int|null
+     * @return int|null The ID of the answer, or null if not persisted
      */
     public function getId(): ?int
     {
@@ -97,7 +73,7 @@ class Answer
     /**
      * Get the content of the answer.
      *
-     * @return string|null
+     * @return string|null The text content of the answer, or null if not set
      */
     public function getContent(): ?string
     {
@@ -107,7 +83,7 @@ class Answer
     /**
      * Set the content of the answer.
      *
-     * @param string|null $content
+     * @param string|null $content The text content to set for the answer
      */
     public function setContent(?string $content): void
     {
@@ -117,7 +93,7 @@ class Answer
     /**
      * Get the creation timestamp.
      *
-     * @return \DateTimeImmutable|null
+     * @return \DateTimeImmutable|null The date and time the answer was created
      */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -125,9 +101,9 @@ class Answer
     }
 
     /**
-     * Check if this answer is the best.
+     * Check if this answer is marked as the best.
      *
-     * @return bool
+     * @return bool True if the answer is the best answer, false otherwise
      */
     public function getIsBest(): bool
     {
@@ -135,9 +111,9 @@ class Answer
     }
 
     /**
-     * Mark this answer as the best.
+     * Mark this answer as the best answer.
      *
-     * @param bool $isBest
+     * @param bool $isBest Whether the answer should be marked as best
      */
     public function setIsBest(bool $isBest): void
     {
@@ -147,7 +123,7 @@ class Answer
     /**
      * Get the associated question.
      *
-     * @return Question|null
+     * @return Question|null The question this answer belongs to
      */
     public function getQuestion(): ?Question
     {
@@ -157,7 +133,7 @@ class Answer
     /**
      * Set the associated question.
      *
-     * @param Question|null $question
+     * @param Question|null $question The question to associate with this answer
      */
     public function setQuestion(?Question $question): void
     {
@@ -167,7 +143,7 @@ class Answer
     /**
      * Get the author of the answer.
      *
-     * @return User|null
+     * @return User|null The user who authored the answer, or null if anonymous
      */
     public function getAuthor(): ?User
     {
@@ -177,7 +153,7 @@ class Answer
     /**
      * Set the author of the answer.
      *
-     * @param User|null $author
+     * @param User|null $author The user to set as author, or null for anonymous
      */
     public function setAuthor(?User $author): void
     {
@@ -185,9 +161,9 @@ class Answer
     }
 
     /**
-     * Get the anonymous nickname if no author.
+     * Get the anonymous nickname if no author exists.
      *
-     * @return string|null
+     * @return string|null The nickname used for anonymous answers
      */
     public function getAuthorNickname(): ?string
     {
@@ -197,7 +173,7 @@ class Answer
     /**
      * Set the anonymous nickname.
      *
-     * @param string|null $authorNickname
+     * @param string|null $authorNickname The nickname for an anonymous answer
      */
     public function setAuthorNickname(?string $authorNickname): void
     {
@@ -205,9 +181,9 @@ class Answer
     }
 
     /**
-     * Get the anonymous email if no author.
+     * Get the anonymous email if no author exists.
      *
-     * @return string|null
+     * @return string|null The email of an anonymous answer author
      */
     public function getAuthorEmail(): ?string
     {
@@ -217,7 +193,7 @@ class Answer
     /**
      * Set the anonymous email.
      *
-     * @param string|null $authorEmail
+     * @param string|null $authorEmail The email of an anonymous answer author
      */
     public function setAuthorEmail(?string $authorEmail): void
     {
@@ -227,7 +203,7 @@ class Answer
     /**
      * Check if the answer is from an anonymous user.
      *
-     * @return bool
+     * @return bool True if no registered user authored the answer, false otherwise
      */
     public function isFromAnonymous(): bool
     {
@@ -235,9 +211,9 @@ class Answer
     }
 
     /**
-     * Get the display name: author nickname or anonymous nickname.
+     * Get the display name of the answer author.
      *
-     * @return string|null
+     * @return string|null Returns the registered author's nickname, or the anonymous nickname
      */
     public function getDisplayName(): ?string
     {

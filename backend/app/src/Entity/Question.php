@@ -22,73 +22,49 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'questions')]
 class Question
 {
-    /**
-     * @var int|null the unique identifier of the question
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['question:read'])]
     private ?int $id = null;
 
-    /**
-     * @var string|null the title of the question
-     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['question:read', 'question:write'])]
     private ?string $title = null;
 
-    /**
-     * @var string|null the content/body of the question
-     */
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['question:read', 'question:write'])]
     private ?string $content = null;
 
-    /**
-     * @var \DateTimeImmutable|null creation timestamp
-     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['question:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var \DateTimeImmutable|null last update timestamp
-     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Gedmo\Timestampable(on: 'update')]
     #[Groups(['question:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    /**
-     * @var User|null the author of the question
-     */
     #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['question:read'])]
     private ?User $author = null;
 
-    /**
-     * @var Category|null the category this question belongs to
-     */
     #[ORM\ManyToOne(targetEntity: Category::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['question:read'])]
     private ?Category $category = null;
 
-    /**
-     * @var Collection<int, Tag> tags associated with the question
-     */
     #[ORM\ManyToMany(targetEntity: Tag::class, fetch: 'EXTRA_LAZY', orphanRemoval: true)]
     #[ORM\JoinTable(name: 'questions_tags')]
     #[Groups(['question:read'])]
     private Collection $tags;
 
     /**
-     * Constructor initializes collections.
+     * Constructor initializes the tags collection.
      */
     public function __construct()
     {
@@ -98,7 +74,7 @@ class Question
     /**
      * Get the question ID.
      *
-     * @return int|null
+     * @return int|null The unique identifier of the question
      */
     public function getId(): ?int
     {
@@ -108,7 +84,7 @@ class Question
     /**
      * Get the question title.
      *
-     * @return string|null
+     * @return string|null The title of the question
      */
     public function getTitle(): ?string
     {
@@ -118,7 +94,7 @@ class Question
     /**
      * Set the question title.
      *
-     * @param string|null $title
+     * @param string|null $title The title to set for the question
      */
     public function setTitle(?string $title): void
     {
@@ -128,7 +104,7 @@ class Question
     /**
      * Get the question content.
      *
-     * @return string|null
+     * @return string|null The content/body of the question
      */
     public function getContent(): ?string
     {
@@ -138,7 +114,7 @@ class Question
     /**
      * Set the question content.
      *
-     * @param string|null $content
+     * @param string|null $content The content/body to set for the question
      */
     public function setContent(?string $content): void
     {
@@ -148,7 +124,7 @@ class Question
     /**
      * Get creation timestamp.
      *
-     * @return \DateTimeImmutable|null
+     * @return \DateTimeImmutable|null The date and time when the question was created
      */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -158,7 +134,7 @@ class Question
     /**
      * Get last update timestamp.
      *
-     * @return \DateTimeImmutable|null
+     * @return \DateTimeImmutable|null The date and time when the question was last updated
      */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
@@ -166,9 +142,9 @@ class Question
     }
 
     /**
-     * Get the author.
+     * Get the author of the question.
      *
-     * @return User|null
+     * @return User|null The user who created the question
      */
     public function getAuthor(): ?User
     {
@@ -176,9 +152,9 @@ class Question
     }
 
     /**
-     * Set the author.
+     * Set the author of the question.
      *
-     * @param User|null $author
+     * @param User|null $author The user to set as author of the question
      */
     public function setAuthor(?User $author): void
     {
@@ -186,9 +162,9 @@ class Question
     }
 
     /**
-     * Get the category.
+     * Get the category of the question.
      *
-     * @return Category|null
+     * @return Category|null The category this question belongs to
      */
     public function getCategory(): ?Category
     {
@@ -196,9 +172,9 @@ class Question
     }
 
     /**
-     * Set the category.
+     * Set the category of the question.
      *
-     * @param Category|null $category
+     * @param Category|null $category The category to associate with this question
      */
     public function setCategory(?Category $category): void
     {
@@ -206,9 +182,9 @@ class Question
     }
 
     /**
-     * Get all tags.
+     * Get all tags associated with the question.
      *
-     * @return Collection<int, Tag>
+     * @return Collection<int, Tag> Collection of tags assigned to the question
      */
     public function getTags(): Collection
     {
@@ -218,7 +194,7 @@ class Question
     /**
      * Add a tag to the question.
      *
-     * @param Tag $tag
+     * @param Tag $tag The tag to add
      */
     public function addTag(Tag $tag): void
     {
@@ -230,7 +206,7 @@ class Question
     /**
      * Remove a tag from the question.
      *
-     * @param Tag $tag
+     * @param Tag $tag The tag to remove
      */
     public function removeTag(Tag $tag): void
     {

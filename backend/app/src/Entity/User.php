@@ -81,6 +81,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set the user email.
      *
      * @param string $email Email address to set
+     *
      * @return static Returns the current User instance for method chaining
      */
     public function setEmail(string $email): static
@@ -119,6 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set user roles.
      *
      * @param list<string> $roles Array of roles to assign
+     *
      * @return static Returns the current User instance for method chaining
      */
     public function setRoles(array $roles): static
@@ -142,6 +144,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set hashed password.
      *
      * @param string $password The hashed password to store
+     *
      * @return static Returns the current User instance for method chaining
      */
     public function setPassword(string $password): static
@@ -165,6 +168,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set nickname.
      *
      * @param string|null $nickname Nickname to set for the user
+     *
      * @return static Returns the current User instance for method chaining
      */
     public function setNickname(?string $nickname): static
@@ -208,6 +212,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set temporary plain password.
      *
      * @param string|null $plainPassword Plain password to temporarily store
+     *
      * @return static Returns the current User instance for method chaining
      */
     public function setPlainPassword(?string $plainPassword): static

@@ -1,0 +1,80 @@
+
+Found 0 of 57 files that can be fixed in 1.128 seconds, 18.00 MB memory used
+
+Found 0 of 43 files that can be fixed in 1.452 seconds, 18.00 MB memory used
+
+FILE: /home/wwwroot/app/tests/Dto/CreateAnswerDtoValidationTest.php
+----------------------------------------------------------------------------------------
+FOUND 3 ERRORS AFFECTING 3 LINES
+----------------------------------------------------------------------------------------
+ 37 | ERROR | Missing @return tag in function comment
+ 50 | ERROR | Missing @return tag in function comment
+ 66 | ERROR | Declare public methods first,then protected ones and finally private ones
+----------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Repository/AnswerRepositoryTest.php
+----------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 1 LINE
+----------------------------------------------------------------------
+ 178 | ERROR | Doc comment for parameter "$object" missing
+ 178 | ERROR | Doc comment for parameter "$value" missing
+----------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Repository/CategoryRepositoryTest.php
+----------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 1 LINE
+----------------------------------------------------------------------
+ 156 | ERROR | Doc comment for parameter "$object" missing
+ 156 | ERROR | Doc comment for parameter "$value" missing
+----------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Repository/QuestionRepositoryTest.php
+----------------------------------------------------------------------
+FOUND 3 ERRORS AFFECTING 1 LINE
+----------------------------------------------------------------------
+ 170 | ERROR | Doc comment for parameter "$object" missing
+ 170 | ERROR | Doc comment for parameter "$property" missing
+ 170 | ERROR | Doc comment for parameter "$value" missing
+----------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Repository/TagRepositoryTest.php
+----------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 1 LINE
+----------------------------------------------------------------------
+ 157 | ERROR | Doc comment for parameter "$object" missing
+ 157 | ERROR | Doc comment for parameter "$value" missing
+----------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Repository/UserRepositoryTest.php
+----------------------------------------------------------------------
+FOUND 7 ERRORS AFFECTING 6 LINES
+----------------------------------------------------------------------
+ 109 | ERROR | Missing @return tag in function comment
+ 114 | ERROR | Use parentheses when instantiating classes
+ 119 | ERROR | Missing @return tag in function comment
+ 125 | ERROR | Missing doc comment for function getSalt()
+ 130 | ERROR | Missing doc comment for function eraseCredentials()
+ 172 | ERROR | Doc comment for parameter "$object" missing
+ 172 | ERROR | Doc comment for parameter "$value" missing
+----------------------------------------------------------------------
+
+Time: 2.98 secs; Memory: 10MB
+
+[notice] Migrating up to DoctrineMigrations\Version20250805120257
+[notice] finished in 1233.4ms, used 16M memory, 1 migrations executed, 12 sql queries
+
+ [OK] Successfully migrated to version: DoctrineMigrations\Version20250805120257                                        
+
+
+   > purging database
+   > loading App\DataFixtures\UserFixtures
+   > loading App\DataFixtures\CategoryFixtures
+   > loading App\DataFixtures\TagFixtures
+   > loading App\DataFixtures\AppFixtures
+   > loading App\DataFixtures\QuestionFixtures
+   > loading App\DataFixtures\AnswerFixtures
