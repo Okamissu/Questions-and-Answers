@@ -86,7 +86,9 @@
         "init-app" : [
             "./bin/console --no-interaction doctrine:migrations:migrate",
             "./bin/console --no-interaction doctrine:fixtures:load"
-        ]
+        ],
+        "test-coverage-html": "./vendor/bin/phpunit --coverage-html coverage",
+        "test-coverage": "./vendor/bin/phpunit --coverage-text"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",

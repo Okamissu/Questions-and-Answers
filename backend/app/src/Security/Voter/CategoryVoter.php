@@ -13,13 +13,13 @@ class CategoryVoter extends Voter
     public const UPDATE = 'update';
     public const DELETE = 'delete';
 
-    protected function supports(string $attribute, $subject): bool
+    public function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::CREATE, self::UPDATE, self::DELETE])
             && ($subject instanceof Category || self::CREATE === $attribute);
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

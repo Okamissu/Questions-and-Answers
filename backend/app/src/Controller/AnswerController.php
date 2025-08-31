@@ -3,16 +3,20 @@
 namespace App\Controller;
 
 use App\Dto\CreateAnswerDto;
+use App\Dto\ListFiltersDto;
 use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\User;
+use App\Resolver\ListFiltersDtoResolver;
 use App\Security\Voter\AnswerVoter;
 use App\Service\AnswerServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -28,14 +32,22 @@ class AnswerController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(Request $request, Question $question): JsonResponse
-    {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = max(1, min(100, (int) $request->query->get('limit', 10)));
-        $search = $request->query->get('search');
-        $sort = $request->query->get('sort');
+    public function list(
+        Question                                                                  $question,
+        #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters,
+        #[MapQueryParameter] int                                                  $page = 1,
+    ): JsonResponse {
+        $limit = max(1, min(100, $filters->limit ?? 10)); // domyślny limit 10
+        $search = $filters->search ?? null;
+        $sort = $filters->sort ?? null;
 
-        $result = $this->answerService->getPaginatedList($page, $limit, $question, $search, $sort);
+        $result = $this->answerService->getPaginatedList(
+            $page,
+            $limit,
+            $question,
+            $search,
+            $sort
+        );
 
         return $this->json([
             'items' => $result['items'],

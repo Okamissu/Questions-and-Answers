@@ -13,13 +13,13 @@ class AnswerVoter extends Voter
     const DELETE = 'delete';
     const MARK_BEST = 'mark_best';
 
-    protected function supports(string $attribute, $subject): bool
+    public function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::UPDATE, self::DELETE, self::MARK_BEST])
             && $subject instanceof Answer;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

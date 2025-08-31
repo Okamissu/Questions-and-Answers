@@ -3,14 +3,18 @@
 namespace App\Controller;
 
 use App\Dto\CreateCategoryDto;
+use App\Dto\ListFiltersDto;
 use App\Dto\UpdateCategoryDto;
 use App\Entity\Category;
+use App\Resolver\ListFiltersDtoResolver;
 use App\Security\Voter\CategoryVoter;
 use App\Service\CategoryServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,12 +30,13 @@ class CategoryController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
-    {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = max(1, min(100, (int) $request->query->get('limit', 10)));
-        $search = $request->query->get('search');
-        $sort = $request->query->get('sort');
+    public function list(
+        #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters,
+        #[MapQueryParameter] int $page = 1,
+    ): JsonResponse {
+        $limit = max(1, min(100, $filters->limit ?? 10));
+        $search = $filters->search ?? null;
+        $sort = $filters->sort ?? null;
 
         $result = $this->categoryService->getPaginatedList($page, $limit, $search, $sort);
 

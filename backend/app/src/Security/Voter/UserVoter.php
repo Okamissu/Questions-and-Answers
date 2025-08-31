@@ -12,13 +12,13 @@ class UserVoter extends Voter
     const UPDATE = 'update';
     const DELETE = 'delete';
 
-    protected function supports(string $attribute, $subject): bool
+    public function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::VIEW, self::UPDATE, self::DELETE])
             && $subject instanceof User;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $currentUser = $token->getUser();
 

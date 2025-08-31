@@ -1,14 +1,19 @@
 <?php
+
 namespace App\Controller;
 
 use App\Dto\CreateTagDto;
+use App\Dto\ListFiltersDto;
 use App\Dto\UpdateTagDto;
 use App\Entity\Tag;
+use App\Resolver\ListFiltersDtoResolver;
 use App\Service\TagServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -24,12 +29,13 @@ class TagController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
-    {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = (int) $request->query->get('limit', 10);
-        $search = $request->query->get('search');
-        $sort = $request->query->get('sort');
+    public function list(
+        #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters,
+        #[MapQueryParameter] int $page = 1,
+    ): JsonResponse {
+        $limit = max(1, min(100, $filters->limit ?? 10));
+        $search = $filters->search ?? null;
+        $sort = $filters->sort ?? null;
 
         $result = $this->tagService->getPaginatedList($page, $limit, $search, $sort);
 
@@ -50,6 +56,7 @@ class TagController extends AbstractController
     public function show(Tag $tag): JsonResponse
     {
         $json = $this->serializer->serialize($tag, 'json', ['groups' => ['tag:read']]);
+
         return new JsonResponse($json, 200, [], true);
     }
 

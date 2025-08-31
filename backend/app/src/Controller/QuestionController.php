@@ -1,16 +1,21 @@
 <?php
+
 namespace App\Controller;
 
 use App\Dto\CreateQuestionDto;
+use App\Dto\QuestionListFiltersDto;
 use App\Dto\UpdateQuestionDto;
 use App\Entity\Question;
 use App\Entity\User;
+use App\Resolver\QuestionListFiltersDtoResolver;
 use App\Security\Voter\QuestionVoter;
 use App\Service\QuestionServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,15 +31,19 @@ class QuestionController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
-    {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = (int) $request->query->get('limit', 10);
-        $search = $request->query->get('search');
-        $sort = $request->query->get('sort');
-        $categoryId = $request->query->get('category');
+    public function list(
+        #[MapQueryString(resolver: QuestionListFiltersDtoResolver::class)] QuestionListFiltersDto $filters,
+        #[MapQueryParameter] int $page = 1,
+    ): JsonResponse {
+        $limit = max(1, min(100, $filters->limit ?? 10));
 
-        $result = $this->questionService->getPaginatedList($page, $limit, $search, $sort, $categoryId);
+        $result = $this->questionService->getPaginatedList(
+            $page,
+            $limit,
+            $filters->search,
+            $filters->sort,
+            $filters->categoryId
+        );
 
         return $this->json([
             'items' => $result['items'],
@@ -43,8 +52,9 @@ class QuestionController extends AbstractController
                 'limit' => $limit,
                 'totalItems' => $result['totalItems'],
                 'totalPages' => max(1, (int) ceil($result['totalItems'] / $limit)),
-                'sort' => $sort,
-                'search' => $search,
+                'sort' => $filters->sort,
+                'search' => $filters->search,
+                'categoryId' => $filters->categoryId,
             ],
         ], Response::HTTP_OK, [], ['groups' => 'question:read']);
     }
@@ -53,6 +63,7 @@ class QuestionController extends AbstractController
     public function show(Question $question): JsonResponse
     {
         $data = $this->serializer->serialize($question, 'json', ['groups' => ['question:read']]);
+
         return new JsonResponse($data, 200, [], true);
     }
 

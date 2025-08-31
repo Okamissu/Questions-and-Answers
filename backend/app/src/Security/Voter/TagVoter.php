@@ -13,13 +13,13 @@ class TagVoter extends Voter
     const UPDATE = 'update';
     const DELETE = 'delete';
 
-    protected function supports(string $attribute, $subject): bool
+    public function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::CREATE, self::UPDATE, self::DELETE])
             && ($subject instanceof Tag || $subject === null);
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    public function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
