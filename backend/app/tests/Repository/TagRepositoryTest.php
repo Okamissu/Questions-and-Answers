@@ -119,7 +119,7 @@ class TagRepositoryTest extends TestCase
         }
 
         $refProperty = $refObject->getProperty($property);
-        /** @noinspection PhpExpressionResultUnusedInspection */
+        /* @noinspection PhpExpressionResultUnusedInspection */
         $refProperty->setAccessible(true);
         $refProperty->setValue($object, $value);
     }

@@ -36,13 +36,14 @@ class UserControllerTest extends TestCase
 
         // Mock denyAccessUnlessGranted to do nothing
         $this->controller->method('denyAccessUnlessGranted')
-            ->willReturnCallback(fn() => null);
+            ->willReturnCallback(fn () => null);
 
         // Mock json() so we can return a real JsonResponse
         $this->controller->method('json')->willReturnCallback(function ($data, $status = 200) {
             if ($data instanceof User) {
                 $data = ['email' => $data->getEmail() ?? 'user@example.com'];
             }
+
             return new JsonResponse($data, $status);
         });
     }
@@ -177,5 +178,4 @@ class UserControllerTest extends TestCase
         $this->assertEquals('Cannot update user', $data['error']);
         $this->assertEquals(400, $response->getStatusCode());
     }
-
 }

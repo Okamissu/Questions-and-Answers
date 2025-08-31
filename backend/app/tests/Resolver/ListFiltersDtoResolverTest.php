@@ -10,7 +10,6 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 class ListFiltersDtoResolverTest extends TestCase
 {
-
     public function testResolve(): void
     {
         $request = new Request([

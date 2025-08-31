@@ -74,6 +74,4 @@ class AnswerTest extends TestCase
 
         $this->assertSame($date, $answer->getCreatedAt());
     }
-
 }
-

@@ -9,14 +9,14 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class TagVoter extends Voter
 {
-    const CREATE = 'create';
-    const UPDATE = 'update';
-    const DELETE = 'delete';
+    public const CREATE = 'create';
+    public const UPDATE = 'update';
+    public const DELETE = 'delete';
 
     public function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::CREATE, self::UPDATE, self::DELETE])
-            && ($subject instanceof Tag || $subject === null);
+            && ($subject instanceof Tag || null === $subject);
     }
 
     public function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool

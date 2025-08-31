@@ -70,7 +70,6 @@ class AnswerVoterTest extends TestCase
         $this->assertFalse($this->voter->voteOnAttribute(AnswerVoter::MARK_BEST, $answer, $this->token));
     }
 
-
     public function testOtherUser(): void
     {
         $author = $this->createMock(User::class);
@@ -166,5 +165,4 @@ class AnswerVoterTest extends TestCase
         // Unsupported subject
         $this->assertFalse($this->voter->supports(AnswerVoter::UPDATE, new \stdClass()));
     }
-
 }

@@ -39,6 +39,7 @@ class UserController extends AbstractController
                     'message' => $error->getMessage(),
                 ];
             }
+
             return new JsonResponse(['errors' => $errorsArray], 400);
         }
 
@@ -49,6 +50,7 @@ class UserController extends AbstractController
         }
 
         $data = $this->serializer->serialize($user, 'json', ['groups' => ['user:read']]);
+
         return new JsonResponse($data, 201, [], true);
     }
 
@@ -58,6 +60,7 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted(UserVoter::VIEW, $user);
 
         $data = $this->serializer->serialize($user, 'json', ['groups' => ['user:read']]);
+
         return new JsonResponse($data, 200, [], true);
     }
 
@@ -77,6 +80,7 @@ class UserController extends AbstractController
                     'message' => $error->getMessage(),
                 ];
             }
+
             return new JsonResponse(['errors' => $errorsArray], 400);
         }
 
@@ -87,6 +91,7 @@ class UserController extends AbstractController
         }
 
         $data = $this->serializer->serialize($updatedUser, 'json', ['groups' => ['user:read']]);
+
         return new JsonResponse($data, 200, [], true);
     }
 
@@ -96,6 +101,7 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
 
         $this->userService->deleteUser($user);
+
         return new Response(null, 204);
     }
 }

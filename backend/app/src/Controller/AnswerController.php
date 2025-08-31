@@ -33,9 +33,9 @@ class AnswerController extends AbstractController
 
     #[Route('', methods: ['GET'])]
     public function list(
-        Question                                                                  $question,
+        Question $question,
         #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters,
-        #[MapQueryParameter] int                                                  $page = 1,
+        #[MapQueryParameter] int $page = 1,
     ): JsonResponse {
         $limit = max(1, min(100, $filters->limit ?? 10)); // domyślny limit 10
         $search = $filters->search ?? null;

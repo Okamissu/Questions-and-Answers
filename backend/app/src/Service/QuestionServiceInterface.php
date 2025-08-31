@@ -18,12 +18,6 @@ interface QuestionServiceInterface
     /**
      * Returns paginated list of questions with optional search, sort, and category filter.
      *
-     * @param int         $page
-     * @param int         $limit
-     * @param string|null $search
-     * @param string|null $sort
-     * @param int|null    $categoryId
-     *
      * @return array{items: Question[], totalItems: int}
      */
     public function getPaginatedList(
@@ -31,6 +25,6 @@ interface QuestionServiceInterface
         int $limit,
         ?string $search = null,
         ?string $sort = null,
-        ?int $categoryId = null
+        ?int $categoryId = null,
     ): array;
 }

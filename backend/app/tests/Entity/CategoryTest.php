@@ -33,5 +33,3 @@ class CategoryTest extends TestCase
         $this->assertSame(123, $category->getId());
     }
 }
-
-

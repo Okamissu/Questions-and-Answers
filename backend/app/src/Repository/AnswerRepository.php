@@ -38,8 +38,7 @@ class AnswerRepository extends ServiceEntityRepository
 
         if ($sort) {
             [$field, $direction] = explode('_', $sort) + [null, null];
-            if (
-                in_array($field, $allowedFields, true)
+            if (in_array($field, $allowedFields, true)
                 && in_array(strtoupper($direction), ['ASC', 'DESC'], true)
             ) {
                 $qb->orderBy('a.'.$field, strtoupper($direction));

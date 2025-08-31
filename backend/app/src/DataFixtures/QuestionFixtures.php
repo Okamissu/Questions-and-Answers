@@ -7,11 +7,9 @@ use App\Entity\User;
 use App\Entity\Category;
 use App\Entity\Tag;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\Persistence\ObjectManager;
 
 class QuestionFixtures extends AbstractBaseFixtures implements DependentFixtureInterface
 {
-
     public function loadData(): void
     {
         $this->createMany(30, 'question', function (int $i) {

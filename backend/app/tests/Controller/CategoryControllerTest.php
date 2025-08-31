@@ -38,7 +38,9 @@ class CategoryControllerTest extends TestCase
 
         // Mock denyAccessUnlessGranted to do nothing
         $this->controller->method('denyAccessUnlessGranted')
-            ->willReturnCallback(function () { /* do nothing */ });
+            ->willReturnCallback(function () {
+                /* do nothing */
+            });
 
         // Mock json() so it returns a real JsonResponse
         $this->controller->method('json')->willReturnCallback(function ($data, $status = 200) {
@@ -73,7 +75,6 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals($page, $data['pagination']['page']);
         $this->assertEquals($filters->limit, $data['pagination']['limit']);
     }
-
 
     public function testShow(): void
     {

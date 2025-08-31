@@ -71,8 +71,6 @@ class AnswerServiceTest extends TestCase
         $this->assertEquals(2, $result['totalItems']);
     }
 
-
-
     public function testCreateSavesAndReturnsAnswer(): void
     {
         $dto = new CreateAnswerDto();

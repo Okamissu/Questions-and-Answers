@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Resolver;
 
 use App\Dto\QuestionListFiltersDto;

@@ -43,7 +43,9 @@ class QuestionControllerTest extends TestCase
 
         // Allow access for denyAccessUnlessGranted
         $this->controller->method('denyAccessUnlessGranted')
-            ->willReturnCallback(function () { /* do nothing */ });
+            ->willReturnCallback(function () {
+                /* do nothing */
+            });
     }
 
     public function testList(): void
@@ -64,7 +66,6 @@ class QuestionControllerTest extends TestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(1, $data['pagination']['totalItems']);
     }
-
 
     public function testShow(): void
     {

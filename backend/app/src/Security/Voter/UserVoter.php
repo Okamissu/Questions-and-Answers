@@ -8,9 +8,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class UserVoter extends Voter
 {
-    const VIEW = 'view';
-    const UPDATE = 'update';
-    const DELETE = 'delete';
+    public const VIEW = 'view';
+    public const UPDATE = 'update';
+    public const DELETE = 'delete';
 
     public function supports(string $attribute, $subject): bool
     {

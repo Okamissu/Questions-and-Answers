@@ -127,6 +127,4 @@ class QuestionServiceTest extends TestCase
         $this->assertEquals(['q1', 'q2'], $result['items']);
         $this->assertEquals(2, $result['totalItems']);
     }
-
-
 }

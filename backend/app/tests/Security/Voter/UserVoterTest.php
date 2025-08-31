@@ -98,5 +98,4 @@ class UserVoterTest extends TestCase
         // Use an unsupported attribute
         $this->assertFalse($this->voter->voteOnAttribute('random_action', $targetUser, $this->token));
     }
-
 }

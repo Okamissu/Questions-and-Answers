@@ -16,7 +16,7 @@ class QuestionListFiltersDtoResolverTest extends TestCase
             'search' => 'question',
             'sort' => 'desc',
             'limit' => 15,
-            'category' => 5
+            'category' => 5,
         ]);
 
         $argumentMetadata = $this->createMock(ArgumentMetadata::class);

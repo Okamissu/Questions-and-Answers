@@ -10,4 +10,3 @@ class CreateCategoryDto
     #[Assert\Length(min: 3, max: 255)]
     public ?string $name = null;
 }
-

@@ -23,6 +23,7 @@ class CreateAnswerDtoValidationTest extends KernelTestCase
         $question = new Question();
         $question->setTitle('Valid title');
         $question->setContent('Valid content with enough length');
+
         // You can skip author/category if not relevant for validation
         return $question;
     }
@@ -33,6 +34,7 @@ class CreateAnswerDtoValidationTest extends KernelTestCase
         $user->setEmail('user@example.com');
         $user->setPassword('hashedpassword');
         $user->setNickname('nickname');
+
         return $user;
     }
 

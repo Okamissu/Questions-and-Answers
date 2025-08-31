@@ -9,9 +9,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AnswerVoter extends Voter
 {
-    const UPDATE = 'update';
-    const DELETE = 'delete';
-    const MARK_BEST = 'mark_best';
+    public const UPDATE = 'update';
+    public const DELETE = 'delete';
+    public const MARK_BEST = 'mark_best';
 
     public function supports(string $attribute, $subject): bool
     {

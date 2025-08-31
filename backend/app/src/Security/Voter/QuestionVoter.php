@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class QuestionVoter extends Voter
 {
-    const UPDATE = 'update';
-    const DELETE = 'delete';
+    public const UPDATE = 'update';
+    public const DELETE = 'delete';
 
     public function supports(string $attribute, $subject): bool
     {

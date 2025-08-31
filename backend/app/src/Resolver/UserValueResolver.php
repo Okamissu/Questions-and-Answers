@@ -11,14 +11,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserValueResolver implements ValueResolverInterface
 {
-    public function __construct(private UserRepository $userRepository) {}
+    public function __construct(private UserRepository $userRepository)
+    {
+    }
 
     /**
      * @return \Traversable<User>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        if ($argument->getType() !== User::class) {
+        if (User::class !== $argument->getType()) {
             return [];
         }
 
@@ -28,7 +30,7 @@ class UserValueResolver implements ValueResolverInterface
             return [];
         }
 
-        $user = $this->userRepository->find((int)$userId);
+        $user = $this->userRepository->find((int) $userId);
 
         if (!$user) {
             throw new NotFoundHttpException('User not found');

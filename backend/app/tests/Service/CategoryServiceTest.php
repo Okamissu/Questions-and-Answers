@@ -120,5 +120,4 @@ class CategoryServiceTest extends TestCase
         $this->assertCount(2, $result['items']);
         $this->assertEquals(2, $result['totalItems']);
     }
-
 }

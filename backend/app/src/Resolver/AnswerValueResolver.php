@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Traversable;
 
 class AnswerValueResolver implements ValueResolverInterface
 {
@@ -18,7 +17,7 @@ class AnswerValueResolver implements ValueResolverInterface
     }
 
     /**
-     * @return Traversable<Answer>
+     * @return \Traversable<Answer>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {

@@ -76,7 +76,7 @@ class UserRepositoryTest extends TestCase
     {
         $this->expectException(UnsupportedUserException::class);
 
-        $this->repository->upgradePassword(new class implements PasswordAuthenticatedUserInterface {
+        $this->repository->upgradePassword(new class () implements PasswordAuthenticatedUserInterface {
             public function getPassword(): ?string
             {
                 return null;

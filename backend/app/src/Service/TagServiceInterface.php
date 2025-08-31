@@ -17,17 +17,12 @@ interface TagServiceInterface
     /**
      * Returns paginated list of tags with optional search and sorting.
      *
-     * @param int         $page
-     * @param int         $limit
-     * @param string|null $search
-     * @param string|null $sort
-     *
      * @return array{items: Tag[], totalItems: int}
      */
     public function getPaginatedList(
         int $page,
         int $limit,
         ?string $search = null,
-        ?string $sort = null
+        ?string $sort = null,
     ): array;
 }

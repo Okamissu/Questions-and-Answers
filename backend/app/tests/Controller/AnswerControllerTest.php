@@ -49,7 +49,9 @@ class AnswerControllerTest extends TestCase
 
         // Mock denyAccessUnlessGranted to do nothing
         $this->controller->method('denyAccessUnlessGranted')
-            ->willReturnCallback(function () { /* do nothing */ });
+            ->willReturnCallback(function () {
+                /* do nothing */
+            });
     }
 
     public function testList(): void
@@ -91,7 +93,6 @@ class AnswerControllerTest extends TestCase
         $this->assertEquals([['id' => 1, 'content' => 'Test Answer']], $data['items']);
         $this->assertEquals(200, $response->getStatusCode());
     }
-
 
     public function testShow(): void
     {
@@ -247,5 +248,4 @@ class AnswerControllerTest extends TestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('Nickname and email are required for anonymous answers', $data['error']);
     }
-
 }

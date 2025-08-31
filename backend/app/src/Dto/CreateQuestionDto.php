@@ -27,4 +27,3 @@ class CreateQuestionDto
     ])]
     public ?array $tags = null;
 }
-
