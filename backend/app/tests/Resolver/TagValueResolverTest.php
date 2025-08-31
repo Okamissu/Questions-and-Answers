@@ -1,27 +1,51 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Resolver;
 
 use App\Entity\Tag;
 use App\Repository\TagRepository;
 use App\Resolver\TagValueResolver;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Class TagValueResolverTest.
+ *
+ * Tests the TagValueResolver behavior.
+ */
 class TagValueResolverTest extends TestCase
 {
     private TagRepository $repository;
     private TagValueResolver $resolver;
 
+    /**
+     * Setup mocks and resolver.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->repository = $this->createMock(TagRepository::class);
         $this->resolver = new TagValueResolver($this->repository);
     }
 
-    public function testResolveReturnsTag()
+    /**
+     * Test resolving a tag by ID.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testResolveReturnsTag(): void
     {
         $tag = new Tag();
 
@@ -40,7 +64,14 @@ class TagValueResolverTest extends TestCase
         $this->assertSame($tag, $result[0]);
     }
 
-    public function testResolveReturnsEmptyIfTypeDoesNotMatch()
+    /**
+     * Test resolver returns empty if argument type does not match.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testResolveReturnsEmptyIfTypeDoesNotMatch(): void
     {
         $request = new Request();
         $argument = $this->createMock(ArgumentMetadata::class);
@@ -51,7 +82,14 @@ class TagValueResolverTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testResolveReturnsEmptyIfNoIdProvided()
+    /**
+     * Test resolver returns empty if no tag ID is provided.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testResolveReturnsEmptyIfNoIdProvided(): void
     {
         $request = new Request();
         $argument = $this->createMock(ArgumentMetadata::class);
@@ -62,7 +100,14 @@ class TagValueResolverTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testResolveThrowsNotFoundExceptionIfTagNotFound()
+    /**
+     * Test resolver throws NotFoundHttpException if tag not found.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testResolveThrowsNotFoundExceptionIfTagNotFound(): void
     {
         $this->repository
             ->method('find')

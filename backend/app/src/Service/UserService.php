@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Service;
 
 use App\Dto\CreateUserDto;
@@ -10,18 +14,32 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class UserService.
+ *
+ * Service responsible for managing User entities: creation, update, deletion, and retrieval.
+ */
 class UserService implements UserServiceInterface
 {
-    public function __construct(
-        private UserRepository $userRepository,
-        private UserPasswordHasherInterface $passwordHasher,
-        private ValidatorInterface $validator,
-    ) {
+    /**
+     * UserService constructor.
+     *
+     * @param UserRepository              $userRepository Repository for User entities
+     * @param UserPasswordHasherInterface $passwordHasher Service for hashing user passwords
+     * @param ValidatorInterface          $validator      Service for validating entities
+     */
+    public function __construct(private readonly UserRepository $userRepository, private readonly UserPasswordHasherInterface $passwordHasher, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**
-     * Tworzy nowego użytkownika na podstawie DTO.
-     * Haszuje hasło i zapisuje użytkownika.
+     * Creates a new user from the provided DTO, hashes the password, validates, and saves it.
+     *
+     * @param CreateUserDto $dto Data transfer object containing user data
+     *
+     * @return User The created user entity
+     *
+     * @throws \InvalidArgumentException if validation fails
      */
     public function createUser(CreateUserDto $dto): User
     {
@@ -29,14 +47,11 @@ class UserService implements UserServiceInterface
         $user->setEmail($dto->email);
         $user->setNickname($dto->nickname);
 
-        // Hashowanie hasła
         $hashedPassword = $this->passwordHasher->hashPassword($user, $dto->plainPassword);
         $user->setPassword($hashedPassword);
 
-        // Walidacja encji przed zapisem (opcjonalne)
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
-            // możesz rzucić wyjątek lub zwrócić błędy w inny sposób
             throw new \InvalidArgumentException((string) $errors);
         }
 
@@ -46,7 +61,14 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     * Aktualizuje istniejącego użytkownika na podstawie DTO.
+     * Updates an existing user with the provided DTO, hashes password if changed, validates, and saves it.
+     *
+     * @param User          $user User entity to update
+     * @param UpdateUserDto $dto  Data transfer object containing updated values
+     *
+     * @return User The updated user entity
+     *
+     * @throws \InvalidArgumentException if validation fails
      */
     public function updateUser(User $user, UpdateUserDto $dto): User
     {
@@ -74,7 +96,9 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     * Usuwa użytkownika.
+     * Deletes a user entity.
+     *
+     * @param User $user User entity to delete
      */
     public function deleteUser(User $user): void
     {
@@ -82,7 +106,13 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     * Znajduje użytkownika po emailu albo rzuca wyjątek jeśli nie ma.
+     * Finds a user by email or throws a NotFoundHttpException if not found.
+     *
+     * @param string $email Email of the user to find
+     *
+     * @return User The found user entity
+     *
+     * @throws NotFoundHttpException if no user is found with the given email
      */
     public function findUserByEmailOrFail(string $email): User
     {

@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 /**
  * Base fixtures.
  */
@@ -19,17 +23,17 @@ use Faker\Generator;
 abstract class AbstractBaseFixtures extends Fixture
 {
     /**
-     * Faker.
+     * Faker generator.
      */
     protected ?Generator $faker = null;
 
     /**
-     * Persistence object manager.
+     * Doctrine object manager.
      */
     protected ?ObjectManager $manager = null;
 
     /**
-     * Load.
+     * Load fixtures.
      *
      * @param ObjectManager $manager Persistence object manager
      */
@@ -41,30 +45,27 @@ abstract class AbstractBaseFixtures extends Fixture
     }
 
     /**
-     * Load data.
+     * Load data for fixtures.
      */
     abstract protected function loadData(): void;
 
     /**
-     * Create many objects at once:.
+     * Create many objects at once.
      *
+     * Example usage:
      *      $this->createMany(10, 'user', function(int $i) {
      *          $user = new User();
      *          $user->setFirstName('Ryan');
-     *
-     *           return $user;
+     *          return $user;
      *      });
      *
-     * @param int      $count              Number of object to create
-     * @param string   $referenceGroupName Tag these created objects with this group name,
-     *                                     and use this later with getRandomReference(s)
-     *                                     to fetch only from this specific group
-     * @param callable $factory            Defines method of creating objects
+     * @param int      $count              Number of objects to create
+     * @param string   $referenceGroupName Group name for references
+     * @param callable $factory            Callback to create each object
      */
     protected function createMany(int $count, string $referenceGroupName, callable $factory): void
     {
         for ($i = 0; $i < $count; ++$i) {
-            /** @var object|null $entity */
             $entity = $factory($i);
 
             if (null === $entity) {
@@ -72,8 +73,6 @@ abstract class AbstractBaseFixtures extends Fixture
             }
 
             $this->manager->persist($entity);
-
-            // store for usage later than groupName_#COUNT#
             $this->addReference(sprintf('%s_%d', $referenceGroupName, $i), $entity);
         }
 
@@ -81,9 +80,9 @@ abstract class AbstractBaseFixtures extends Fixture
     }
 
     /**
-     * Set random reference to the object.
+     * Get a random reference object by group and class.
      *
-     * @param string $referenceGroupName Objects reference group name
+     * @param string $referenceGroupName Reference group name
      * @param string $className          Class name
      *
      * @return object Random object reference
@@ -97,13 +96,13 @@ abstract class AbstractBaseFixtures extends Fixture
     }
 
     /**
-     * Get array of objects references based on count.
+     * Get multiple random reference objects by group and class.
      *
-     * @param string $referenceGroupName Objects reference group name
-     * @param string $className          Objects class name
-     * @param int    $count              Number of references
+     * @param string $referenceGroupName Reference group name
+     * @param string $className          Class name
+     * @param int    $count              Number of objects
      *
-     * @return object[] Result
+     * @return object[] Array of random objects
      */
     protected function getRandomReferenceList(string $referenceGroupName, string $className, int $count): array
     {
@@ -118,12 +117,12 @@ abstract class AbstractBaseFixtures extends Fixture
     }
 
     /**
-     * Get reference name list by class name.
+     * Get list of reference names for a given group and class.
      *
-     * @param string $referenceGroupName Objects reference group name
-     * @param string $className          Objects class name
+     * @param string $referenceGroupName Reference group name
+     * @param string $className          Class name
      *
-     * @return array Reference name list
+     * @return string[] Array of reference names
      */
     private function getReferenceNameListByClassName(string $referenceGroupName, string $className): array
     {
@@ -139,7 +138,7 @@ abstract class AbstractBaseFixtures extends Fixture
 
         $referenceNameList = array_filter(
             $referenceNameListByClass,
-            fn ($referenceName) => preg_match_all("/^{$referenceGroupName}_\\d+\$/", $referenceName)
+            fn ($referenceName) => preg_match_all("/^{$referenceGroupName}_\\d+$/", $referenceName)
         );
 
         if ([] === $referenceNameList) {

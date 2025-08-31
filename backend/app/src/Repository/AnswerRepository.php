@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Repository;
 
 use App\Entity\Answer;
@@ -8,15 +12,29 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * Repository for Answer entity.
+ */
 class AnswerRepository extends ServiceEntityRepository
 {
+    /**
+     * AnswerRepository constructor.
+     *
+     * @param ManagerRegistry $registry The Doctrine manager registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Answer::class);
     }
 
     /**
-     * Query answers with optional filters (e.g. by question, search text) and sorting.
+     * Builds a QueryBuilder for answers with optional filters and sorting.
+     *
+     * @param Question|null $question Filter by a specific question
+     * @param string|null   $search   Filter by content search
+     * @param string|null   $sort     Sort field and direction, e.g. "content_ASC"
+     *
+     * @return QueryBuilder The Doctrine QueryBuilder instance
      */
     public function queryWithFilters(?Question $question = null, ?string $search = null, ?string $sort = null): QueryBuilder
     {
@@ -43,19 +61,19 @@ class AnswerRepository extends ServiceEntityRepository
             ) {
                 $qb->orderBy('a.'.$field, strtoupper($direction));
             } else {
-                // fallback if sort is invalid
-                $qb->orderBy('a.createdAt', 'DESC');
+                $qb->orderBy('a.createdAt', 'DESC'); // fallback
             }
         } else {
-            // default if no sort provided
-            $qb->orderBy('a.createdAt', 'DESC');
+            $qb->orderBy('a.createdAt', 'DESC'); // default
         }
 
         return $qb;
     }
 
     /**
-     * Save answer entity.
+     * Persists an Answer entity.
+     *
+     * @param Answer $answer The answer to save
      */
     public function save(Answer $answer): void
     {
@@ -65,7 +83,9 @@ class AnswerRepository extends ServiceEntityRepository
     }
 
     /**
-     * Delete answer entity.
+     * Removes an Answer entity.
+     *
+     * @param Answer $answer The answer to delete
      */
     public function delete(Answer $answer): void
     {

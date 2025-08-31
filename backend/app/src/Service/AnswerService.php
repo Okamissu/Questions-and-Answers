@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Service;
 
 use App\Dto\CreateAnswerDto;
@@ -7,15 +11,38 @@ use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Repository\AnswerRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
+/**
+ * Service responsible for managing Answer entities,
+ * including creation, update, deletion, pagination,
+ * and handling "best answer" logic.
+ */
 class AnswerService implements AnswerServiceInterface
 {
-    public function __construct(
-        private AnswerRepository $answerRepository,
-    ) {
+    /**
+     * @var AnswerRepository Repository for persisting Answer entities
+     */
+    private AnswerRepository $answerRepository;
+
+    /**
+     * AnswerService constructor.
+     *
+     * @param AnswerRepository $answerRepository Repository for Answer entities
+     */
+    public function __construct(AnswerRepository $answerRepository)
+    {
+        $this->answerRepository = $answerRepository;
     }
 
+    /**
+     * Creates a new Answer entity from the given DTO and saves it.
+     *
+     * @param CreateAnswerDto $dto DTO containing answer data
+     *
+     * @return Answer The created Answer entity
+     */
     public function create(CreateAnswerDto $dto): Answer
     {
         $answer = new Answer();
@@ -23,7 +50,7 @@ class AnswerService implements AnswerServiceInterface
         $answer->setQuestion($dto->question);
         $answer->setIsBest($dto->isBest);
 
-        // author can be null for anonymous
+        // Author can be null for anonymous answers
         $answer->setAuthor($dto->author);
         $answer->setAuthorNickname($dto->authorNickname);
         $answer->setAuthorEmail($dto->authorEmail);
@@ -33,6 +60,14 @@ class AnswerService implements AnswerServiceInterface
         return $answer;
     }
 
+    /**
+     * Updates an existing Answer entity with values from the given DTO.
+     *
+     * @param Answer          $answer The Answer to update
+     * @param UpdateAnswerDto $dto    DTO containing updated values
+     *
+     * @return Answer The updated Answer entity
+     */
     public function update(Answer $answer, UpdateAnswerDto $dto): Answer
     {
         if (null !== $dto->content) {
@@ -46,35 +81,29 @@ class AnswerService implements AnswerServiceInterface
         return $answer;
     }
 
+    /**
+     * Deletes the given Answer entity.
+     *
+     * @param Answer $answer The Answer to delete
+     */
     public function delete(Answer $answer): void
     {
         $this->answerRepository->delete($answer);
     }
 
     /**
-     * @codeCoverageIgnore
-     */
-    protected function createPaginator($qb): Paginator
-    {
-        return new Paginator($qb);
-    }
-
-    /**
-     * Returns paginated list of answers with optional filters.
+     * Returns a paginated list of Answer entities with optional filters.
      *
-     * @param Question|null $question Filter by question (optional)
-     * @param string|null   $search   Search in content (optional)
+     * @param int           $page     Current page number (1-based)
+     * @param int           $limit    Number of items per page
+     * @param Question|null $question Filter by Question entity (optional)
+     * @param string|null   $search   Search string for content (optional)
      * @param string|null   $sort     Sort string, e.g. "createdAt_DESC" (optional)
      *
-     * @return array ['items' => Answer[], 'totalItems' => int]
+     * @return array{items: Answer[], totalItems: int} Array with paginated answers and total count
      */
-    public function getPaginatedList(
-        int $page,
-        int $limit,
-        ?Question $question = null,
-        ?string $search = null,
-        ?string $sort = null,
-    ): array {
+    public function getPaginatedList(int $page, int $limit, ?Question $question = null, ?string $search = null, ?string $sort = null): array
+    {
         $qb = $this->answerRepository->queryWithFilters($question, $search, $sort);
         $paginator = $this->createPaginator($qb);
 
@@ -89,6 +118,14 @@ class AnswerService implements AnswerServiceInterface
         ];
     }
 
+    /**
+     * Marks the given Answer as the "best" answer for its Question.
+     * Ensures only one answer per Question is marked as best.
+     *
+     * @param Answer $answer The Answer to mark as best
+     *
+     * @return Answer The updated Answer entity
+     */
     public function markAsBest(Answer $answer): Answer
     {
         $question = $answer->getQuestion();
@@ -109,5 +146,19 @@ class AnswerService implements AnswerServiceInterface
         $this->answerRepository->save($answer);
 
         return $answer;
+    }
+
+    /**
+     * Creates a Doctrine paginator for a given query builder.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param QueryBuilder $qb Doctrine QueryBuilder
+     *
+     * @return Paginator Paginator instance
+     */
+    protected function createPaginator(QueryBuilder $qb): Paginator
+    {
+        return new Paginator($qb);
     }
 }

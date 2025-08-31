@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -10,6 +14,9 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+/**
+ * Represents a user of the system.
+ */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_NICKNAME', fields: ['nickname'])]
@@ -27,20 +34,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     #[Groups(['user:read'])]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255, nullable: true, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     #[Groups(['user:read', 'user:write', 'question:read', 'answer:read'])]
     private ?string $nickname = null;
 
@@ -54,19 +55,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    // dla edycji hasła — przechowujemy tymczasowo plainPassword, nie mapujemy do bazy
     private ?string $plainPassword = null;
 
+    /**
+     * Get the user ID.
+     *
+     * @return int|null The unique identifier of the user
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Get the user email.
+     *
+     * @return string|null Email address of the user
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * Set the user email.
+     *
+     * @param string $email Email address to set
+     * @return static Returns the current User instance for method chaining
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -74,11 +90,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Returns the identifier used to authenticate the user (email).
+     *
+     * @return string Email identifier of the user
+     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
+    /**
+     * Get user roles.
+     *
+     * Always includes ROLE_USER.
+     *
+     * @return list<string> Array of role strings
+     */
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -88,7 +116,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @param list<string> $roles
+     * Set user roles.
+     *
+     * @param list<string> $roles Array of roles to assign
+     * @return static Returns the current User instance for method chaining
      */
     public function setRoles(array $roles): static
     {
@@ -97,11 +128,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Get hashed password.
+     *
+     * @return string|null Returns the hashed password of the user
+     */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
+    /**
+     * Set hashed password.
+     *
+     * @param string $password The hashed password to store
+     * @return static Returns the current User instance for method chaining
+     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -109,11 +151,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Get nickname.
+     *
+     * @return string|null User's display nickname
+     */
     public function getNickname(): ?string
     {
         return $this->nickname;
     }
 
+    /**
+     * Set nickname.
+     *
+     * @param string|null $nickname Nickname to set for the user
+     * @return static Returns the current User instance for method chaining
+     */
     public function setNickname(?string $nickname): static
     {
         $this->nickname = $nickname;
@@ -121,21 +174,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Get account creation timestamp.
+     *
+     * @return \DateTimeImmutable|null Timestamp of account creation
+     */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Get last update timestamp.
+     *
+     * @return \DateTimeImmutable|null Timestamp of last account update
+     */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
+    /**
+     * Get temporary plain password.
+     *
+     * @return string|null Plain password (not persisted)
+     */
     public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
 
+    /**
+     * Set temporary plain password.
+     *
+     * @param string|null $plainPassword Plain password to temporarily store
+     * @return static Returns the current User instance for method chaining
+     */
     public function setPlainPassword(?string $plainPassword): static
     {
         $this->plainPassword = $plainPassword;
@@ -143,6 +217,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Removes sensitive data from the user.
+     *
+     * @return void This method clears any temporary sensitive data
+     */
     public function eraseCredentials(): void
     {
         $this->plainPassword = null;

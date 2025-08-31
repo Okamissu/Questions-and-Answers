@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Repository;
 
 use App\Entity\User;
@@ -9,16 +13,29 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
+/**
+ * Class UserRepositoryTest.
+ *
+ * Tests core repository functions of UserRepository.
+ */
 class UserRepositoryTest extends TestCase
 {
     private EntityManagerInterface $em;
     private ManagerRegistry $registry;
     private UserRepository $repository;
 
+    /**
+     * Set up mocks and repository.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
@@ -30,16 +47,19 @@ class UserRepositoryTest extends TestCase
         $this->em->method('getClassMetadata')->willReturn($metadata);
         $this->registry->method('getManagerForClass')->willReturn($this->em);
 
-        // Create partial mock for repository to override createQueryBuilder
         $this->repository = $this->getMockBuilder(UserRepository::class)
             ->setConstructorArgs([$this->registry])
             ->onlyMethods(['createQueryBuilder'])
             ->getMock();
 
-        // Inject mocked EM
-        $this->setProtectedProperty($this->repository, 'em', $this->em);
+        $this->setProtectedProperty($this->repository, $this->em);
     }
 
+    /**
+     * Test saving a User entity.
+     *
+     * @test
+     */
     public function testSave(): void
     {
         $user = new User();
@@ -50,6 +70,11 @@ class UserRepositoryTest extends TestCase
         $this->repository->save($user);
     }
 
+    /**
+     * Test deleting a User entity.
+     *
+     * @test
+     */
     public function testDelete(): void
     {
         $user = new User();
@@ -60,6 +85,11 @@ class UserRepositoryTest extends TestCase
         $this->repository->delete($user);
     }
 
+    /**
+     * Test upgrading a User password.
+     *
+     * @test
+     */
     public function testUpgradePassword(): void
     {
         $user = new User();
@@ -69,14 +99,24 @@ class UserRepositoryTest extends TestCase
 
         $this->repository->upgradePassword($user, 'newHashedPassword');
 
-        $this->assertEquals('newHashedPassword', $user->getPassword());
+        $this->assertSame('newHashedPassword', $user->getPassword());
     }
 
+    /**
+     * Test that upgrading password throws for unsupported user.
+     *
+     * @test
+     */
     public function testUpgradePasswordThrowsExceptionForWrongUser(): void
     {
         $this->expectException(UnsupportedUserException::class);
 
-        $this->repository->upgradePassword(new class () implements PasswordAuthenticatedUserInterface {
+        $unsupportedUser = new class () implements PasswordAuthenticatedUserInterface {
+            /**
+             * Returns the hashed password used to authenticate the user.
+             *
+             * Usually on authentication, a plain-text password will be compared to this value.
+             */
             public function getPassword(): ?string
             {
                 return null;
@@ -90,9 +130,18 @@ class UserRepositoryTest extends TestCase
             public function eraseCredentials(): void
             {
             }
-        }, 'hash');
+        };
+
+        $this->repository->upgradePassword($unsupportedUser, 'hash');
     }
 
+    /**
+     * Test finding a user by email.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testFindOneByEmail(): void
     {
         $email = 'test@example.com';
@@ -120,19 +169,22 @@ class UserRepositoryTest extends TestCase
         $this->repository->findOneByEmail($email);
     }
 
-    private function setProtectedProperty(object $object, string $property, $value): void
+    /**
+     * Helper to set a protected property via reflection.
+     */
+    private function setProtectedProperty(object $object, $value): void
     {
         $refObject = new \ReflectionObject($object);
-        while (!$refObject->hasProperty($property)) {
+
+        while (!$refObject->hasProperty('em')) {
             $parent = $refObject->getParentClass();
             if (!$parent) {
-                throw new \RuntimeException("Property {$property} not found");
+                throw new \RuntimeException('Property em not found');
             }
             $refObject = $parent;
         }
-        $refProperty = $refObject->getProperty($property);
-        /* @noinspection PhpExpressionResultUnusedInspection */
-        $refProperty->setAccessible(true);
+
+        $refProperty = $refObject->getProperty('em');
         $refProperty->setValue($object, $value);
     }
 }

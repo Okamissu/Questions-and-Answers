@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Repository;
 
 use App\Entity\Answer;
@@ -9,8 +13,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AnswerRepositoryTest.
+ */
 class AnswerRepositoryTest extends TestCase
 {
     private EntityManagerInterface $em;
@@ -18,6 +26,13 @@ class AnswerRepositoryTest extends TestCase
     private AnswerRepository $repository;
     private QueryBuilder $qb;
 
+    /**
+     * Function setUp.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
@@ -45,6 +60,11 @@ class AnswerRepositoryTest extends TestCase
         $this->qb->method('orderBy')->willReturnSelf();
     }
 
+    /**
+     * Function testQueryWithFiltersDefaultSort.
+     *
+     * @test
+     */
     public function testQueryWithFiltersDefaultSort(): void
     {
         $this->qb->expects($this->once())
@@ -54,6 +74,11 @@ class AnswerRepositoryTest extends TestCase
         $this->repository->queryWithFilters();
     }
 
+    /**
+     * Function testQueryWithFiltersWithQuestion.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithQuestion(): void
     {
         $question = new Question();
@@ -68,6 +93,11 @@ class AnswerRepositoryTest extends TestCase
         $this->repository->queryWithFilters($question);
     }
 
+    /**
+     * Function testQueryWithFiltersWithSearch.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithSearch(): void
     {
         $this->qb->expects($this->once())
@@ -80,6 +110,11 @@ class AnswerRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, 'term');
     }
 
+    /**
+     * Function testQueryWithFiltersValidSort.
+     *
+     * @test
+     */
     public function testQueryWithFiltersValidSort(): void
     {
         $this->qb->expects($this->once())
@@ -89,6 +124,11 @@ class AnswerRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, null, 'content_asc');
     }
 
+    /**
+     * Function testQueryWithFiltersInvalidSortFallsBack.
+     *
+     * @test
+     */
     public function testQueryWithFiltersInvalidSortFallsBack(): void
     {
         $this->qb->expects($this->once())
@@ -98,6 +138,11 @@ class AnswerRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, null, 'invalid_sort');
     }
 
+    /**
+     * Function testSave.
+     *
+     * @test
+     */
     public function testSave(): void
     {
         $answer = new Answer();
@@ -107,11 +152,16 @@ class AnswerRepositoryTest extends TestCase
 
         // call directly — uses real $this->em
         $repo = new AnswerRepository($this->registry);
-        $this->setProtectedProperty($repo, 'em', $this->em);
+        $this->setProtectedProperty($repo, $this->em);
 
         $repo->save($answer);
     }
 
+    /**
+     * Function testDelete.
+     *
+     * @test
+     */
     public function testDelete(): void
     {
         $answer = new Answer();
@@ -120,24 +170,29 @@ class AnswerRepositoryTest extends TestCase
         $this->em->expects($this->once())->method('flush');
 
         $repo = new AnswerRepository($this->registry);
-        $this->setProtectedProperty($repo, 'em', $this->em);
+        $this->setProtectedProperty($repo, $this->em);
 
         $repo->delete($answer);
     }
 
-    private function setProtectedProperty(object $object, string $property, $value): void
+    /**
+     * Function setProtectedProperty.
+     *
+     * @test
+     */
+    private function setProtectedProperty(object $object, $value): void
     {
         $refObject = new \ReflectionObject($object);
 
-        while (!$refObject->hasProperty($property)) {
+        while (!$refObject->hasProperty('em')) {
             $parent = $refObject->getParentClass();
             if (!$parent) {
-                throw new \RuntimeException("Property {$property} not found");
+                throw new \RuntimeException('Property em not found');
             }
             $refObject = $parent;
         }
 
-        $refProperty = $refObject->getProperty($property);
+        $refProperty = $refObject->getProperty('em');
         /* @noinspection PhpExpressionResultUnusedInspection */
         $refProperty->setAccessible(true); // side effect: allows access
         $refProperty->setValue($object, $value);

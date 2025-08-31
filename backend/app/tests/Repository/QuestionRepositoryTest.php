@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Repository;
 
 use App\Entity\Question;
@@ -10,6 +14,9 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class QuestionRepositoryTest.
+ */
 class QuestionRepositoryTest extends TestCase
 {
     private EntityManagerInterface $em;
@@ -17,6 +24,11 @@ class QuestionRepositoryTest extends TestCase
     private QuestionRepository $repository;
     private QueryBuilder $qb;
 
+    /**
+     * Function setUp.
+     *
+     * @test
+     */
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
@@ -43,6 +55,11 @@ class QuestionRepositoryTest extends TestCase
         $this->qb->method('orderBy')->willReturnSelf();
     }
 
+    /**
+     * Function testQueryWithFiltersDefaultSort.
+     *
+     * @test
+     */
     public function testQueryWithFiltersDefaultSort(): void
     {
         $this->qb->expects($this->once())
@@ -52,6 +69,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters();
     }
 
+    /**
+     * Function testQueryWithFiltersWithSearch.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithSearch(): void
     {
         $this->qb->expects($this->once())
@@ -64,6 +86,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters('term');
     }
 
+    /**
+     * Function testQueryWithFiltersWithCategory.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithCategory(): void
     {
         $this->qb->expects($this->once())
@@ -76,6 +103,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, null, 42);
     }
 
+    /**
+     * Function testQueryWithFiltersValidSort.
+     *
+     * @test
+     */
     public function testQueryWithFiltersValidSort(): void
     {
         $this->qb->expects($this->once())
@@ -85,6 +117,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, 'title_asc');
     }
 
+    /**
+     * Function testQueryWithFiltersInvalidSortFallsBack.
+     *
+     * @test
+     */
     public function testQueryWithFiltersInvalidSortFallsBack(): void
     {
         $this->qb->expects($this->once())
@@ -94,6 +131,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, 'invalid_sort');
     }
 
+    /**
+     * Function testSave.
+     *
+     * @test
+     */
     public function testSave(): void
     {
         $question = new Question();
@@ -107,6 +149,11 @@ class QuestionRepositoryTest extends TestCase
         $repo->save($question);
     }
 
+    /**
+     * Function testDelete.
+     *
+     * @test
+     */
     public function testDelete(): void
     {
         $question = new Question();
@@ -120,6 +167,11 @@ class QuestionRepositoryTest extends TestCase
         $repo->delete($question);
     }
 
+    /**
+     * Function setProtectedProperty.
+     *
+     * @test
+     */
     private function setProtectedProperty(object $object, string $property, $value): void
     {
         $refObject = new \ReflectionObject($object);

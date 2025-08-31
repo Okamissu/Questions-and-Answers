@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Resolver;
 
 use App\Entity\Question;
@@ -9,15 +13,29 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Resolves Question entities from request parameters for controller arguments.
+ */
 class QuestionValueResolver implements ValueResolverInterface
 {
-    public function __construct(
-        private QuestionRepository $questionRepository,
-    ) {
+    /**
+     * QuestionValueResolver constructor.
+     *
+     * @param QuestionRepository $questionRepository Repository used to fetch Question entities
+     */
+    public function __construct(private readonly QuestionRepository $questionRepository)
+    {
     }
 
     /**
-     * @return \Traversable<Question>
+     * Resolves a Question entity from the request.
+     *
+     * @param Request          $request  The current HTTP request
+     * @param ArgumentMetadata $argument Metadata for the controller argument
+     *
+     * @return \Traversable<Question> Yields the resolved Question entity
+     *
+     * @throws NotFoundHttpException If the question with the given ID does not exist
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
@@ -25,10 +43,7 @@ class QuestionValueResolver implements ValueResolverInterface
             return [];
         }
 
-        // Najpierw szukamy parametru "questionId" (np. w URL lub body)
-        $questionId = $request->attributes->get('questionId')
-            ?? $request->get('questionId')
-            ?? null;
+        $questionId = $request->attributes->get('questionId') ?? $request->get('questionId');
 
         if (!$questionId) {
             return [];

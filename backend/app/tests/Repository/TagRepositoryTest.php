@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Repository;
 
 use App\Entity\Tag;
@@ -8,8 +12,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class TagRepositoryTest.
+ *
+ * Tests core repository functions of TagRepository.
+ */
 class TagRepositoryTest extends TestCase
 {
     private EntityManagerInterface $em;
@@ -17,6 +27,14 @@ class TagRepositoryTest extends TestCase
     private TagRepository $repository;
     private QueryBuilder $qb;
 
+    /**
+     * Set up mocks and repository.
+     *
+     * @test
+     *
+     * @throws Exception
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
@@ -41,6 +59,11 @@ class TagRepositoryTest extends TestCase
         $this->qb->method('orderBy')->willReturnSelf();
     }
 
+    /**
+     * Test default sort order in queryWithFilters().
+     *
+     * @test
+     */
     public function testQueryWithFiltersDefaultSort(): void
     {
         $this->qb->expects($this->once())
@@ -50,6 +73,11 @@ class TagRepositoryTest extends TestCase
         $this->repository->queryWithFilters();
     }
 
+    /**
+     * Test queryWithFilters() with a search term.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithSearch(): void
     {
         $this->qb->expects($this->once())
@@ -62,6 +90,11 @@ class TagRepositoryTest extends TestCase
         $this->repository->queryWithFilters('term');
     }
 
+    /**
+     * Test valid sort in queryWithFilters().
+     *
+     * @test
+     */
     public function testQueryWithFiltersValidSort(): void
     {
         $this->qb->expects($this->once())
@@ -71,6 +104,11 @@ class TagRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, 'name_asc');
     }
 
+    /**
+     * Test invalid sort in queryWithFilters() falls back to default.
+     *
+     * @test
+     */
     public function testQueryWithFiltersInvalidSortFallsBack(): void
     {
         $this->qb->expects($this->once())
@@ -80,6 +118,11 @@ class TagRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, 'invalid_sort');
     }
 
+    /**
+     * Test saving a Tag entity.
+     *
+     * @test
+     */
     public function testSave(): void
     {
         $tag = new Tag();
@@ -88,11 +131,16 @@ class TagRepositoryTest extends TestCase
         $this->em->expects($this->once())->method('flush');
 
         $repo = new TagRepository($this->registry);
-        $this->setProtectedProperty($repo, 'em', $this->em);
+        $this->setProtectedProperty($repo, $this->em);
 
         $repo->save($tag);
     }
 
+    /**
+     * Test deleting a Tag entity.
+     *
+     * @test
+     */
     public function testDelete(): void
     {
         $tag = new Tag();
@@ -101,26 +149,27 @@ class TagRepositoryTest extends TestCase
         $this->em->expects($this->once())->method('flush');
 
         $repo = new TagRepository($this->registry);
-        $this->setProtectedProperty($repo, 'em', $this->em);
+        $this->setProtectedProperty($repo, $this->em);
 
         $repo->delete($tag);
     }
 
-    private function setProtectedProperty(object $object, string $property, $value): void
+    /**
+     * Helper to set a protected property via reflection.
+     */
+    private function setProtectedProperty(object $object, mixed $value): void
     {
         $refObject = new \ReflectionObject($object);
 
-        while (!$refObject->hasProperty($property)) {
+        while (!$refObject->hasProperty('em')) {
             $parent = $refObject->getParentClass();
             if (!$parent) {
-                throw new \RuntimeException("Property {$property} not found");
+                throw new \RuntimeException('Property em not found');
             }
             $refObject = $parent;
         }
 
-        $refProperty = $refObject->getProperty($property);
-        /* @noinspection PhpExpressionResultUnusedInspection */
-        $refProperty->setAccessible(true);
+        $refProperty = $refObject->getProperty('em');
         $refProperty->setValue($object, $value);
     }
 }

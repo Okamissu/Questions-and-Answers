@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Dto;
 
 use App\Entity\Category;
 use App\Entity\Tag;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Data Transfer Object for updating an existing question.
+ */
 class UpdateQuestionDto
 {
     #[Assert\Length(min: 3, max: 255)]
@@ -15,7 +22,6 @@ class UpdateQuestionDto
     public ?string $content = null;
 
     public ?Category $category = null;
-
 
     /**
      * @var Tag[]|null

@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Resolver;
 
 use App\Entity\User;
@@ -9,14 +13,29 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Resolves User entities from request parameters for controller arguments.
+ */
 class UserValueResolver implements ValueResolverInterface
 {
-    public function __construct(private UserRepository $userRepository)
+    /**
+     * UserValueResolver constructor.
+     *
+     * @param UserRepository $userRepository Repository used to fetch User entities
+     */
+    public function __construct(private readonly UserRepository $userRepository)
     {
     }
 
     /**
-     * @return \Traversable<User>
+     * Resolves a User entity from the request.
+     *
+     * @param Request          $request  The current HTTP request
+     * @param ArgumentMetadata $argument Metadata for the controller argument
+     *
+     * @return \Traversable<User> Yields the resolved User entity
+     *
+     * @throws NotFoundHttpException If the user with the given ID does not exist
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {

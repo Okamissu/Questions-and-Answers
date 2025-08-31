@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Service;
 
 use App\Dto\CreateQuestionDto;
@@ -13,19 +17,45 @@ use App\Service\QuestionService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class QuestionServiceTest.
+ *
+ * Tests creating, updating, deleting, and paginating Questions.
+ */
 class QuestionServiceTest extends TestCase
 {
-    private $questionRepository;
+    private QuestionRepository $questionRepository;
     private QuestionService $service;
 
+    // ----------------------
+    // Setup
+    // ----------------------
+
+    /**
+     * Setup test dependencies.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->questionRepository = $this->createMock(QuestionRepository::class);
         $this->service = new QuestionService($this->questionRepository);
     }
 
+    // ----------------------
+    // Create
+    // ----------------------
+
+    /**
+     * Test that create() saves a new Question and returns it.
+     *
+     * @test
+     */
     public function testCreateQuestion(): void
     {
         $dto = new CreateQuestionDto();
@@ -50,6 +80,15 @@ class QuestionServiceTest extends TestCase
         $this->assertCount(2, $question->getTags());
     }
 
+    // ----------------------
+    // Update
+    // ----------------------
+
+    /**
+     * Test that update() modifies a Question correctly.
+     *
+     * @test
+     */
     public function testUpdateQuestion(): void
     {
         $question = new Question();
@@ -76,6 +115,15 @@ class QuestionServiceTest extends TestCase
         $this->assertCount(1, $updated->getTags());
     }
 
+    // ----------------------
+    // Delete
+    // ----------------------
+
+    /**
+     * Test that delete() calls the repository delete method.
+     *
+     * @test
+     */
     public function testDeleteQuestion(): void
     {
         $question = new Question();
@@ -88,6 +136,17 @@ class QuestionServiceTest extends TestCase
         $this->service->delete($question);
     }
 
+    // ----------------------
+    // Pagination
+    // ----------------------
+
+    /**
+     * Test getPaginatedList() returns items and total count correctly.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testGetPaginatedList(): void
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)

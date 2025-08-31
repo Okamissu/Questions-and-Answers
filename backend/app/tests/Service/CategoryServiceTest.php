@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Service;
 
 use App\Dto\CreateCategoryDto;
@@ -10,10 +14,28 @@ use App\Service\CategoryService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class CategoryServiceTest.
+ *
+ * Tests CategoryService functionality including creating, updating, deleting,
+ * and paginated list retrieval.
+ */
 class CategoryServiceTest extends TestCase
 {
+    // ----------------------
+    // Create
+    // ----------------------
+
+    /**
+     * Test that create() saves a new Category and returns it.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testCreate(): void
     {
         $dto = new CreateCategoryDto();
@@ -30,10 +52,20 @@ class CategoryServiceTest extends TestCase
 
         $category = $service->create($dto);
 
-        $this->assertInstanceOf(Category::class, $category);
         $this->assertSame('Test Category', $category->getName());
     }
 
+    // ----------------------
+    // Update
+    // ----------------------
+
+    /**
+     * Test that update() modifies the Category's name correctly.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testUpdate(): void
     {
         $dto = new UpdateCategoryDto();
@@ -56,6 +88,17 @@ class CategoryServiceTest extends TestCase
         $this->assertSame('Updated Category', $updated->getName());
     }
 
+    // ----------------------
+    // Delete
+    // ----------------------
+
+    /**
+     * Test that delete() calls the repository delete method.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testDelete(): void
     {
         $category = new Category();
@@ -71,6 +114,17 @@ class CategoryServiceTest extends TestCase
         $service->delete($category);
     }
 
+    // ----------------------
+    // Pagination
+    // ----------------------
+
+    /**
+     * Test getPaginatedList() returns correct items and total count.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testGetPaginatedList(): void
     {
         $mockRepo = $this->createMock(CategoryRepository::class);
@@ -79,7 +133,6 @@ class CategoryServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getQuery', 'setFirstResult', 'setMaxResults'])
             ->getMock();
-
         $mockQb->method('setFirstResult')->willReturnSelf();
         $mockQb->method('setMaxResults')->willReturnSelf();
 
@@ -87,12 +140,10 @@ class CategoryServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getResult'])
             ->getMock();
-
         $mockQuery->method('getResult')->willReturn([
             ['id' => 1, 'name' => 'Category 1'],
             ['id' => 2, 'name' => 'Category 2'],
         ]);
-
         $mockQb->method('getQuery')->willReturn($mockQuery);
 
         $mockRepo->method('queryWithFilters')->willReturn($mockQb);
@@ -101,7 +152,6 @@ class CategoryServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['count', 'getIterator'])
             ->getMock();
-
         $mockPaginator->method('count')->willReturn(2);
         $mockPaginator->method('getIterator')->willReturn(new \ArrayIterator([
             ['id' => 1, 'name' => 'Category 1'],
@@ -112,7 +162,6 @@ class CategoryServiceTest extends TestCase
             ->setConstructorArgs([$mockRepo])
             ->onlyMethods(['createPaginator'])
             ->getMock();
-
         $service->method('createPaginator')->willReturn($mockPaginator);
 
         $result = $service->getPaginatedList(1, 10);

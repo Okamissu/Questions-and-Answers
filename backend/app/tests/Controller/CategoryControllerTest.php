@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Controller;
 
 use App\Controller\CategoryController;
@@ -8,15 +12,24 @@ use App\Dto\ListFiltersDto;
 use App\Dto\UpdateCategoryDto;
 use App\Entity\Category;
 use App\Service\CategoryServiceInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class CategoryControllerTest.
+ *
+ * Tests CRUD operations for CategoryController.
+ *
+ * @covers \App\Controller\CategoryController
+ */
 class CategoryControllerTest extends TestCase
 {
     private CategoryServiceInterface|MockObject $serviceMock;
@@ -24,35 +37,38 @@ class CategoryControllerTest extends TestCase
     private SerializerInterface|MockObject $serializerMock;
     private CategoryController|MockObject $controller;
 
+    /**
+     * Sets up mocks and controller before each test.
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->serviceMock = $this->createMock(CategoryServiceInterface::class);
         $this->validatorMock = $this->createMock(ValidatorInterface::class);
         $this->serializerMock = $this->createMock(SerializerInterface::class);
 
-        // Mock controller
         $this->controller = $this->getMockBuilder(CategoryController::class)
             ->onlyMethods(['denyAccessUnlessGranted', 'json'])
             ->setConstructorArgs([$this->serviceMock, $this->serializerMock, $this->validatorMock])
             ->getMock();
 
-        // Mock denyAccessUnlessGranted to do nothing
         $this->controller->method('denyAccessUnlessGranted')
-            ->willReturnCallback(function () {
-                /* do nothing */
+            ->willReturnCallback(fn () => null);
+
+        $this->controller->method('json')
+            ->willReturnCallback(function ($data, $status = 200) {
+                if ($data instanceof Category) {
+                    $data = ['name' => $data->getName()];
+                }
+
+                return new JsonResponse($data, $status);
             });
-
-        // Mock json() so it returns a real JsonResponse
-        $this->controller->method('json')->willReturnCallback(function ($data, $status = 200) {
-            // If $data is Category object, mimic serialization
-            if ($data instanceof Category) {
-                $data = ['name' => $data->getName()];
-            }
-
-            return new JsonResponse($data, $status);
-        });
     }
 
+    /**
+     * Tests that list endpoint returns paginated categories.
+     */
     public function testList(): void
     {
         $filters = new ListFiltersDto();
@@ -67,7 +83,6 @@ class CategoryControllerTest extends TestCase
 
         $page = 1;
         $response = $this->controller->list($filters, $page);
-
         $data = json_decode($response->getContent(), true);
 
         $this->assertEquals(1, $data['pagination']['totalItems']);
@@ -76,12 +91,18 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals($filters->limit, $data['pagination']['limit']);
     }
 
+    /**
+     * Tests that show endpoint returns a single category.
+     *
+     * @throws ExceptionInterface
+     */
     public function testShow(): void
     {
         $category = new Category();
         $category->setName('Category Show');
 
-        $this->serializerMock->method('serialize')->willReturn(json_encode(['name' => $category->getName()]));
+        $this->serializerMock->method('serialize')
+            ->willReturn(json_encode(['name' => $category->getName()]));
 
         $response = $this->controller->show($category);
         $data = json_decode($response->getContent(), true);
@@ -89,6 +110,11 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals('Category Show', $data['name']);
     }
 
+    /**
+     * Tests that create endpoint successfully creates a category.
+     *
+     * @throws ExceptionInterface
+     */
     public function testCreate(): void
     {
         $dto = new CreateCategoryDto();
@@ -108,6 +134,11 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals('New Category', $data['name']);
     }
 
+    /**
+     * Tests that create endpoint returns 400 when validation fails.
+     *
+     * @throws ExceptionInterface
+     */
     public function testCreateValidationError(): void
     {
         $dto = new CreateCategoryDto();
@@ -123,6 +154,11 @@ class CategoryControllerTest extends TestCase
         $this->assertStringContainsString('Invalid name', $data['error']);
     }
 
+    /**
+     * Tests that update endpoint successfully updates a category.
+     *
+     * @throws ExceptionInterface
+     */
     public function testUpdate(): void
     {
         $category = new Category();
@@ -145,6 +181,11 @@ class CategoryControllerTest extends TestCase
         $this->assertEquals('Updated Name', $data['name']);
     }
 
+    /**
+     * Tests that update endpoint returns 400 when validation fails.
+     *
+     * @throws ExceptionInterface
+     */
     public function testUpdateValidationError(): void
     {
         $category = new Category();
@@ -161,6 +202,9 @@ class CategoryControllerTest extends TestCase
         $this->assertStringContainsString('Invalid name', $data['error']);
     }
 
+    /**
+     * Tests that delete endpoint deletes a category and returns 204.
+     */
     public function testDelete(): void
     {
         $category = new Category();

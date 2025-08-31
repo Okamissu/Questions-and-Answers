@@ -1,12 +1,26 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Entity;
 
 use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class UserTest.
+ *
+ * Tests basic getters and setters of the User entity.
+ */
 class UserTest extends TestCase
 {
+    /**
+     * Test setting and getting email.
+     *
+     * @test
+     */
     public function testGetSetEmail(): void
     {
         $user = new User();
@@ -15,6 +29,11 @@ class UserTest extends TestCase
         $this->assertSame('test@example.com', $user->getUserIdentifier());
     }
 
+    /**
+     * Test setting and getting password.
+     *
+     * @test
+     */
     public function testGetSetPassword(): void
     {
         $user = new User();
@@ -22,6 +41,11 @@ class UserTest extends TestCase
         $this->assertSame('hashed_password', $user->getPassword());
     }
 
+    /**
+     * Test setting and erasing plain password.
+     *
+     * @test
+     */
     public function testGetSetPlainPassword(): void
     {
         $user = new User();
@@ -32,6 +56,11 @@ class UserTest extends TestCase
         $this->assertNull($user->getPlainPassword());
     }
 
+    /**
+     * Test setting and getting nickname.
+     *
+     * @test
+     */
     public function testGetSetNickname(): void
     {
         $user = new User();
@@ -39,6 +68,11 @@ class UserTest extends TestCase
         $this->assertSame('symfan', $user->getNickname());
     }
 
+    /**
+     * Test setting and getting roles.
+     *
+     * @test
+     */
     public function testRoles(): void
     {
         $user = new User();
@@ -47,6 +81,11 @@ class UserTest extends TestCase
         $this->assertContains('ROLE_USER', $user->getRoles());
     }
 
+    /**
+     * Test that timestamps are initially null.
+     *
+     * @test
+     */
     public function testTimestampsInitiallyNull(): void
     {
         $user = new User();
@@ -54,6 +93,11 @@ class UserTest extends TestCase
         $this->assertNull($user->getUpdatedAt());
     }
 
+    /**
+     * Test getting the ID property.
+     *
+     * @test
+     */
     public function testGetId(): void
     {
         $user = new User();

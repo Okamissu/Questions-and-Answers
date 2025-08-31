@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Service;
 
 use App\Dto\CreateAnswerDto;
@@ -12,22 +16,43 @@ use App\Service\AnswerService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AnswerServiceTest.
+ *
+ * Tests AnswerService functionality including creating, updating, deleting,
+ * pagination, and marking answers as best.
+ */
 class AnswerServiceTest extends TestCase
 {
     private AnswerRepository|MockObject $answerRepository;
     private AnswerService $answerService;
 
+    /**
+     * Setup mocks and service before each test.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->answerRepository = $this->createMock(AnswerRepository::class);
-        $this->answerService = new AnswerService(
-            $this->answerRepository
-        );
+        $this->answerService = new AnswerService($this->answerRepository);
     }
 
+    // ----------------------
+    // Pagination
+    // ----------------------
+
+    /**
+     * Test getPaginatedList returns correct items and total count.
+     *
+     * @test
+     */
     public function testGetPaginatedList(): void
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)
@@ -37,7 +62,6 @@ class AnswerServiceTest extends TestCase
 
         $mockQb->method('setFirstResult')->willReturnSelf();
         $mockQb->method('setMaxResults')->willReturnSelf();
-
 
         $mockQuery = $this->getMockBuilder(Query::class)
             ->disableOriginalConstructor()
@@ -55,14 +79,12 @@ class AnswerServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['count'])
             ->getMock();
-
         $mockPaginator->method('count')->willReturn(2);
 
         $service = $this->getMockBuilder(AnswerService::class)
             ->setConstructorArgs([$this->answerRepository])
             ->onlyMethods(['createPaginator'])
             ->getMock();
-
         $service->method('createPaginator')->willReturn($mockPaginator);
 
         $result = $service->getPaginatedList(1, 10);
@@ -71,6 +93,17 @@ class AnswerServiceTest extends TestCase
         $this->assertEquals(2, $result['totalItems']);
     }
 
+    // ----------------------
+    // Create
+    // ----------------------
+
+    /**
+     * Test that create() saves a new Answer and returns it with correct properties.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testCreateSavesAndReturnsAnswer(): void
     {
         $dto = new CreateAnswerDto();
@@ -106,6 +139,15 @@ class AnswerServiceTest extends TestCase
         $this->assertSame($dto->authorEmail, $result->getAuthorEmail());
     }
 
+    // ----------------------
+    // Update
+    // ----------------------
+
+    /**
+     * Test update() modifies content and isBest when content is provided.
+     *
+     * @test
+     */
     public function testUpdateWithContentUpdatesContentAndIsBest(): void
     {
         $answer = new Answer();
@@ -134,6 +176,11 @@ class AnswerServiceTest extends TestCase
         $this->assertSame('nowa treść, więcej niż 10 znaków', $result->getContent());
     }
 
+    /**
+     * Test update() keeps old content but updates isBest when content is null.
+     *
+     * @test
+     */
     public function testUpdateWithoutContentKeepsOldContentButSetsIsBest(): void
     {
         $answer = new Answer();
@@ -162,6 +209,15 @@ class AnswerServiceTest extends TestCase
         $this->assertSame('pierwotna treść', $result->getContent());
     }
 
+    // ----------------------
+    // Delete
+    // ----------------------
+
+    /**
+     * Test delete() calls repository delete method.
+     *
+     * @test
+     */
     public function testDeleteCallsRepositoryDelete(): void
     {
         $answer = new Answer();
@@ -174,6 +230,17 @@ class AnswerServiceTest extends TestCase
         $this->answerService->delete($answer);
     }
 
+    // ----------------------
+    // Mark as Best
+    // ----------------------
+
+    /**
+     * Test markAsBest() unmarks previous best answers and sets the new one.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testMarkAsBestUnmarksOtherBestAnswersAndSavesBoth(): void
     {
         $question = $this->createMock(Question::class);

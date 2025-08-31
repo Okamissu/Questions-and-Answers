@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Controller;
 
 use App\Controller\UserController;
@@ -7,15 +11,24 @@ use App\Dto\CreateUserDto;
 use App\Dto\UpdateUserDto;
 use App\Entity\User;
 use App\Service\UserServiceInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class UserControllerTest.
+ *
+ * Tests CRUD operations for UserController.
+ *
+ * @covers \App\Controller\UserController
+ */
 class UserControllerTest extends TestCase
 {
     private UserServiceInterface|MockObject $serviceMock;
@@ -23,6 +36,11 @@ class UserControllerTest extends TestCase
     private SerializerInterface|MockObject $serializerMock;
     private UserController|MockObject $controller;
 
+    /**
+     * Sets up mocks and controller before each test.
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->serviceMock = $this->createMock(UserServiceInterface::class);
@@ -34,11 +52,9 @@ class UserControllerTest extends TestCase
             ->setConstructorArgs([$this->serviceMock, $this->validatorMock, $this->serializerMock])
             ->getMock();
 
-        // Mock denyAccessUnlessGranted to do nothing
         $this->controller->method('denyAccessUnlessGranted')
             ->willReturnCallback(fn () => null);
 
-        // Mock json() so we can return a real JsonResponse
         $this->controller->method('json')->willReturnCallback(function ($data, $status = 200) {
             if ($data instanceof User) {
                 $data = ['email' => $data->getEmail() ?? 'user@example.com'];
@@ -48,6 +64,12 @@ class UserControllerTest extends TestCase
         });
     }
 
+    /**
+     * Tests creating a new user successfully.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testCreate(): void
     {
         $dto = new CreateUserDto();
@@ -67,6 +89,11 @@ class UserControllerTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
+    /**
+     * Tests creating a user with validation errors.
+     *
+     * @throws \Exception|ExceptionInterface
+     */
     public function testCreateValidationError(): void
     {
         $dto = new CreateUserDto();
@@ -82,6 +109,12 @@ class UserControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    /**
+     * Tests showing a single user.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testShow(): void
     {
         $user = new User();
@@ -96,6 +129,12 @@ class UserControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    /**
+     * Tests updating a user successfully.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testUpdate(): void
     {
         $user = new User();
@@ -118,6 +157,12 @@ class UserControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    /**
+     * Tests updating a user with validation errors.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testUpdateValidationError(): void
     {
         $user = new User();
@@ -134,6 +179,11 @@ class UserControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    /**
+     * Tests deleting a user successfully.
+     *
+     * @throws \Exception
+     */
     public function testDelete(): void
     {
         $user = new User();
@@ -144,6 +194,12 @@ class UserControllerTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
     }
 
+    /**
+     * Tests that creating a user throws InvalidArgumentException.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testCreateThrowsInvalidArgumentException(): void
     {
         $dto = new CreateUserDto();
@@ -161,6 +217,12 @@ class UserControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    /**
+     * Tests that updating a user throws InvalidArgumentException.
+     *
+     * @throws \Exception
+     * @throws ExceptionInterface
+     */
     public function testUpdateThrowsInvalidArgumentException(): void
     {
         $user = new User();

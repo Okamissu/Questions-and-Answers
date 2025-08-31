@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Service;
 
 use App\Dto\CreateUserDto;
@@ -7,6 +11,7 @@ use App\Dto\UpdateUserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,13 +20,27 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class UserServiceTest.
+ */
 class UserServiceTest extends TestCase
 {
-    private userRepository|MockObject $userRepository;
-    private $passwordHasher;
-    private $validator;
+    private UserRepository|MockObject $userRepository;
+    private UserPasswordHasherInterface|MockObject $passwordHasher;
+    private ValidatorInterface|MockObject $validator;
     private UserService $userService;
 
+    // ----------------------
+    // Setup
+    // ----------------------
+
+    /**
+     * Sets up the test environment.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepository::class);
@@ -31,10 +50,19 @@ class UserServiceTest extends TestCase
         $this->userService = new UserService(
             $this->userRepository,
             $this->passwordHasher,
-            $this->validator,
+            $this->validator
         );
     }
 
+    // ----------------------
+    // Create
+    // ----------------------
+
+    /**
+     * Test successful creation of a user.
+     *
+     * @test
+     */
     public function testCreateUserSuccess(): void
     {
         $dto = new CreateUserDto();
@@ -53,21 +81,24 @@ class UserServiceTest extends TestCase
 
         $this->userRepository->expects($this->once())
             ->method('save')
-            ->with($this->callback(function (User $user) use ($dto) {
-                return
-                    $user->getEmail() === $dto->email
-                    && $user->getNickname() === $dto->nickname
-                    && 'hashed_password' === $user->getPassword();
-            }));
+            ->with($this->callback(fn (User $user) => $user->getEmail() === $dto->email
+                && $user->getNickname() === $dto->nickname
+            && 'hashed_password' === $user->getPassword()));
 
         $user = $this->userService->createUser($dto);
 
-        $this->assertInstanceOf(User::class, $user);
         $this->assertSame($dto->email, $user->getEmail());
         $this->assertSame($dto->nickname, $user->getNickname());
         $this->assertSame('hashed_password', $user->getPassword());
     }
 
+    /**
+     * Test that validation errors during user creation throw exception.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testCreateUserValidationFails(): void
     {
         $dto = new CreateUserDto();
@@ -75,7 +106,6 @@ class UserServiceTest extends TestCase
         $dto->nickname = '';
         $dto->plainPassword = '123';
 
-        // Tworzymy mock violation, bo ConstraintViolationList wymaga obiektów ConstraintViolationInterface
         $violation = $this->createMock(ConstraintViolation::class);
         $violations = new ConstraintViolationList([$violation]);
 
@@ -88,6 +118,15 @@ class UserServiceTest extends TestCase
         $this->userService->createUser($dto);
     }
 
+    // ----------------------
+    // Update
+    // ----------------------
+
+    /**
+     * Test successful update of a user.
+     *
+     * @test
+     */
     public function testUpdateUserSuccess(): void
     {
         $user = new User();
@@ -120,6 +159,13 @@ class UserServiceTest extends TestCase
         $this->assertSame('newhash', $updatedUser->getPassword());
     }
 
+    /**
+     * Test that validation errors during user update throw exception.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testUpdateUserValidationFails(): void
     {
         $user = new User();
@@ -139,6 +185,15 @@ class UserServiceTest extends TestCase
         $this->userService->updateUser($user, $dto);
     }
 
+    // ----------------------
+    // Delete
+    // ----------------------
+
+    /**
+     * Test that deleteUser calls repository delete method.
+     *
+     * @test
+     */
     public function testDeleteUserCallsRepository(): void
     {
         $user = new User();
@@ -150,6 +205,15 @@ class UserServiceTest extends TestCase
         $this->userService->deleteUser($user);
     }
 
+    // ----------------------
+    // Find
+    // ----------------------
+
+    /**
+     * Test findUserByEmailOrFail returns a user when found.
+     *
+     * @test
+     */
     public function testFindUserByEmailOrFailFound(): void
     {
         $user = new User();
@@ -165,6 +229,11 @@ class UserServiceTest extends TestCase
         $this->assertSame($user, $result);
     }
 
+    /**
+     * Test findUserByEmailOrFail throws exception when user not found.
+     *
+     * @test
+     */
     public function testFindUserByEmailOrFailNotFound(): void
     {
         $email = 'notfound@example.com';

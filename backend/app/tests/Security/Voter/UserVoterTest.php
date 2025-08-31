@@ -1,27 +1,53 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Security\Voter;
 
 use App\Entity\User;
 use App\Security\Voter\UserVoter;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
+/**
+ * Class UserVoterTest.
+ *
+ * Tests UserVoter behavior for admin users, self-access, other users,
+ * supports() behavior, and unsupported attributes.
+ */
 class UserVoterTest extends TestCase
 {
     private UserVoter $voter;
     private TokenInterface $token;
 
+    /**
+     * Setup voter and token before each test.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->voter = new UserVoter();
         $this->token = $this->createMock(TokenInterface::class);
     }
 
+    // ----------------------
+    // voteOnAttribute()
+    // ----------------------
+
+    /**
+     * Test that an unauthenticated user cannot view, update, or delete any user.
+     *
+     * @test
+     */
     public function testNotLoggedIn(): void
     {
         $this->token->method('getUser')->willReturn(null);
-
         $user = new User();
 
         $this->assertFalse($this->voter->voteOnAttribute(UserVoter::VIEW, $user, $this->token));
@@ -29,6 +55,13 @@ class UserVoterTest extends TestCase
         $this->assertFalse($this->voter->voteOnAttribute(UserVoter::DELETE, $user, $this->token));
     }
 
+    /**
+     * Test that an admin user can view, update, and delete any user.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testAdminUser(): void
     {
         $admin = $this->createMock(User::class);
@@ -42,6 +75,13 @@ class UserVoterTest extends TestCase
         $this->assertTrue($this->voter->voteOnAttribute(UserVoter::DELETE, $otherUser, $this->token));
     }
 
+    /**
+     * Test that a user can view, update, and delete themselves.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testSelfUser(): void
     {
         $user = $this->createMock(User::class);
@@ -57,6 +97,13 @@ class UserVoterTest extends TestCase
         $this->assertTrue($this->voter->voteOnAttribute(UserVoter::DELETE, $otherUser, $this->token));
     }
 
+    /**
+     * Test that a user cannot view, update, or delete another non-admin user.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testOtherUser(): void
     {
         $currentUser = $this->createMock(User::class);
@@ -71,6 +118,15 @@ class UserVoterTest extends TestCase
         $this->assertFalse($this->voter->voteOnAttribute(UserVoter::DELETE, $otherUser, $this->token));
     }
 
+    // ----------------------
+    // supports()
+    // ----------------------
+
+    /**
+     * Test supports() for supported and unsupported attributes and subjects.
+     *
+     * @test
+     */
     public function testSupports(): void
     {
         $user = new User();
@@ -86,6 +142,13 @@ class UserVoterTest extends TestCase
         $this->assertFalse($this->voter->supports(UserVoter::VIEW, new \stdClass()));
     }
 
+    /**
+     * Test voteOnAttribute returns false when the attribute is unsupported.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testVoteOnAttributeWithUnsupportedAttribute(): void
     {
         $currentUser = $this->createMock(User::class);
@@ -95,7 +158,7 @@ class UserVoterTest extends TestCase
         $targetUser = $this->createMock(User::class);
         $targetUser->method('getId')->willReturn(1);
 
-        // Use an unsupported attribute
-        $this->assertFalse($this->voter->voteOnAttribute('random_action', $targetUser, $this->token));
+        $unsupportedAttribute = 'random_action';
+        $this->assertFalse($this->voter->voteOnAttribute($unsupportedAttribute, $targetUser, $this->token));
     }
 }

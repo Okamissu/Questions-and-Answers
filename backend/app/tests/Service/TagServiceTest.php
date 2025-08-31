@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Service;
 
 use App\Dto\CreateTagDto;
@@ -10,10 +14,27 @@ use App\Service\TagService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class TagServiceTest.
+ *
+ * Tests creating, updating, deleting, and paginating Tags.
+ */
 class TagServiceTest extends TestCase
 {
+    // ----------------------
+    // Create
+    // ----------------------
+
+    /**
+     * Test that create() saves a new Tag and returns it.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testCreate(): void
     {
         $dto = new CreateTagDto();
@@ -22,18 +43,26 @@ class TagServiceTest extends TestCase
         $tagRepository = $this->createMock(TagRepository::class);
         $tagRepository->expects($this->once())
             ->method('save')
-            ->with($this->callback(function (Tag $tag) {
-                return 'Test Tag' === $tag->getName();
-            }));
+            ->with($this->callback(fn (Tag $tag) => 'Test Tag' === $tag->getName()));
 
         $service = new TagService($tagRepository);
 
         $tag = $service->create($dto);
 
-        $this->assertInstanceOf(Tag::class, $tag);
         $this->assertSame('Test Tag', $tag->getName());
     }
 
+    // ----------------------
+    // Update
+    // ----------------------
+
+    /**
+     * Test that update() modifies a Tag correctly.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testUpdate(): void
     {
         $dto = new UpdateTagDto();
@@ -45,9 +74,7 @@ class TagServiceTest extends TestCase
         $tagRepository = $this->createMock(TagRepository::class);
         $tagRepository->expects($this->once())
             ->method('save')
-            ->with($this->callback(function (Tag $t) {
-                return 'Updated Tag' === $t->getName();
-            }));
+            ->with($this->callback(fn (Tag $t) => 'Updated Tag' === $t->getName()));
 
         $service = new TagService($tagRepository);
 
@@ -56,6 +83,17 @@ class TagServiceTest extends TestCase
         $this->assertSame('Updated Tag', $updated->getName());
     }
 
+    // ----------------------
+    // Delete
+    // ----------------------
+
+    /**
+     * Test that delete() calls the repository delete method.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testDelete(): void
     {
         $tag = new Tag();
@@ -71,6 +109,17 @@ class TagServiceTest extends TestCase
         $service->delete($tag);
     }
 
+    // ----------------------
+    // Pagination
+    // ----------------------
+
+    /**
+     * Test getPaginatedList() returns items and total count correctly.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
     public function testGetPaginatedList(): void
     {
         $mockRepo = $this->createMock(TagRepository::class);
@@ -94,7 +143,6 @@ class TagServiceTest extends TestCase
         ]);
 
         $mockQb->method('getQuery')->willReturn($mockQuery);
-
         $mockRepo->method('queryWithFilters')->willReturn($mockQb);
 
         $mockPaginator = $this->getMockBuilder(Paginator::class)

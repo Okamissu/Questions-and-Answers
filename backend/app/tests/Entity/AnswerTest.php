@@ -1,21 +1,41 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Entity;
 
 use App\Entity\Answer;
 use App\Entity\User;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class AnswerTest.
+ *
+ * Tests basic getters and setters of the Answer entity.
+ */
 class AnswerTest extends TestCase
 {
-    public function testGetSetContent()
+    /**
+     * Test setting and getting content.
+     *
+     * @test
+     */
+    public function testGetSetContent(): void
     {
         $answer = new Answer();
         $answer->setContent('Test content');
         $this->assertSame('Test content', $answer->getContent());
     }
 
-    public function testIsBest()
+    /**
+     * Test setting and getting isBest flag.
+     *
+     * @test
+     */
+    public function testIsBest(): void
     {
         $answer = new Answer();
         $this->assertFalse($answer->getIsBest());
@@ -23,7 +43,14 @@ class AnswerTest extends TestCase
         $this->assertTrue($answer->getIsBest());
     }
 
-    public function testIsFromAnonymous()
+    /**
+     * Test detection of anonymous answers.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testIsFromAnonymous(): void
     {
         $answer = new Answer();
         $this->assertTrue($answer->isFromAnonymous());
@@ -33,16 +60,23 @@ class AnswerTest extends TestCase
         $this->assertFalse($answer->isFromAnonymous());
     }
 
-    public function testGetDisplayName()
+    /**
+     * Test retrieving the display name of the author.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testGetDisplayName(): void
     {
         $answer = new Answer();
 
-        // Jeśli autor jest null, powinno zwrócić authorNickname
+        // Author is null -> returns authorNickname
         $answer->setAuthor(null);
         $answer->setAuthorNickname('Anonim');
         $this->assertSame('Anonim', $answer->getDisplayName());
 
-        // Jeśli autor jest ustawiony, powinno zwrócić nickname z obiektu User
+        // Author is set -> returns nickname from User
         $user = $this->createMock(User::class);
         $user->method('getNickname')->willReturn('UserNick');
 
@@ -50,24 +84,32 @@ class AnswerTest extends TestCase
         $this->assertSame('UserNick', $answer->getDisplayName());
     }
 
+    /**
+     * Test getting the ID property.
+     *
+     * @test
+     */
     public function testGetId(): void
     {
         $answer = new Answer();
         $this->assertNull($answer->getId());
 
-        // Optionally set id via reflection to simulate DB-assigned id
         $reflection = new \ReflectionProperty(Answer::class, 'id');
         $reflection->setValue($answer, 123);
 
         $this->assertSame(123, $answer->getId());
     }
 
+    /**
+     * Test getting the createdAt property.
+     *
+     * @test
+     */
     public function testGetCreatedAt(): void
     {
         $answer = new Answer();
         $this->assertNull($answer->getCreatedAt());
 
-        // Optionally set createdAt via reflection to simulate DB-assigned timestamp
         $date = new \DateTimeImmutable('2025-08-15 12:00:00');
         $reflection = new \ReflectionProperty(Answer::class, 'createdAt');
         $reflection->setValue($answer, $date);

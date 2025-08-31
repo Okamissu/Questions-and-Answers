@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Controller;
 
 use App\Controller\TagController;
@@ -8,15 +12,24 @@ use App\Dto\ListFiltersDto;
 use App\Dto\UpdateTagDto;
 use App\Entity\Tag;
 use App\Service\TagServiceInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class TagControllerTest.
+ *
+ * Tests CRUD operations for TagController.
+ *
+ * @covers \App\Controller\TagController
+ */
 class TagControllerTest extends TestCase
 {
     private TagServiceInterface|MockObject $serviceMock;
@@ -24,6 +37,11 @@ class TagControllerTest extends TestCase
     private SerializerInterface|MockObject $serializerMock;
     private TagController|MockObject $controller;
 
+    /**
+     * Sets up mocks and controller before each test.
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->serviceMock = $this->createMock(TagServiceInterface::class);
@@ -35,11 +53,9 @@ class TagControllerTest extends TestCase
             ->setConstructorArgs([$this->serviceMock, $this->serializerMock, $this->validatorMock])
             ->getMock();
 
-        // Mock denyAccessUnlessGranted so it does nothing
         $this->controller->method('denyAccessUnlessGranted')
             ->willReturnCallback(fn () => null);
 
-        // Mock json() so it returns a real JsonResponse
         $this->controller->method('json')->willReturnCallback(function ($data, $status = 200) {
             if ($data instanceof Tag) {
                 $data = ['name' => $data->getName()];
@@ -49,6 +65,9 @@ class TagControllerTest extends TestCase
         });
     }
 
+    /**
+     * Tests listing tags with pagination.
+     */
     public function testList(): void
     {
         $filters = new ListFiltersDto();
@@ -70,6 +89,11 @@ class TagControllerTest extends TestCase
         $this->assertEquals('Tag1', $data['items'][0]['name']);
     }
 
+    /**
+     * Tests showing a single tag.
+     *
+     * @throws ExceptionInterface
+     */
     public function testShow(): void
     {
         $tag = new Tag();
@@ -84,6 +108,11 @@ class TagControllerTest extends TestCase
         $this->assertEquals('Test Tag', $data['name']);
     }
 
+    /**
+     * Tests creating a new tag successfully.
+     *
+     * @throws ExceptionInterface
+     */
     public function testCreate(): void
     {
         $dto = new CreateTagDto();
@@ -103,6 +132,11 @@ class TagControllerTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
+    /**
+     * Tests creating a tag with validation errors.
+     *
+     * @throws ExceptionInterface
+     */
     public function testCreateValidationError(): void
     {
         $dto = new CreateTagDto();
@@ -118,6 +152,11 @@ class TagControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    /**
+     * Tests updating a tag successfully.
+     *
+     * @throws ExceptionInterface
+     */
     public function testUpdate(): void
     {
         $tag = new Tag();
@@ -140,6 +179,11 @@ class TagControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    /**
+     * Tests updating a tag with validation errors.
+     *
+     * @throws ExceptionInterface
+     */
     public function testUpdateValidationError(): void
     {
         $tag = new Tag();
@@ -156,6 +200,9 @@ class TagControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
+    /**
+     * Tests deleting a tag successfully.
+     */
     public function testDelete(): void
     {
         $tag = new Tag();
