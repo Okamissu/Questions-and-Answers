@@ -14,7 +14,7 @@ security:
             security: false
 
         login:
-            pattern:  ^/api/login
+            pattern: ^/api/login
             stateless: true
             json_login:
                 check_path: /api/login
@@ -23,24 +23,32 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+        # Public endpoints: no JWT required
+        public_api:
+            pattern: ^/api/(questions|answers/question/\d+$|users)$
+            stateless: true
+            security: false
+
+        # JWT-protected endpoints
         api:
             pattern: ^/api
             stateless: true
             provider: app_user_provider
-            jwt: ~   # Lexik JWT bundle will handle token authentication
+            jwt: ~
 
     access_control:
-        # Admin-only rzeczy (np. edycja/usuwanie kategorii, tagów, userów)
+        # Admin-only
         - { path: ^/api/categories, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
         - { path: ^/api/tags, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
         - { path: ^/api/users/\d+$, roles: ROLE_ADMIN, methods: [DELETE] }
 
-        # Public
+        # Public endpoints
         - { path: ^/api/questions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/api/answers, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET, POST] }
+        - { path: ^/api/answers/question, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/api/answers$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/api/users$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
 
-        # Reszta – JWT wymagany
+        # Everything else requires JWT
         - { path: ^/api, roles: ROLE_USER }
 
 
