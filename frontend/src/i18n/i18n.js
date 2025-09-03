@@ -16,6 +16,7 @@ i18n.use(initReactI18next).init({
         login: 'Login',
         register: 'Register',
         dashboard: 'Dashboard',
+        submit: 'Submit',
 
         // Questions
         questions: 'Questions',
@@ -35,6 +36,7 @@ i18n.use(initReactI18next).init({
         users: 'Users',
         email: 'Email',
         username: 'Username',
+        nickname: 'Nickname',
         role: 'Role',
         password: 'Password',
         confirmPassword: 'Confirm Password',
@@ -46,6 +48,7 @@ i18n.use(initReactI18next).init({
         authorName: 'Author Name',
         answerContent: 'Answer Content',
         markAsBest: 'Mark as Best',
+        markBest: 'Mark as Best',
 
         //
         allTags: 'All Tags',
@@ -69,6 +72,8 @@ i18n.use(initReactI18next).init({
         login: 'Zaloguj się',
         register: 'Rejestracja',
         dashboard: 'Panel',
+        submit: 'Wyślij',
+        
 
         // Questions
         questions: 'Pytania',
@@ -87,7 +92,8 @@ i18n.use(initReactI18next).init({
         // Users
         users: 'Użytkownicy',
         email: 'E-mail',
-        username: 'Nick',
+        username: 'Nazwa użytkownika',
+        nickname: 'Nick',
         role: 'Rola',
         password: 'Hasło',
         confirmPassword: 'Potwierdź hasło',
@@ -99,6 +105,7 @@ i18n.use(initReactI18next).init({
         authorName: 'Nick autora',
         answerContent: 'Treść odpowiedzi',
         markAsBest: 'Oznacz jako najlepszą',
+        markBest: 'Oznacz jako najlepszą',
 
         //
         llTags: 'Wszystkie tagi',

@@ -2,30 +2,38 @@ import { api } from './api'
 
 export const answersApi = (questionId) => {
   if (!questionId) {
-    throw new Error('questionId is required to list answers')
+    throw new Error('questionId is required to use answersApi')
   }
 
   return {
-    // List answers for a question
-    list: (params = {}) =>
+    list: ({ page = 1, limit = 10, search = '', sort = '' } = {}) =>
       api
-        .get(`/answers/question/${questionId}`, { params })
-        .then((res) => res.data),
+        .get(`/answers/question/${questionId}`, {
+          params: { page, limit, search, sort },
+        })
+        .then((res) => res.data)
+        .then((data) => ({
+          items: data.items,
+          pagination: data.pagination,
+        })),
 
-    // Get a single answer by ID
     get: (id) => api.get(`/answers/${id}`).then((res) => res.data),
 
-    // Create a new answer
-    create: (data) => api.post('/answers', data).then((res) => res.data),
+    create: (data) =>
+      api
+        .post('/answers', {
+          questionId: +questionId,
+          content: data.content,
+          authorNickname: data.nickname,
+          authorEmail: data.email,
+        })
+        .then((res) => res.data),
 
-    // Update an answer
     update: (id, data) =>
       api.put(`/answers/${id}`, data).then((res) => res.data),
 
-    // Delete an answer
     delete: (id) => api.delete(`/answers/${id}`).then(() => {}),
 
-    // Mark an answer as best
     markAsBest: (id) =>
       api.post(`/answers/${id}/mark-best`).then((res) => res.data),
   }

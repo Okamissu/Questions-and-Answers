@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  getCategory,
-  createCategory,
-  updateCategory,
-} from '../../api/categories'
+import { categoriesApi } from '../../api/categories'
 import { useTranslation } from 'react-i18next'
 
 export default function CategoryForm() {
@@ -17,7 +13,7 @@ export default function CategoryForm() {
 
   useEffect(() => {
     if (isEdit) {
-      getCategory(id).then((data) => setForm({ name: data.name }))
+      categoriesApi.get(id).then((data) => setForm({ name: data.name }))
     }
   }, [id, isEdit])
 
@@ -27,7 +23,7 @@ export default function CategoryForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const action = isEdit ? updateCategory(id, form) : createCategory(form)
+    const action = isEdit ? categoriesApi.update(id, form) : categoriesApi.create(form)
     action.then(() => navigate('/categories'))
   }
 

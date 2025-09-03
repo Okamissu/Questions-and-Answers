@@ -35,11 +35,16 @@ class QuestionRepository extends ServiceEntityRepository
      *
      * @return QueryBuilder The Doctrine QueryBuilder instance
      */
-    public function queryWithFilters(?string $search = null, ?string $sort = null, ?int $categoryId = null): QueryBuilder
-    {
+    public function queryWithFilters(
+        ?string $search = null,
+        ?string $sort = null,
+        ?int $categoryId = null,
+        ?int $tagId = null,
+    ): QueryBuilder {
         $qb = $this->createQueryBuilder('q')
-            ->leftJoin('q.category', 'c')
-            ->addSelect('c');
+            ->select('DISTINCT q')
+            ->leftJoin('q.category', 'c')->addSelect('c')
+            ->leftJoin('q.tags', 't')->addSelect('t');
 
         if ($search) {
             $qb->andWhere('q.title LIKE :search OR q.content LIKE :search')
@@ -51,6 +56,12 @@ class QuestionRepository extends ServiceEntityRepository
                 ->setParameter('categoryId', $categoryId);
         }
 
+        if ($tagId) {
+            // 🔥 tu filtrujemy po tagu, ale wciąż selectujemy wszystkie tagi pytania
+            $qb->andWhere(':tagId MEMBER OF q.tags')
+                ->setParameter('tagId', $tagId);
+        }
+
         $allowedFields = ['title', 'createdAt'];
 
         if ($sort) {
@@ -58,14 +69,15 @@ class QuestionRepository extends ServiceEntityRepository
             if (in_array($field, $allowedFields, true) && in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
                 $qb->orderBy('q.'.$field, strtoupper($direction));
             } else {
-                $qb->orderBy('q.createdAt', 'DESC'); // fallback
+                $qb->orderBy('q.createdAt', 'DESC');
             }
         } else {
-            $qb->orderBy('q.createdAt', 'DESC'); // default
+            $qb->orderBy('q.createdAt', 'DESC');
         }
 
         return $qb;
     }
+
 
     /**
      * Persists a Question entity.

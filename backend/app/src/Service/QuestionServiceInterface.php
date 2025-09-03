@@ -54,5 +54,5 @@ interface QuestionServiceInterface
      *
      * @return array{items: Question[], totalItems: int} Paginated questions and total count
      */
-    public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null): array;
+    public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null, ?int $tagId = null): array;
 }

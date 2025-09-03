@@ -57,7 +57,7 @@ class QuestionController extends AbstractController
     {
         $limit = max(1, min(100, $filters->limit ?? 10));
 
-        $result = $this->questionService->getPaginatedList($page, $limit, $filters->search, $filters->sort, $filters->categoryId);
+        $result = $this->questionService->getPaginatedList($page, $limit, $filters->search, $filters->sort, $filters->categoryId, $filters->tagId);
 
         return $this->json([
             'items' => $result['items'],

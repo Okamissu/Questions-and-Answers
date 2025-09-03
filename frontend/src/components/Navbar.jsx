@@ -1,45 +1,112 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect } from 'react'
-import { logoutUser } from '../api/auth'
+import { logoutAndRedirect } from '../api/auth'
 
-export default function Navbar() {
+export default function Navbar({ currentUser, setCurrentUser }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const [token, setToken] = useState(localStorage.getItem('token'))
+  const location = useLocation()
 
-  useEffect(() => {
-    const handleStorageChange = () => setToken(localStorage.getItem('token'))
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
-
-  const handleLogout = () => {
-    logoutUser()
-    setToken(null)
-    navigate('/login')
-  }
+  const isActive = (path) => location.pathname.startsWith(path)
+  const isAdmin = currentUser?.roles?.includes('ROLE_ADMIN')
 
   return (
-    <nav
-      style={{
-        display: 'flex',
-        gap: '1rem',
-        padding: '1rem',
-        borderBottom: '1px solid #ccc',
-      }}
-    >
-      <Link to="/questions">{t('questions')}</Link>
-      <Link to="/dashboard">{t('dashboard')}</Link>
-      {token && <Link to="/users">{t('users')}</Link>}
+    <nav className="flex items-center gap-4 p-4 border-b border-gray-300 bg-white shadow">
+      <div className="flex items-center gap-4">
+        <Link
+          to="/questions"
+          className={`hover:underline ${
+            isActive('/questions') ? 'font-bold' : ''
+          }`}
+        >
+          {t('questions') || 'Questions'}
+        </Link>
 
-      <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-        <button onClick={() => i18n.changeLanguage('pl')}>PL</button>
-        <button onClick={() => i18n.changeLanguage('en')}>EN</button>
-        {token ? (
-          <button onClick={handleLogout}>{t('logout')}</button>
+        {currentUser && (
+          <Link
+            to="/profile"
+            className={`hover:underline ${
+              isActive('/profile') ? 'font-bold' : ''
+            }`}
+          >
+            {t('profile') || 'Profile'}
+          </Link>
+        )}
+
+        {isAdmin && (
+          <>
+            <Link
+              to="/users"
+              className={`hover:underline ${
+                isActive('/users') ? 'font-bold' : ''
+              }`}
+            >
+              {t('users') || 'Users'}
+            </Link>
+            <Link
+              to="/categories"
+              className={`hover:underline ${
+                isActive('/categories') ? 'font-bold' : ''
+              }`}
+            >
+              {t('categories') || 'Categories'}
+            </Link>
+            <Link
+              to="/tags"
+              className={`hover:underline ${
+                isActive('/tags') ? 'font-bold' : ''
+              }`}
+            >
+              {t('tags') || 'Tags'}
+            </Link>
+            <Link
+              to="/dashboard"
+              className={`hover:underline ${
+                isActive('/dashboard') ? 'font-bold' : ''
+              }`}
+            >
+              {t('dashboard') || 'Dashboard'}
+            </Link>
+          </>
+        )}
+      </div>
+
+      <div className="ml-auto flex items-center gap-2">
+        <button
+          className="px-2 py-1 border rounded hover:bg-gray-100"
+          onClick={() => i18n.changeLanguage('pl')}
+        >
+          PL
+        </button>
+        <button
+          className="px-2 py-1 border rounded hover:bg-gray-100"
+          onClick={() => i18n.changeLanguage('en')}
+        >
+          EN
+        </button>
+
+        {currentUser ? (
+          <button
+            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={() => logoutAndRedirect(setCurrentUser, navigate)}
+          >
+            {t('logout') || 'Logout'}
+          </button>
         ) : (
-          <Link to="/login">{t('login')}</Link>
+          <>
+            <Link
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              to="/login"
+            >
+              {t('login') || 'Login'}
+            </Link>
+            <Link
+              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              to="/register"
+            >
+              {t('register') || 'Register'}
+            </Link>
+          </>
         )}
       </div>
     </nav>

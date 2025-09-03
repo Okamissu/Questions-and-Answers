@@ -1,18 +1,10 @@
-import { Navigate } from 'react-router-dom'
-import { isAuthenticated, getCurrentUser } from '../api/auth'
-
-export default function ProtectedRoute({ children, adminOnly = false }) {
-  const user = getCurrentUser()
-
-  if (!isAuthenticated()) {
-    // Not logged in
-    return <Navigate to="/login" replace />
-  }
-
-  if (adminOnly && !user?.isAdmin) {
-    // Logged in but not admin
-    return <Navigate to="/dashboard" replace />
-  }
-
+export default function ProtectedRoute({
+  children,
+  currentUser,
+  adminOnly = false,
+}) {
+  if (currentUser === undefined) return <p>Loading...</p> // still fetching user
+  if (!currentUser) return <p>Not authenticated</p>
+  if (adminOnly && !currentUser.isAdmin) return <p>Not authorized</p>
   return children
 }

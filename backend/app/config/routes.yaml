@@ -4,3 +4,6 @@ controllers:
         namespace: App\Controller
     type: attribute
     trailing_slash_on_root: false
+
+login_check:
+    path: /api/login

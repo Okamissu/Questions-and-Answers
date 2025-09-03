@@ -74,6 +74,19 @@ class UserController extends AbstractController
         return new JsonResponse($json, Response::HTTP_CREATED, [], true);
     }
 
+    #[Route('/me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        $user = $this->getUser(); // Symfony returns currently authenticated User
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Not authenticated'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $json = $this->serializer->serialize($user, 'json', ['groups' => ['user:read']]);
+
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
+    }
+
     /**
      * Retrieve a single user by its ID.
      *

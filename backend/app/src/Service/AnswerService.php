@@ -11,6 +11,7 @@ use App\Dto\UpdateAnswerDto;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Repository\AnswerRepository;
+use App\Repository\QuestionRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -19,38 +20,33 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
  * including creation, update, deletion, pagination,
  * and handling "best answer" logic.
  */
+
 class AnswerService implements AnswerServiceInterface
 {
-    /**
-     * @var AnswerRepository Repository for persisting Answer entities
-     */
     private AnswerRepository $answerRepository;
+    private QuestionRepository $questionRepository; // poprawne typowanie
 
-    /**
-     * AnswerService constructor.
-     *
-     * @param AnswerRepository $answerRepository Repository for Answer entities
-     */
-    public function __construct(AnswerRepository $answerRepository)
-    {
+    public function __construct(
+        AnswerRepository $answerRepository,
+        QuestionRepository $questionRepository // wstrzykujemy repozytorium
+    ) {
         $this->answerRepository = $answerRepository;
+        $this->questionRepository = $questionRepository;
     }
 
-    /**
-     * Creates a new Answer entity from the given DTO and saves it.
-     *
-     * @param CreateAnswerDto $dto DTO containing answer data
-     *
-     * @return Answer The created Answer entity
-     */
     public function create(CreateAnswerDto $dto): Answer
     {
+        // Znajdź Question po ID z DTO
+        $question = $this->questionRepository->find($dto->questionId);
+        if (!$question) {
+            throw new \InvalidArgumentException('Question not found');
+        }
+
         $answer = new Answer();
         $answer->setContent($dto->content);
-        $answer->setQuestion($dto->question);
+        $answer->setQuestion($question);
         $answer->setIsBest($dto->isBest);
 
-        // Author can be null for anonymous answers
         $answer->setAuthor($dto->author);
         $answer->setAuthorNickname($dto->authorNickname);
         $answer->setAuthorEmail($dto->authorEmail);
@@ -59,6 +55,8 @@ class AnswerService implements AnswerServiceInterface
 
         return $answer;
     }
+
+
 
     /**
      * Updates an existing Answer entity with values from the given DTO.

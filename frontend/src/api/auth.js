@@ -1,25 +1,17 @@
 import { api } from './api'
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
-// Login / logout
-export const loginUser = (data) =>
-  api.post('/login_check', data).then((res) => {
-    localStorage.setItem('token', res.data.token)
-    return res.data
-  })
-
-export const logoutUser = () => localStorage.removeItem('token')
-
-// Current user helper
+// Get current user from token
 export const getCurrentUser = () => {
   const token = localStorage.getItem('token')
   if (!token) return null
+
   try {
-    const decoded = jwt_decode(token)
+    const decoded = jwtDecode(token)
     return {
       id: decoded.id || decoded.user_id,
       roles: decoded.roles || [],
-      isAdmin: decoded.roles?.includes('ROLE_ADMIN'),
+      isAdmin: decoded.roles.includes('ROLE_ADMIN'),
     }
   } catch (error) {
     console.error('Invalid token', error)
@@ -27,5 +19,26 @@ export const getCurrentUser = () => {
   }
 }
 
-export const isAdmin = () => getCurrentUser()?.roles.includes('ROLE_ADMIN')
-export const isAuthenticated = () => !!getCurrentUser()
+// Login
+export const loginUser = async (data, setCurrentUser) => {
+  const res = await api.post('/login', data)
+  localStorage.setItem('token', res.data.token)
+  if (setCurrentUser) setCurrentUser(getCurrentUser())
+  return res.data
+}
+
+// Logout
+export const logoutUser = (setCurrentUser) => {
+  localStorage.removeItem('token')
+  if (setCurrentUser) setCurrentUser(null)
+}
+
+// Logout + redirect helper
+export const logoutAndRedirect = (
+  setCurrentUser,
+  navigate,
+  path = '/login'
+) => {
+  logoutUser(setCurrentUser)
+  navigate(path)
+}

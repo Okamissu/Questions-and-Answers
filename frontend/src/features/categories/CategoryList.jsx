@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getCategories, deleteCategory } from '../../api/categories'
+import { categoriesApi } from '../../api/categories'
 import { useTranslation } from 'react-i18next'
 
 export default function CategoriesList({ currentUser }) {
@@ -12,12 +12,12 @@ export default function CategoriesList({ currentUser }) {
   }, [])
 
   const fetchCategories = () => {
-    getCategories().then(setCategories)
+    categoriesApi.get().then(setCategories)
   }
 
   const handleDelete = (id) => {
     if (window.confirm(t('delete') + '?')) {
-      deleteCategory(id).then(fetchCategories)
+      categoriesApi.delete(id).then(fetchCategories)
     }
   }
 

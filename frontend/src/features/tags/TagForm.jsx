@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getTag, createTag, updateTag } from '../../api/tags'
+import { tagsApi } from '../../api/tags'
 import { useTranslation } from 'react-i18next'
 
 export default function TagForm() {
@@ -13,7 +13,7 @@ export default function TagForm() {
 
   useEffect(() => {
     if (isEdit) {
-      getTag(id).then((data) => setForm({ name: data.name }))
+      tagsApi.get(id).then((data) => setForm({ name: data.name }))
     }
   }, [id, isEdit])
 
@@ -22,7 +22,7 @@ export default function TagForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const action = isEdit ? updateTag(id, form) : createTag(form)
+    const action = isEdit ? tagsApi.update(id, form) : tagsApi.create(form)
     action.then(() => navigate('/tags'))
   }
 

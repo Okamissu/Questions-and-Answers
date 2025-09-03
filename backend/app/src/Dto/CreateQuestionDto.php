@@ -6,8 +6,6 @@
 
 namespace App\Dto;
 
-use App\Entity\Category;
-use App\Entity\Tag;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -24,15 +22,13 @@ class CreateQuestionDto
     public ?string $content = null;
 
     #[Assert\NotNull]
-    public ?Category $category = null;
+    public ?int $categoryId = null; // <-- tylko ID
 
     /**
      * Optional tags for the question.
      *
-     * @var Tag[]|null
+     * @var int[]|null
      */
-    #[Assert\All([
-        new Assert\Type(Tag::class),
-    ])]
-    public ?array $tags = null;
+    #[Assert\All([new Assert\Type('int')])]
+    public ?array $tagIds = null;
 }

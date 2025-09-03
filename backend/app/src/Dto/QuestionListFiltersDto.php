@@ -15,4 +15,5 @@ class QuestionListFiltersDto
     public ?string $sort = null;
     public ?int $limit = 10;
     public ?int $categoryId = null;
+    public ?int $tagId = null;
 }

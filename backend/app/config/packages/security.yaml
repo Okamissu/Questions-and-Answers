@@ -23,13 +23,6 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        # Public endpoints: no JWT required
-        public_api:
-            pattern: ^/api/(questions|answers/question/\d+$|users)$
-            stateless: true
-            security: false
-
-        # JWT-protected endpoints
         api:
             pattern: ^/api
             stateless: true
@@ -37,20 +30,32 @@ security:
             jwt: ~
 
     access_control:
-        # Admin-only
+        # --- PUBLIC ---
+        - { path: ^/api/questions, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/questions/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/answers/question, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/answers/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/answers$, roles: PUBLIC_ACCESS, methods: [POST] }
+        - { path: ^/api/categories, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/categories/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/tags, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/tags/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/users$, roles: PUBLIC_ACCESS, methods: [POST] }
+        - { path: ^/api/users/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+
+        # --- ROLE_USER ---
+        - { path: ^/api/questions, roles: ROLE_USER, methods: [POST, PUT, DELETE] }
+        - { path: ^/api/answers, roles: ROLE_USER, methods: [PUT, DELETE] }
+        - { path: ^/api/answers/\d+/mark-best, roles: ROLE_USER, methods: [POST] }
+        - { path: ^/api/users/\d+, roles: ROLE_USER, methods: [PUT] }
+
+        # --- ROLE_ADMIN ---
         - { path: ^/api/categories, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
         - { path: ^/api/tags, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE] }
-        - { path: ^/api/users/\d+$, roles: ROLE_ADMIN, methods: [DELETE] }
+        - { path: ^/api/users/\d+, roles: ROLE_ADMIN, methods: [DELETE] }
 
-        # Public endpoints
-        - { path: ^/api/questions, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/api/answers/question, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/api/answers$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
-        - { path: ^/api/users$, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
-
-        # Everything else requires JWT
+        # --- Default: any /api requires auth ---
         - { path: ^/api, roles: ROLE_USER }
-
 
 when@test:
     security:

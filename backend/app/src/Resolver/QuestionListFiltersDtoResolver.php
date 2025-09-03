@@ -30,7 +30,9 @@ class QuestionListFiltersDtoResolver implements ValueResolverInterface
         $dto->search = $request->query->get('search');
         $dto->sort = $request->query->get('sort');
         $dto->limit = (int) $request->query->get('limit', 10);
-        $dto->categoryId = $request->query->get('category');
+        $dto->categoryId = $request->query->get('categoryId');
+        $dto->tagId = $request->query->get('tagId');
+
 
         yield $dto;
     }

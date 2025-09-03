@@ -8,7 +8,9 @@ namespace App\Service;
 
 use App\Dto\CreateQuestionDto;
 use App\Dto\UpdateQuestionDto;
+use App\Entity\Category;
 use App\Entity\Question;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\QuestionRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -40,48 +42,30 @@ class QuestionService implements QuestionServiceInterface
      */
     public function create(CreateQuestionDto $dto, User $author): Question
     {
+        $category = $this->questionRepository
+            ->getEntityManager()
+            ->getRepository(Category::class)
+            ->find($dto->categoryId);
+
+        if (!$category) {
+            throw new \InvalidArgumentException('Invalid category ID');
+        }
+
         $question = new Question();
         $question->setTitle($dto->title);
         $question->setContent($dto->content);
         $question->setAuthor($author);
-        $question->setCategory($dto->category);
+        $question->setCategory($category);
 
-        // Clear and add tags if any
+        // Tags
         $question->getTags()->clear();
-        foreach ($dto->tags ?? [] as $tag) {
-            $question->addTag($tag);
-        }
+        if ($dto->tagIds) {
+            $tags = $this->questionRepository
+                ->getEntityManager()
+                ->getRepository(Tag::class)
+                ->findBy(['id' => $dto->tagIds]);
 
-        $this->questionRepository->save($question);
-
-        return $question;
-    }
-
-    /**
-     * Updates an existing Question entity with values from the given DTO.
-     *
-     * Only non-null DTO fields are applied.
-     *
-     * @param Question          $question The question to update
-     * @param UpdateQuestionDto $dto      DTO with updated values
-     *
-     * @return Question The updated Question entity with persisted changes
-     */
-    public function update(Question $question, UpdateQuestionDto $dto): Question
-    {
-        if (null !== $dto->title) {
-            $question->setTitle($dto->title);
-        }
-        if (null !== $dto->content) {
-            $question->setContent($dto->content);
-        }
-        if (null !== $dto->category) {
-            $question->setCategory($dto->category);
-        }
-
-        if (null !== $dto->tags) {
-            $question->getTags()->clear();
-            foreach ($dto->tags as $tag) {
+            foreach ($tags as $tag) {
                 $question->addTag($tag);
             }
         }
@@ -90,6 +74,47 @@ class QuestionService implements QuestionServiceInterface
 
         return $question;
     }
+
+    public function update(Question $question, UpdateQuestionDto $dto): Question
+    {
+        if (null !== $dto->title) {
+            $question->setTitle($dto->title);
+        }
+
+        if (null !== $dto->content) {
+            $question->setContent($dto->content);
+        }
+
+        if (null !== $dto->categoryId) {
+            $category = $this->questionRepository
+                ->getEntityManager()
+                ->getRepository(Category::class)
+                ->find($dto->categoryId);
+
+            if (!$category) {
+                throw new \InvalidArgumentException('Invalid category ID');
+            }
+
+            $question->setCategory($category);
+        }
+
+        if (null !== $dto->tagIds) {
+            $tags = $this->questionRepository
+                ->getEntityManager()
+                ->getRepository(Tag::class)
+                ->findBy(['id' => $dto->tagIds]);
+
+            $question->getTags()->clear();
+            foreach ($tags as $tag) {
+                $question->addTag($tag);
+            }
+        }
+
+        $this->questionRepository->save($question);
+
+        return $question;
+    }
+
 
     /**
      * Deletes the given Question entity.
@@ -117,19 +142,24 @@ class QuestionService implements QuestionServiceInterface
      *
      * @return array{items: Question[], totalItems: int} Paginated questions and total count
      */
-    public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null): array
-    {
-        $qb = $this->questionRepository->queryWithFilters($search, $sort, $categoryId);
-        $paginator = $this->createPaginator($qb);
-
-        $totalItems = count($paginator);
+    public function getPaginatedList(
+        int $page,
+        int $limit,
+        ?string $search = null,
+        ?string $sort = null,
+        ?int $categoryId = null,
+        ?int $tagId = null
+    ): array {
+        $qb = $this->questionRepository->queryWithFilters($search, $sort, $categoryId, $tagId);
 
         $qb->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
+        $paginator = new Paginator($qb, true); // true = fetch join collection
+
         return [
-            'items' => $qb->getQuery()->getResult(),
-            'totalItems' => $totalItems,
+            'items' => iterator_to_array($paginator), // zamiast getQuery()->getResult()
+            'totalItems' => count($paginator),
         ];
     }
 

@@ -21,17 +21,13 @@ class CreateAnswerDto
     public ?string $content = null;
 
     #[Assert\NotNull]
-    public ?Question $question = null;
+    #[Assert\Type('integer')]
+    public ?int $questionId = null;
 
-    #[Assert\Type(User::class)]
     public ?User $author = null;
 
-    #[Assert\Type('string')]
-    #[Assert\NotBlank(allowNull: true)]
     public ?string $authorNickname = null;
 
-    #[Assert\Email]
-    #[Assert\NotBlank(allowNull: true)]
     public ?string $authorEmail = null;
 
     public bool $isBest = false;

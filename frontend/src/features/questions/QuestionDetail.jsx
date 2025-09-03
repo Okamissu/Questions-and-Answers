@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getQuestion } from '../../api/questions'
+import { questionsApi } from '../../api/questions'
 import { useTranslation } from 'react-i18next'
-
 import AnswersList from '../answers/AnswersList'
 import AnswerForm from '../answers/AnswerForm'
-import { createAnswer } from '../../api/answers'
 
 export default function QuestionDetail({ currentUser }) {
   const { t } = useTranslation()
@@ -14,111 +12,56 @@ export default function QuestionDetail({ currentUser }) {
   const [answersRefresh, setAnswersRefresh] = useState(0)
   const [highlightAnswerId, setHighlightAnswerId] = useState(null)
 
-  useEffect(() => getQuestion(id).then(setQuestion), [id])
-
-  const handleAddAnswer = (data) => {
-    createAnswer({ ...data, question: id }).then((newAnswer) => {
-      setHighlightAnswerId(newAnswer.id)
-      setAnswersRefresh((prev) => prev + 1)
+  useEffect(() => {
+    let isMounted = true
+    questionsApi.get(id).then((data) => {
+      if (isMounted) setQuestion(data)
     })
-  }
+    return () => {
+      isMounted = false
+    }
+  }, [id])
 
-  if (!question) return <p>{t('loading') || 'Loading...'}</p>
+  if (!question)
+    return <p className="text-gray-500">{t('loading') || 'Loading...'}</p>
 
   return (
-    <div
-      style={{
-        maxWidth: '700px',
-        margin: '2rem auto',
-        padding: '1rem',
-        border: '1px solid #ddd',
-        borderRadius: '6px',
-        backgroundColor: '#fafafa',
-      }}
-    >
-      {/* Question Card */}
-      <div style={{ marginBottom: '1rem' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <h1 style={{ margin: 0 }}>{question.title}</h1>
-          <Link to={`/questions/${id}/edit`} title={t('edit')}>
-            ✏️
-          </Link>
-        </div>
-
-        <p style={{ margin: '0.5rem 0', color: '#333' }}>{question.content}</p>
-
-        {/* Metadata */}
-        <div
-          style={{
-            fontSize: '0.85rem',
-            color: '#666',
-            display: 'flex',
-            gap: '1rem',
-          }}
-        >
-          {question.author && (
-            <span>
-              {t('author') || 'Author'}: {question.author.nickname}
-            </span>
-          )}
-          {question.createdAt && (
-            <span>
-              {t('createdAt') || 'Created'}:{' '}
-              {new Date(question.createdAt).toLocaleDateString()}
-            </span>
+    <div className="max-w-2xl mx-auto p-6 bg-white border border-gray-200 rounded-xl shadow">
+      <div className="mb-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">{question.title}</h1>
+          {(currentUser?.isAdmin ||
+            currentUser?.id === question.author?.id) && (
+            <Link
+              to={`/questions/${id}/edit`}
+              title={t('edit')}
+              className="text-blue-600 hover:underline"
+            >
+              ✏️
+            </Link>
           )}
         </div>
-
-        {/* Category */}
-        {question.category && (
-          <span
-            style={{
-              cursor: 'pointer',
-              color: 'blue',
-              fontSize: '0.85rem',
-              marginRight: '0.5rem',
-            }}
-            title={t('filterByCategory')}
-          >
-            [{question.category.name}]
-          </span>
-        )}
-
-        {/* Tags */}
-        {question.tags?.length > 0 && (
-          <span style={{ fontSize: '0.85rem' }}>
-            {question.tags.map((tag) => (
-              <span
-                key={tag.id}
-                style={{
-                  cursor: 'pointer',
-                  color: 'green',
-                  marginRight: '0.25rem',
-                }}
-                title={t('filterByTag')}
-              >
-                #{tag.name}
-              </span>
-            ))}
-          </span>
-        )}
+        <p className="mt-2 text-gray-800">{question.content}</p>
       </div>
 
-      <hr style={{ margin: '1rem 0' }} />
-
-      {/* Answers */}
+      {/* Answers list first */}
       <AnswersList
+        questionId={id}
+        questionAuthorId={question.author?.id}
         refreshTrigger={answersRefresh}
         currentUser={currentUser}
-        highlightAnswerId={highlightAnswerId}
+        highlightAnswerId={highlightAnswerId} // pass for highlighting
       />
-      <AnswerForm onSubmit={handleAddAnswer} />
+
+      {/* Form under the list */}
+      <AnswerForm
+        questionId={id}
+        currentUser={currentUser}
+        setAnswersRefresh={() => {
+          setAnswersRefresh((prev) => prev + 1)
+        }}
+        setHighlightAnswerId={setHighlightAnswerId} // pass highlight setter
+      />
     </div>
   )
 }

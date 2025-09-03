@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\Answer;
 
 /**
  * Represents a question posted by a user.
@@ -63,139 +64,81 @@ class Question
     #[Groups(['question:read'])]
     private Collection $tags;
 
+    #[ORM\OneToMany(targetEntity: Answer::class, mappedBy: 'question', cascade: ['remove'], orphanRemoval: true)]
+    #[Groups(['question:read'])]
+    private Collection $answers;
+
     /**
-     * Constructor initializes the tags collection.
+     * Constructor initializes the collections.
      */
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->answers = new ArrayCollection();
     }
 
-    /**
-     * Get the question ID.
-     *
-     * @return int|null The unique identifier of the question
-     */
+    // ---------- Getters & Setters ----------
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Get the question title.
-     *
-     * @return string|null The title of the question
-     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * Set the question title.
-     *
-     * @param string|null $title The title to set for the question
-     */
     public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * Get the question content.
-     *
-     * @return string|null The content/body of the question
-     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
-    /**
-     * Set the question content.
-     *
-     * @param string|null $content The content/body to set for the question
-     */
     public function setContent(?string $content): void
     {
         $this->content = $content;
     }
 
-    /**
-     * Get creation timestamp.
-     *
-     * @return \DateTimeImmutable|null The date and time when the question was created
-     */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * Get last update timestamp.
-     *
-     * @return \DateTimeImmutable|null The date and time when the question was last updated
-     */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    /**
-     * Get the author of the question.
-     *
-     * @return User|null The user who created the question
-     */
     public function getAuthor(): ?User
     {
         return $this->author;
     }
 
-    /**
-     * Set the author of the question.
-     *
-     * @param User|null $author The user to set as author of the question
-     */
     public function setAuthor(?User $author): void
     {
         $this->author = $author;
     }
 
-    /**
-     * Get the category of the question.
-     *
-     * @return Category|null The category this question belongs to
-     */
     public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    /**
-     * Set the category of the question.
-     *
-     * @param Category|null $category The category to associate with this question
-     */
     public function setCategory(?Category $category): void
     {
         $this->category = $category;
     }
 
-    /**
-     * Get all tags associated with the question.
-     *
-     * @return Collection<int, Tag> Collection of tags assigned to the question
-     */
     public function getTags(): Collection
     {
         return $this->tags;
     }
 
-    /**
-     * Add a tag to the question.
-     *
-     * @param Tag $tag The tag to add
-     */
     public function addTag(Tag $tag): void
     {
         if (!$this->tags->contains($tag)) {
@@ -203,13 +146,41 @@ class Question
         }
     }
 
-    /**
-     * Remove a tag from the question.
-     *
-     * @param Tag $tag The tag to remove
-     */
     public function removeTag(Tag $tag): void
     {
         $this->tags->removeElement($tag);
+    }
+
+    /**
+     * Get all answers for this question.
+     *
+     * @return Collection<int, Answer>
+     */
+    public function getAnswers(): Collection
+    {
+        return $this->answers;
+    }
+
+    /**
+     * Add an answer to this question.
+     */
+    public function addAnswer(Answer $answer): void
+    {
+        if (!$this->answers->contains($answer)) {
+            $this->answers->add($answer);
+            $answer->setQuestion($this);
+        }
+    }
+
+    /**
+     * Remove an answer from this question.
+     */
+    public function removeAnswer(Answer $answer): void
+    {
+        if ($this->answers->removeElement($answer)) {
+            if ($answer->getQuestion() === $this) {
+                $answer->setQuestion(null);
+            }
+        }
     }
 }

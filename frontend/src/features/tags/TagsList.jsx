@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getTags, deleteTag } from '../../api/tags'
+import { tagsApi } from '../../api/tags'
 import { useTranslation } from 'react-i18next'
 
 export default function TagsList() {
@@ -11,11 +11,11 @@ export default function TagsList() {
     fetchTags()
   }, [])
 
-  const fetchTags = () => getTags().then(setTags)
+  const fetchTags = () => tagsApi.list().then(setTags)
 
   const handleDelete = (id) => {
     if (window.confirm(t('delete') + '?')) {
-      deleteTag(id).then(fetchTags)
+      tagsApi.delete(id).then(fetchTags)
     }
   }
 
