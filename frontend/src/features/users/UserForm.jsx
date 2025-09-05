@@ -5,14 +5,15 @@ import { logoutUser } from '../../api/auth'
 import { useNavigate } from 'react-router-dom'
 
 export default function UserForm({
-  user,
-  currentUser,
-  onSaved,
-  onCancel,
-  setCurrentUser,
+  user, // user being edited
+  currentUser, // logged-in user
+  setCurrentUser, // function to update current user
+  onSaved, // callback after save
+  onCancel, // cancel callback
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+
   const [form, setForm] = useState({ email: '', nickname: '', password: '' })
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
@@ -31,7 +32,7 @@ export default function UserForm({
     fetchUsers()
   }, [])
 
-  // populate form
+  // populate form when user prop is available
   useEffect(() => {
     if (user) {
       setForm({
@@ -101,14 +102,16 @@ export default function UserForm({
       if (user?.id) await usersApi.update(user.id, payload)
       else await usersApi.create(payload)
 
-      // if current user changed their email or password → logout
-      if (
+      // logout if current user edited their email or password
+      const emailChanged =
         currentUser?.id === user?.id &&
-        (form.email !== currentUser.email || form.password)
-      ) {
+        form.email.trim() !== currentUser.email.trim()
+      const passwordChanged = currentUser?.id === user?.id && !!form.password
+
+      if (emailChanged || passwordChanged) {
         alert(
           t('profileUpdatedLogout') ||
-            'Profile updated successfully! You will be logged out to apply changes.'
+            'Profile updated! You will be logged out to apply changes.'
         )
         logoutUser(setCurrentUser)
         navigate('/login')
@@ -123,8 +126,9 @@ export default function UserForm({
   }
 
   const showError = (field) => errors[field] && touched[field]
+
   const hasErrors =
-    Object.values(errors).some((e) => e) ||
+    Object.values(errors).some(Boolean) ||
     !form.email ||
     !form.nickname ||
     (!user && !form.password)
@@ -134,6 +138,7 @@ export default function UserForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 p-4 border rounded shadow"
     >
+      {/* Nickname */}
       <input
         name="nickname"
         placeholder={t('nickname')}
@@ -149,6 +154,7 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.nickname}</p>
       )}
 
+      {/* Email */}
       <input
         name="email"
         type="email"
@@ -165,6 +171,7 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.email}</p>
       )}
 
+      {/* Password */}
       <input
         name="password"
         type="password"
@@ -180,6 +187,7 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.password}</p>
       )}
 
+      {/* Actions */}
       <div className="flex gap-2">
         <button
           type="submit"
