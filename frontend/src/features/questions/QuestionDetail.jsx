@@ -37,8 +37,9 @@ export default function QuestionDetail({ currentUser }) {
       </p>
     )
 
-  const canEditDelete =
-    currentUser?.isAdmin || currentUser?.id === question.author?.id
+  const isAdmin = currentUser?.roles?.includes('ROLE_ADMIN')
+
+  const canEditDelete = isAdmin || currentUser?.id === question.author?.id
 
   return (
     <div className="card max-w-2xl mx-auto p-6 border border-gray-200 dark:border-gray-700 rounded-xl shadow space-y-6">
@@ -53,14 +54,14 @@ export default function QuestionDetail({ currentUser }) {
               <Link
                 to={`/questions/${id}/edit`}
                 title={t('edit')}
-                className="nav-auth-button nav-auth-login px-3 py-1 text-sm"
+                className="nav-auth-button nav-auth-login px-3 py-1 text-sm whitespace-nowrap"
               >
                 ✏️ {t('edit')}
               </Link>
               <button
                 onClick={() => handleDelete(question.id)}
                 title={t('delete')}
-                className="nav-auth-button nav-auth-logout px-3 py-1 text-sm"
+                className="nav-auth-button nav-auth-logout px-3 py-1 text-sm whitespace-nowrap"
               >
                 🗑️ {t('delete')}
               </button>

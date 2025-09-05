@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function EntityList({
   items,
@@ -12,10 +13,10 @@ export default function EntityList({
   highlightId,
   currentUser,
 }) {
+  const { t } = useTranslation()
+  const isAdmin = currentUser?.roles?.includes('ROLE_ADMIN')
   if (!items || items.length === 0)
     return <p className="text-gray-500 dark:text-gray-400">No items found</p>
-
-  const isAdmin = currentUser?.roles?.includes('ROLE_ADMIN')
 
   return (
     <ul className="container space-y-4 list-none">
@@ -50,7 +51,7 @@ export default function EntityList({
                     title="Edit"
                     className="flex items-center gap-1 px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-300"
                   >
-                    ✏️ <span>Edit</span>
+                    ✏️ <span>{t('edit')}</span>
                   </Link>
                 )}
                 {onDelete && canEditDelete && (
@@ -59,7 +60,7 @@ export default function EntityList({
                     title="Delete"
                     className="flex items-center gap-1 px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 transition-colors duration-300"
                   >
-                    🗑️ <span>Delete</span>
+                    🗑️ <span>{t('delete')}</span>
                   </button>
                 )}
               </div>

@@ -107,7 +107,7 @@ export default function App() {
       }
     >
       <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
-        <BrowserRouter>
+        <BrowserRouter basename=''>
           <Navbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
           <main className="p-4">
             <Routes>

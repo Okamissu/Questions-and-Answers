@@ -1,11 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useParams, useNavigate } from 'react-router-dom'
 import { questionsApi } from '../../api/questions'
 import { categoriesApi } from '../../api/categories'
 import { tagsApi } from '../../api/tags'
 
 export default function QuestionForm({ onSuccess }) {
   const { t } = useTranslation()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const isEdit = !!id
+
   const [form, setForm] = useState({
     title: '',
     content: '',
@@ -19,10 +24,25 @@ export default function QuestionForm({ onSuccess }) {
   const [categories, setCategories] = useState([])
   const [tags, setTags] = useState([])
 
+  // Load categories & tags
   useEffect(() => {
     categoriesApi.list({}, true).then((res) => setCategories(res.items))
     tagsApi.list({}, true).then((res) => setTags(res.items))
   }, [])
+
+  // Load existing question if editing
+  useEffect(() => {
+    if (isEdit) {
+      questionsApi.get(id).then((data) => {
+        setForm({
+          title: data.title,
+          content: data.content,
+          categoryId: data.category?.id || '',
+          tagIds: data.tags?.map((tag) => tag.id) || [],
+        })
+      })
+    }
+  }, [id, isEdit])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -72,9 +92,13 @@ export default function QuestionForm({ onSuccess }) {
     if (!validate()) return
 
     try {
-      await questionsApi.create(form)
+      if (isEdit) {
+        await questionsApi.update(id, form)
+      } else {
+        await questionsApi.create(form)
+      }
       onSuccess?.()
-      setForm({ title: '', content: '', categoryId: '', tagIds: [] })
+      navigate('/questions')
     } catch (err) {
       console.error(err)
       alert(err?.error || 'Something went wrong')
@@ -86,7 +110,7 @@ export default function QuestionForm({ onSuccess }) {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow transition-all duration-300 mb-6">
       <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-        {t('createQuestion')}
+        {isEdit ? t('editQuestion') : t('createQuestion')}
       </h2>
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -167,7 +191,7 @@ export default function QuestionForm({ onSuccess }) {
               : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          {t('create')}
+          {isEdit ? t('update') : t('create')}
         </button>
       </form>
     </div>
