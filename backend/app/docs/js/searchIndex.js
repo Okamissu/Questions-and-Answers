@@ -208,7 +208,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Controller\\UserController",
             "name": "UserController",
-            "summary": "",
+            "summary": "UserController\u0020handles\u0020actions\u0020related\u0020to\u0020users,\u0020including\u0020listing,\u0020creating,\u0020updating,\u0020and\u0020deleting\u0020users.",
             "url": "classes/App-Controller-UserController.html"
         },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003A__construct\u0028\u0029",
@@ -216,14 +216,24 @@ Search.appendIndex(
             "summary": "UserController\u0020constructor.",
             "url": "classes/App-Controller-UserController.html#method___construct"
         },                {
+            "fqsen": "\\App\\Controller\\UserController\u003A\u003Alist\u0028\u0029",
+            "name": "list",
+            "summary": "List\u0020users\u0020with\u0020optional\u0020pagination\u0020and\u0020search.",
+            "url": "classes/App-Controller-UserController.html#method_list"
+        },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003Acreate\u0028\u0029",
             "name": "create",
             "summary": "Create\u0020a\u0020new\u0020user.",
             "url": "classes/App-Controller-UserController.html#method_create"
         },                {
+            "fqsen": "\\App\\Controller\\UserController\u003A\u003Ame\u0028\u0029",
+            "name": "me",
+            "summary": "Get\u0020the\u0020currently\u0020authenticated\u0020user.",
+            "url": "classes/App-Controller-UserController.html#method_me"
+        },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003Ashow\u0028\u0029",
             "name": "show",
-            "summary": "Retrieve\u0020a\u0020single\u0020user\u0020by\u0020its\u0020ID.",
+            "summary": "Show\u0020a\u0020specific\u0020user\u0020by\u0020ID.",
             "url": "classes/App-Controller-UserController.html#method_show"
         },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003Aupdate\u0028\u0029",
@@ -233,7 +243,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003Adelete\u0028\u0029",
             "name": "delete",
-            "summary": "Delete\u0020an\u0020existing\u0020user.",
+            "summary": "Delete\u0020a\u0020user\u0020by\u0020ID.",
             "url": "classes/App-Controller-UserController.html#method_delete"
         },                {
             "fqsen": "\\App\\Controller\\UserController\u003A\u003A\u0024userService",
@@ -386,10 +396,10 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/App-Dto-CreateAnswerDto.html#property_content"
         },                {
-            "fqsen": "\\App\\Dto\\CreateAnswerDto\u003A\u003A\u0024question",
-            "name": "question",
+            "fqsen": "\\App\\Dto\\CreateAnswerDto\u003A\u003A\u0024questionId",
+            "name": "questionId",
             "summary": "",
-            "url": "classes/App-Dto-CreateAnswerDto.html#property_question"
+            "url": "classes/App-Dto-CreateAnswerDto.html#property_questionId"
         },                {
             "fqsen": "\\App\\Dto\\CreateAnswerDto\u003A\u003A\u0024author",
             "name": "author",
@@ -436,15 +446,15 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/App-Dto-CreateQuestionDto.html#property_content"
         },                {
-            "fqsen": "\\App\\Dto\\CreateQuestionDto\u003A\u003A\u0024category",
-            "name": "category",
+            "fqsen": "\\App\\Dto\\CreateQuestionDto\u003A\u003A\u0024categoryId",
+            "name": "categoryId",
             "summary": "",
-            "url": "classes/App-Dto-CreateQuestionDto.html#property_category"
+            "url": "classes/App-Dto-CreateQuestionDto.html#property_categoryId"
         },                {
-            "fqsen": "\\App\\Dto\\CreateQuestionDto\u003A\u003A\u0024tags",
-            "name": "tags",
+            "fqsen": "\\App\\Dto\\CreateQuestionDto\u003A\u003A\u0024tagIds",
+            "name": "tagIds",
             "summary": "Optional\u0020tags\u0020for\u0020the\u0020question.",
-            "url": "classes/App-Dto-CreateQuestionDto.html#property_tags"
+            "url": "classes/App-Dto-CreateQuestionDto.html#property_tagIds"
         },                {
             "fqsen": "\\App\\Dto\\CreateTagDto",
             "name": "CreateTagDto",
@@ -521,6 +531,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/App-Dto-QuestionListFiltersDto.html#property_categoryId"
         },                {
+            "fqsen": "\\App\\Dto\\QuestionListFiltersDto\u003A\u003A\u0024tagId",
+            "name": "tagId",
+            "summary": "",
+            "url": "classes/App-Dto-QuestionListFiltersDto.html#property_tagId"
+        },                {
             "fqsen": "\\App\\Dto\\UpdateAnswerDto",
             "name": "UpdateAnswerDto",
             "summary": "Data\u0020Transfer\u0020Object\u0020for\u0020updating\u0020an\u0020existing\u0020answer.",
@@ -561,15 +576,15 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/App-Dto-UpdateQuestionDto.html#property_content"
         },                {
-            "fqsen": "\\App\\Dto\\UpdateQuestionDto\u003A\u003A\u0024category",
-            "name": "category",
+            "fqsen": "\\App\\Dto\\UpdateQuestionDto\u003A\u003A\u0024categoryId",
+            "name": "categoryId",
             "summary": "",
-            "url": "classes/App-Dto-UpdateQuestionDto.html#property_category"
+            "url": "classes/App-Dto-UpdateQuestionDto.html#property_categoryId"
         },                {
-            "fqsen": "\\App\\Dto\\UpdateQuestionDto\u003A\u003A\u0024tags",
-            "name": "tags",
-            "summary": "",
-            "url": "classes/App-Dto-UpdateQuestionDto.html#property_tags"
+            "fqsen": "\\App\\Dto\\UpdateQuestionDto\u003A\u003A\u0024tagIds",
+            "name": "tagIds",
+            "summary": "Optional\u0020tags\u0020for\u0020the\u0020question.",
+            "url": "classes/App-Dto-UpdateQuestionDto.html#property_tagIds"
         },                {
             "fqsen": "\\App\\Dto\\UpdateTagDto",
             "name": "UpdateTagDto",
@@ -783,42 +798,42 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
-            "summary": "Constructor\u0020initializes\u0020the\u0020tags\u0020collection.",
+            "summary": "Constructor\u0020initializes\u0020the\u0020collections.",
             "url": "classes/App-Entity-Question.html#method___construct"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetId\u0028\u0029",
             "name": "getId",
-            "summary": "Get\u0020the\u0020question\u0020ID.",
+            "summary": "Get\u0020the\u0020ID\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getId"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetTitle\u0028\u0029",
             "name": "getTitle",
-            "summary": "Get\u0020the\u0020question\u0020title.",
+            "summary": "Get\u0020the\u0020title\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getTitle"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AsetTitle\u0028\u0029",
             "name": "setTitle",
-            "summary": "Set\u0020the\u0020question\u0020title.",
+            "summary": "Set\u0020the\u0020title\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_setTitle"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetContent\u0028\u0029",
             "name": "getContent",
-            "summary": "Get\u0020the\u0020question\u0020content.",
+            "summary": "Get\u0020the\u0020content\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getContent"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AsetContent\u0028\u0029",
             "name": "setContent",
-            "summary": "Set\u0020the\u0020question\u0020content.",
+            "summary": "Set\u0020the\u0020content\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_setContent"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetCreatedAt\u0028\u0029",
             "name": "getCreatedAt",
-            "summary": "Get\u0020creation\u0020timestamp.",
+            "summary": "Get\u0020the\u0020creation\u0020date\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getCreatedAt"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetUpdatedAt\u0028\u0029",
             "name": "getUpdatedAt",
-            "summary": "Get\u0020last\u0020update\u0020timestamp.",
+            "summary": "Get\u0020the\u0020last\u0020updated\u0020date\u0020of\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getUpdatedAt"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetAuthor\u0028\u0029",
@@ -843,7 +858,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AgetTags\u0028\u0029",
             "name": "getTags",
-            "summary": "Get\u0020all\u0020tags\u0020associated\u0020with\u0020the\u0020question.",
+            "summary": "Get\u0020the\u0020tags\u0020associated\u0020with\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_getTags"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003AaddTag\u0028\u0029",
@@ -855,6 +870,21 @@ Search.appendIndex(
             "name": "removeTag",
             "summary": "Remove\u0020a\u0020tag\u0020from\u0020the\u0020question.",
             "url": "classes/App-Entity-Question.html#method_removeTag"
+        },                {
+            "fqsen": "\\App\\Entity\\Question\u003A\u003AgetAnswers\u0028\u0029",
+            "name": "getAnswers",
+            "summary": "Get\u0020all\u0020answers\u0020for\u0020this\u0020question.",
+            "url": "classes/App-Entity-Question.html#method_getAnswers"
+        },                {
+            "fqsen": "\\App\\Entity\\Question\u003A\u003AaddAnswer\u0028\u0029",
+            "name": "addAnswer",
+            "summary": "Add\u0020an\u0020answer\u0020to\u0020this\u0020question.",
+            "url": "classes/App-Entity-Question.html#method_addAnswer"
+        },                {
+            "fqsen": "\\App\\Entity\\Question\u003A\u003AremoveAnswer\u0028\u0029",
+            "name": "removeAnswer",
+            "summary": "Remove\u0020an\u0020answer\u0020from\u0020this\u0020question.",
+            "url": "classes/App-Entity-Question.html#method_removeAnswer"
         },                {
             "fqsen": "\\App\\Entity\\Question\u003A\u003A\u0024id",
             "name": "id",
@@ -895,6 +925,11 @@ Search.appendIndex(
             "name": "tags",
             "summary": "",
             "url": "classes/App-Entity-Question.html#property_tags"
+        },                {
+            "fqsen": "\\App\\Entity\\Question\u003A\u003A\u0024answers",
+            "name": "answers",
+            "summary": "",
+            "url": "classes/App-Entity-Question.html#property_answers"
         },                {
             "fqsen": "\\App\\Entity\\Tag",
             "name": "Tag",
@@ -1180,6 +1215,11 @@ Search.appendIndex(
             "name": "__construct",
             "summary": "UserRepository\u0020constructor.",
             "url": "classes/App-Repository-UserRepository.html#method___construct"
+        },                {
+            "fqsen": "\\App\\Repository\\UserRepository\u003A\u003AfindAllPaginated\u0028\u0029",
+            "name": "findAllPaginated",
+            "summary": "Finds\u0020all\u0020users\u0020with\u0020pagination\u0020and\u0020optional\u0020search.",
+            "url": "classes/App-Repository-UserRepository.html#method_findAllPaginated"
         },                {
             "fqsen": "\\App\\Repository\\UserRepository\u003A\u003AupgradePassword\u0028\u0029",
             "name": "upgradePassword",
@@ -1483,7 +1523,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Service\\AnswerService\u003A\u003Acreate\u0028\u0029",
             "name": "create",
-            "summary": "Creates\u0020a\u0020new\u0020Answer\u0020entity\u0020from\u0020the\u0020given\u0020DTO\u0020and\u0020saves\u0020it.",
+            "summary": "Creates\u0020a\u0020new\u0020Answer\u0020entity\u0020from\u0020the\u0020given\u0020DTO.",
             "url": "classes/App-Service-AnswerService.html#method_create"
         },                {
             "fqsen": "\\App\\Service\\AnswerService\u003A\u003Aupdate\u0028\u0029",
@@ -1515,6 +1555,11 @@ Search.appendIndex(
             "name": "answerRepository",
             "summary": "",
             "url": "classes/App-Service-AnswerService.html#property_answerRepository"
+        },                {
+            "fqsen": "\\App\\Service\\AnswerService\u003A\u003A\u0024questionRepository",
+            "name": "questionRepository",
+            "summary": "",
+            "url": "classes/App-Service-AnswerService.html#property_questionRepository"
         },                {
             "fqsen": "\\App\\Service\\AnswerServiceInterface",
             "name": "AnswerServiceInterface",
@@ -1628,7 +1673,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\App\\Service\\QuestionService\u003A\u003Aupdate\u0028\u0029",
             "name": "update",
-            "summary": "Updates\u0020an\u0020existing\u0020Question\u0020entity\u0020with\u0020values\u0020from\u0020the\u0020given\u0020DTO.",
+            "summary": "Updates\u0020an\u0020existing\u0020Question\u0020entity\u0020with\u0020new\u0020data.",
             "url": "classes/App-Service-QuestionService.html#method_update"
         },                {
             "fqsen": "\\App\\Service\\QuestionService\u003A\u003Adelete\u0028\u0029",
@@ -1771,6 +1816,11 @@ Search.appendIndex(
             "summary": "Finds\u0020a\u0020user\u0020by\u0020email\u0020or\u0020throws\u0020a\u0020NotFoundHttpException\u0020if\u0020not\u0020found.",
             "url": "classes/App-Service-UserService.html#method_findUserByEmailOrFail"
         },                {
+            "fqsen": "\\App\\Service\\UserService\u003A\u003AgetUsers\u0028\u0029",
+            "name": "getUsers",
+            "summary": "Returns\u0020paginated\u0020users\u0020with\u0020optional\u0020search.",
+            "url": "classes/App-Service-UserService.html#method_getUsers"
+        },                {
             "fqsen": "\\App\\Service\\UserService\u003A\u003A\u0024userRepository",
             "name": "userRepository",
             "summary": "",
@@ -1810,6 +1860,11 @@ Search.appendIndex(
             "name": "findUserByEmailOrFail",
             "summary": "Finds\u0020a\u0020user\u0020by\u0020email\u0020or\u0020throws\u0020an\u0020exception\u0020if\u0020not\u0020found.",
             "url": "classes/App-Service-UserServiceInterface.html#method_findUserByEmailOrFail"
+        },                {
+            "fqsen": "\\App\\Service\\UserServiceInterface\u003A\u003AgetUsers\u0028\u0029",
+            "name": "getUsers",
+            "summary": "Gets\u0020all\u0020of\u0020users.",
+            "url": "classes/App-Service-UserServiceInterface.html#method_getUsers"
         },                {
             "fqsen": "\\",
             "name": "\\",

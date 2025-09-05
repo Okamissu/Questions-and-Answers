@@ -154,7 +154,13 @@ class CategoryRepositoryTest extends TestCase
     }
 
     /**
+     * Function setProtectedProperty.
      * Helper to set a protected property via reflection.
+     *
+     * @test
+     *
+     * @param object $object The object to modify
+     * @param mixed  $value  The value to set for the property
      */
     private function setProtectedProperty(object $object, mixed $value): void
     {

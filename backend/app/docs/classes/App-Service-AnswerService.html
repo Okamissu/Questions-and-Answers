@@ -149,7 +149,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">22</span>
+    <span class="phpdocumentor-element-found-in__line">23</span>
 
     </aside>
 
@@ -195,6 +195,12 @@ and handling &quot;best answer&quot; logic.</p>
                         &nbsp;: <a href="classes/App-Repository-AnswerRepository.html"><abbr title="\App\Repository\AnswerRepository">AnswerRepository</abbr></a>            </span>
 </dt>
 
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a href="classes/App-Service-AnswerService.html#property_questionRepository">$questionRepository</a>
+    <span>
+                        &nbsp;: <a href="classes/App-Repository-QuestionRepository.html"><abbr title="\App\Repository\QuestionRepository">QuestionRepository</abbr></a>            </span>
+</dt>
+
     </dl>
 
 <h4 id="toc-methods">
@@ -215,7 +221,7 @@ and handling &quot;best answer&quot; logic.</p>
     <span>
                                 &nbsp;: <a href="classes/App-Entity-Answer.html"><abbr title="\App\Entity\Answer">Answer</abbr></a>    </span>
 </dt>
-<dd>Creates a new Answer entity from the given DTO and saves it.</dd>
+<dd>Creates a new Answer entity from the given DTO.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/App-Service-AnswerService.html#method_delete">delete()</a>
@@ -283,7 +289,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">27</span>
+    <span class="phpdocumentor-element-found-in__line">25</span>
 
     </aside>
 
@@ -295,9 +301,40 @@ and handling &quot;best answer&quot; logic.</p>
     </code>
 
     
-        <section class="phpdocumentor-description"><p>Repository for persisting Answer entities</p>
-</section>
+    
+    
 
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="property_questionRepository">
+        $questionRepository
+        <a href="classes/App-Service-AnswerService.html#property_questionRepository" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">26</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type"><a href="classes/App-Repository-QuestionRepository.html"><abbr title="\App\Repository\QuestionRepository">QuestionRepository</abbr></a></span>
+    <span class="phpdocumentor-signature__name">$questionRepository</span>
+    </code>
+
+    
+    
     
 
 </article>
@@ -331,7 +368,7 @@ and handling &quot;best answer&quot; logic.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Repository-AnswerRepository.html"><abbr title="\App\Repository\AnswerRepository">AnswerRepository</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$answerRepository</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Repository-AnswerRepository.html"><abbr title="\App\Repository\AnswerRepository">AnswerRepository</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$answerRepository</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Repository-QuestionRepository.html"><abbr title="\App\Repository\QuestionRepository">QuestionRepository</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$questionRepository</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -343,7 +380,16 @@ and handling &quot;best answer&quot; logic.</p>
                 : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Repository-AnswerRepository.html"><abbr title="\App\Repository\AnswerRepository">AnswerRepository</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>Repository for Answer entities</p>
+                    <section class="phpdocumentor-description"><p>Repository for persisting Answer entities</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$questionRepository</span>
+                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Repository-QuestionRepository.html"><abbr title="\App\Repository\QuestionRepository">QuestionRepository</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Repository for persisting Question entities</p>
 </section>
 
             </dd>
@@ -367,11 +413,11 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">46</span>
+    <span class="phpdocumentor-element-found-in__line">47</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Creates a new Answer entity from the given DTO and saves it.</p>
+        <p class="phpdocumentor-summary">Creates a new Answer entity from the given DTO.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -387,7 +433,7 @@ and handling &quot;best answer&quot; logic.</p>
                 : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/App-Dto-CreateAnswerDto.html"><abbr title="\App\Dto\CreateAnswerDto">CreateAnswerDto</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
-                    <section class="phpdocumentor-description"><p>DTO containing answer data</p>
+                    <section class="phpdocumentor-description"><p>DTO containing the answer data</p>
 </section>
 
             </dd>
@@ -399,7 +445,7 @@ and handling &quot;best answer&quot; logic.</p>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><a href="classes/App-Entity-Answer.html"><abbr title="\App\Entity\Answer">Answer</abbr></a></span>
                     &mdash;
-                <section class="phpdocumentor-description"><p>The created Answer entity</p>
+                <section class="phpdocumentor-description"><p>The newly created Answer entity</p>
 </section>
 
             </section>
@@ -419,7 +465,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">89</span>
+    <span class="phpdocumentor-element-found-in__line">94</span>
 
     </aside>
 
@@ -463,7 +509,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">105</span>
+    <span class="phpdocumentor-element-found-in__line">110</span>
 
     </aside>
 
@@ -551,7 +597,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">129</span>
+    <span class="phpdocumentor-element-found-in__line">134</span>
 
     </aside>
 
@@ -605,7 +651,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">71</span>
+    <span class="phpdocumentor-element-found-in__line">76</span>
 
     </aside>
 
@@ -666,7 +712,7 @@ and handling &quot;best answer&quot; logic.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Service/AnswerService.php"><a href="files/src-service-answerservice.html"><abbr title="src/Service/AnswerService.php">AnswerService.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">160</span>
+    <span class="phpdocumentor-element-found-in__line">165</span>
 
     </aside>
 
@@ -832,6 +878,7 @@ and handling &quot;best answer&quot; logic.</p>
                 <li>
                     <ul class="phpdocumentor-list -clean">
                                                     <li><a href="classes/App-Service-AnswerService.html#property_answerRepository">$answerRepository<a href="classes/App-Service-AnswerService.html"></li>
+                                                    <li><a href="classes/App-Service-AnswerService.html#property_questionRepository">$questionRepository<a href="classes/App-Service-AnswerService.html"></li>
                                             </ul>
                 </li>
             

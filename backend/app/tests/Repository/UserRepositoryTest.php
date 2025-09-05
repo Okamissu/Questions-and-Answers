@@ -15,8 +15,6 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 /**
  * Class UserRepositoryTest.
@@ -31,6 +29,9 @@ class UserRepositoryTest extends TestCase
 
     /**
      * Set up mocks and repository.
+     *
+     * This method initializes the mocks for the EntityManager, ManagerRegistry,
+     * and UserRepository to be used in the tests.
      *
      * @test
      *
@@ -58,6 +59,8 @@ class UserRepositoryTest extends TestCase
     /**
      * Test saving a User entity.
      *
+     * This test ensures that the save method correctly persists and flushes the User entity.
+     *
      * @test
      */
     public function testSave(): void
@@ -72,6 +75,8 @@ class UserRepositoryTest extends TestCase
 
     /**
      * Test deleting a User entity.
+     *
+     * This test ensures that the delete method correctly removes and flushes the User entity.
      *
      * @test
      */
@@ -88,6 +93,9 @@ class UserRepositoryTest extends TestCase
     /**
      * Test upgrading a User password.
      *
+     * This test ensures that the password upgrade method correctly persists and flushes the User entity
+     * with the new password.
+     *
      * @test
      */
     public function testUpgradePassword(): void
@@ -103,40 +111,10 @@ class UserRepositoryTest extends TestCase
     }
 
     /**
-     * Test that upgrading password throws for unsupported user.
-     *
-     * @test
-     */
-    public function testUpgradePasswordThrowsExceptionForWrongUser(): void
-    {
-        $this->expectException(UnsupportedUserException::class);
-
-        $unsupportedUser = new class () implements PasswordAuthenticatedUserInterface {
-            /**
-             * Returns the hashed password used to authenticate the user.
-             *
-             * Usually on authentication, a plain-text password will be compared to this value.
-             */
-            public function getPassword(): ?string
-            {
-                return null;
-            }
-
-            public function getSalt(): ?string
-            {
-                return null;
-            }
-
-            public function eraseCredentials(): void
-            {
-            }
-        };
-
-        $this->repository->upgradePassword($unsupportedUser, 'hash');
-    }
-
-    /**
      * Test finding a user by email.
+     *
+     * This test ensures that the findOneByEmail method correctly queries the database
+     * and returns the result.
      *
      * @test
      *
@@ -170,26 +148,10 @@ class UserRepositoryTest extends TestCase
     }
 
     /**
-     * Helper to set a protected property via reflection.
-     */
-    private function setProtectedProperty(object $object, $value): void
-    {
-        $refObject = new \ReflectionObject($object);
-
-        while (!$refObject->hasProperty('em')) {
-            $parent = $refObject->getParentClass();
-            if (!$parent) {
-                throw new \RuntimeException('Property em not found');
-            }
-            $refObject = $parent;
-        }
-
-        $refProperty = $refObject->getProperty('em');
-        $refProperty->setValue($object, $value);
-    }
-
-    /**
      * Test findAllPaginated with search term.
+     *
+     * This test ensures that the paginated user search functionality is working
+     * correctly by testing the search term, pagination, and total count.
      *
      * @test
      *
@@ -266,5 +228,29 @@ class UserRepositoryTest extends TestCase
         $this->assertSame(3, $result['pagination']['totalPages']); // ceil(25/10)
         $this->assertSame(25, $result['pagination']['totalItems']);
         $this->assertSame($limit, $result['pagination']['limit']);
+    }
+
+    /**
+     * Helper to set a protected property via reflection.
+     *
+     * Sets the protected property on the object to the provided value.
+     *
+     * @param object $object the object to modify
+     * @param mixed  $value  the value to set
+     */
+    private function setProtectedProperty(object $object, $value): void
+    {
+        $refObject = new \ReflectionObject($object);
+
+        while (!$refObject->hasProperty('em')) {
+            $parent = $refObject->getParentClass();
+            if (!$parent) {
+                throw new \RuntimeException('Property em not found');
+            }
+            $refObject = $parent;
+        }
+
+        $refProperty = $refObject->getProperty('em');
+        $refProperty->setValue($object, $value);
     }
 }

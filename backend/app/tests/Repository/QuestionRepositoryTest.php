@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
+ */
+
 namespace App\Tests\Repository;
 
 use App\Entity\Question;
@@ -10,6 +14,12 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Test class for the QuestionRepository.
+ *
+ * Contains test cases for querying and manipulating Question entities
+ * via the repository, including filtering by category, tag, and other properties.
+ */
 class QuestionRepositoryTest extends TestCase
 {
     private EntityManagerInterface $em;
@@ -17,6 +27,11 @@ class QuestionRepositoryTest extends TestCase
     private QuestionRepository $repository;
     private QueryBuilder $qb;
 
+    /**
+     * Set up the test environment, mocking required dependencies.
+     *
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
@@ -44,6 +59,11 @@ class QuestionRepositoryTest extends TestCase
         $this->qb->method('orderBy')->willReturnSelf();
     }
 
+    /**
+     * Test the default sorting behavior in the query builder.
+     *
+     * @test
+     */
     public function testQueryWithFiltersDefaultSort(): void
     {
         $this->qb->expects($this->once())
@@ -53,6 +73,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters();
     }
 
+    /**
+     * Test the query with search filtering applied.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithSearch(): void
     {
         $search = 'test';
@@ -66,6 +91,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters($search);
     }
 
+    /**
+     * Test the query with category filtering applied.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithCategory(): void
     {
         $categoryId = 42;
@@ -79,6 +109,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, null, $categoryId);
     }
 
+    /**
+     * Test the query with tag filtering applied.
+     *
+     * @test
+     */
     public function testQueryWithFiltersWithTag(): void
     {
         $tagId = 7;
@@ -92,6 +127,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, null, null, $tagId);
     }
 
+    /**
+     * Test the query with a valid sorting parameter.
+     *
+     * @test
+     */
     public function testQueryWithFiltersValidSort(): void
     {
         $sort = 'title_ASC';
@@ -102,6 +142,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, $sort);
     }
 
+    /**
+     * Test the query with an invalid sorting parameter, ensuring it falls back to default.
+     *
+     * @test
+     */
     public function testQueryWithFiltersInvalidSortFallsBack(): void
     {
         $sort = 'invalid_sort';
@@ -112,6 +157,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->queryWithFilters(null, $sort);
     }
 
+    /**
+     * Test saving a Question entity using the repository.
+     *
+     * @test
+     */
     public function testSave(): void
     {
         $question = new Question();
@@ -122,6 +172,11 @@ class QuestionRepositoryTest extends TestCase
         $this->repository->save($question);
     }
 
+    /**
+     * Test deleting a Question entity using the repository.
+     *
+     * @test
+     */
     public function testDelete(): void
     {
         $question = new Question();

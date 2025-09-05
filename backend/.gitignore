@@ -1,3 +1,4 @@
+# .gitignore
 .idea
 var
 vendor
@@ -5,5 +6,6 @@ vendor
 .php-cs-fixer.cache
 .phpunit.result.cache
 .env
-coverage
 .phpdoc
+# coverage
+# docs

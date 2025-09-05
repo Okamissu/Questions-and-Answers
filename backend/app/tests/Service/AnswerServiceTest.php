@@ -301,6 +301,17 @@ class AnswerServiceTest extends TestCase
         $this->assertSame($mainAnswer, $result);
     }
 
+    /**
+     * Test that the create method of AnswerService throws an exception if the question is not found.
+     *
+     * This test simulates the creation of an answer with a non-existent question ID. It expects that
+     * the `create` method of the `AnswerService` will throw an `InvalidArgumentException` with the
+     * message 'Question not found' when the question cannot be found in the repository.
+     *
+     * @test
+     *
+     * @covers \App\Service\AnswerService::create
+     */
     public function testCreateThrowsExceptionIfQuestionNotFound(): void
     {
         $dto = new CreateAnswerDto();

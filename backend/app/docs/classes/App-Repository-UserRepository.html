@@ -222,6 +222,13 @@
 <dd>Removes a User entity.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/App-Repository-UserRepository.html#method_findAllPaginated">findAllPaginated()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;    </span>
+</dt>
+<dd>Finds all users with pagination and optional search.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/App-Repository-UserRepository.html#method_findOneByEmail">findOneByEmail()</a>
     <span>
                                 &nbsp;: <a href="classes/App-Entity-User.html"><abbr title="\App\Entity\User">User</abbr></a>|null    </span>
@@ -315,7 +322,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Repository/UserRepository.php"><a href="files/src-repository-userrepository.html"><abbr title="src/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">69</span>
+    <span class="phpdocumentor-element-found-in__line">114</span>
 
     </aside>
 
@@ -351,6 +358,76 @@
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_findAllPaginated">
+        findAllPaginated()
+        <a href="classes/App-Repository-UserRepository.html#method_findAllPaginated" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Repository/UserRepository.php"><a href="files/src-repository-userrepository.html"><abbr title="src/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">42</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Finds all users with pagination and optional search.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">findAllPaginated</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$page</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">1</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$limit</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">20</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$search</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$page</span>
+                : <span class="phpdocumentor-signature__argument__return-type">int</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">1</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>The current page for pagination (default is 1)</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$limit</span>
+                : <span class="phpdocumentor-signature__argument__return-type">int</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">20</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>The number of users per page (default is 20)</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$search</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string|null</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>The search query to filter by email or nickname (optional)</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The list of users and pagination info</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_findOneByEmail">
         findOneByEmail()
         <a href="classes/App-Repository-UserRepository.html#method_findOneByEmail" class="headerlink"><i class="fas fa-link"></i></a>
@@ -359,7 +436,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Repository/UserRepository.php"><a href="files/src-repository-userrepository.html"><abbr title="src/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">83</span>
+    <span class="phpdocumentor-element-found-in__line">128</span>
 
     </aside>
 
@@ -411,7 +488,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Repository/UserRepository.php"><a href="files/src-repository-userrepository.html"><abbr title="src/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">57</span>
+    <span class="phpdocumentor-element-found-in__line">102</span>
 
     </aside>
 
@@ -455,7 +532,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Repository/UserRepository.php"><a href="files/src-repository-userrepository.html"><abbr title="src/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">41</span>
+    <span class="phpdocumentor-element-found-in__line">86</span>
 
     </aside>
 
@@ -626,6 +703,7 @@
                 <ul class="phpdocumentor-list -clean">
                                             <li><a href="classes/App-Repository-UserRepository.html#method___construct">__construct()</a></li>
                                             <li><a href="classes/App-Repository-UserRepository.html#method_delete">delete()</a></li>
+                                            <li><a href="classes/App-Repository-UserRepository.html#method_findAllPaginated">findAllPaginated()</a></li>
                                             <li><a href="classes/App-Repository-UserRepository.html#method_findOneByEmail">findOneByEmail()</a></li>
                                             <li><a href="classes/App-Repository-UserRepository.html#method_save">save()</a></li>
                                             <li><a href="classes/App-Repository-UserRepository.html#method_upgradePassword">upgradePassword()</a></li>

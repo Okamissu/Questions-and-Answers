@@ -248,6 +248,17 @@ class UserServiceTest extends TestCase
         $this->userService->findUserByEmailOrFail($email);
     }
 
+    /**
+     * Test the getUsers method of UserService to ensure it returns paginated data correctly.
+     *
+     * This test mocks the UserRepository to simulate retrieving paginated users based on the provided
+     * page, limit, and search term. It then asserts that the returned result matches the expected
+     * pagination format.
+     *
+     * @test
+     *
+     * @covers \App\Service\UserService::getUsers
+     */
     public function testGetUsersReturnsPaginatedData(): void
     {
         $page = 2;
