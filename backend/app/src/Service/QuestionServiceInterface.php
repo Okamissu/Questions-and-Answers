@@ -51,6 +51,7 @@ interface QuestionServiceInterface
      * @param string|null $search     Search string (optional)
      * @param string|null $sort       Sort string, e.g. "createdAt_DESC" (optional)
      * @param int|null    $categoryId Filter by category ID (optional)
+     * @param int|null    $tagId      Filter by tag ID (optional)
      *
      * @return array{items: Question[], totalItems: int} Paginated questions and total count
      */

@@ -1,16 +1,135 @@
+   1) src/Controller/UserController.php (phpdoc_annotation_without_dot, phpdoc_separation, phpdoc_align)
+   2) src/Entity/Question.php (no_unused_imports)
+   3) src/Repository/QuestionRepository.php (class_attributes_separation)
+   4) src/Repository/UserRepository.php (class_attributes_separation, concat_space)
+   5) src/Service/QuestionService.php (class_attributes_separation, trailing_comma_in_multiline)
+   6) src/Service/AnswerService.php (class_attributes_separation, trailing_comma_in_multiline, no_blank_lines_after_phpdoc)
+   7) src/Service/UserService.php (class_attributes_separation, phpdoc_align)
 
-Found 0 of 57 files that can be fixed in 1.128 seconds, 18.00 MB memory used
+Found 7 of 57 files that can be fixed in 0.981 seconds, 18.00 MB memory used
+   1) tests/Resolver/QuestionListFiltersDtoResolverTest.php (class_attributes_separation)
+   2) tests/Repository/QuestionRepositoryTest.php (no_unused_imports)
+   3) tests/Repository/UserRepositoryTest.php (class_attributes_separation, fully_qualified_strict_types)
+   4) tests/Service/AnswerServiceTest.php (class_attributes_separation)
 
-Found 0 of 43 files that can be fixed in 1.452 seconds, 18.00 MB memory used
+Found 4 of 32 files that can be fixed in 1.099 seconds, 18.00 MB memory used
 
-FILE: /home/wwwroot/app/tests/Dto/CreateAnswerDtoValidationTest.php
-----------------------------------------------------------------------------------------
+FILE: /home/wwwroot/app/src/Controller/UserController.php
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FOUND 13 ERRORS AFFECTING 9 LINES
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  23 | ERROR | [ ] Missing doc comment for class UserController
+  29 | ERROR | [x] Expected 3 spaces after parameter type; 1 found
+  29 | ERROR | [x] Expected 3 spaces after parameter name; 1 found
+  30 | ERROR | [x] Expected 2 spaces after parameter type; 1 found
+  30 | ERROR | [x] Expected 2 spaces after parameter name; 1 found
+  32 | ERROR | [ ] Declare all the arguments on the same line as the method/function name, no matter how many arguments there are.
+  44 | ERROR | [x] Group annotations together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line
+  67 | ERROR | [x] Group annotations together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line
+ 118 | ERROR | [x] Group annotations together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line
+ 136 | ERROR | [x] Group annotations together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line
+ 136 | ERROR | [x] Expected 4 spaces after parameter type; 1 found
+ 136 | ERROR | [x] Expected 4 spaces after parameter name; 1 found
+ 169 | ERROR | [x] Group annotations together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 11 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Controller/AnswerController.php
+------------------------------------------------------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+------------------------------------------------------------------------------------------------------------------------------
+ 58 | ERROR | Declare all the arguments on the same line as the method/function name, no matter how many arguments there are.
+------------------------------------------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Entity/Question.php
+------------------------------------------------------------------------
+FOUND 16 ERRORS AFFECTING 16 LINES
+------------------------------------------------------------------------
+  82 | ERROR | You must use "/**" style comments for a function comment
+  87 | ERROR | Missing doc comment for function getTitle()
+  92 | ERROR | Missing doc comment for function setTitle()
+  97 | ERROR | Missing doc comment for function getContent()
+ 102 | ERROR | Missing doc comment for function setContent()
+ 107 | ERROR | Missing doc comment for function getCreatedAt()
+ 112 | ERROR | Missing doc comment for function getUpdatedAt()
+ 117 | ERROR | Missing doc comment for function getAuthor()
+ 122 | ERROR | Missing doc comment for function setAuthor()
+ 127 | ERROR | Missing doc comment for function getCategory()
+ 132 | ERROR | Missing doc comment for function setCategory()
+ 137 | ERROR | Missing doc comment for function getTags()
+ 142 | ERROR | Missing doc comment for function addTag()
+ 149 | ERROR | Missing doc comment for function removeTag()
+ 164 | ERROR | Doc comment for parameter "$answer" missing
+ 175 | ERROR | Doc comment for parameter "$answer" missing
+------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Repository/QuestionRepository.php
+------------------------------------------------------------------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 2 LINES
+------------------------------------------------------------------------------------------------------------------------------
+ 29 | ERROR | Doc comment for parameter "$tagId" missing
+ 38 | ERROR | Declare all the arguments on the same line as the method/function name, no matter how many arguments there are.
+------------------------------------------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Repository/UserRepository.php
+-------------------------------------------------------------------------------------------
+FOUND 6 ERRORS AFFECTING 4 LINES
+-------------------------------------------------------------------------------------------
+  33 | ERROR | [ ] Missing doc comment for function findAllPaginated()
+  39 | ERROR | [x] Concat operator must not be surrounded by spaces
+  39 | ERROR | [x] Concat operator must not be surrounded by spaces
+  53 | ERROR | [x] Concat operator must not be surrounded by spaces
+  53 | ERROR | [x] Concat operator must not be surrounded by spaces
+ 130 | ERROR | [x] The closing brace for the class must go on the next line after the body
+-------------------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 5 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+-------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Service/QuestionService.php
+-------------------------------------------------------------------------------------------------------------------------------
 FOUND 3 ERRORS AFFECTING 3 LINES
-----------------------------------------------------------------------------------------
- 37 | ERROR | Missing @return tag in function comment
- 50 | ERROR | Missing @return tag in function comment
- 66 | ERROR | Declare public methods first,then protected ones and finally private ones
-----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------
+  78 | ERROR | Missing doc comment for function update()
+ 131 | ERROR | Doc comment for parameter "$tagId" missing
+ 145 | ERROR | Declare all the arguments on the same line as the method/function name, no matter how many arguments there are.
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Service/AnswerService.php
+------------------------------------------------------------------------------------------------------------------------------
+FOUND 3 ERRORS AFFECTING 2 LINES
+------------------------------------------------------------------------------------------------------------------------------
+ 29 | ERROR | Missing doc comment for function __construct()
+ 29 | ERROR | Declare all the arguments on the same line as the method/function name, no matter how many arguments there are.
+ 37 | ERROR | Missing doc comment for function create()
+------------------------------------------------------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Service/UserService.php
+----------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 2 LINES
+----------------------------------------------------------------------
+ 129 | ERROR | [x] Expected 3 spaces after parameter name; 2 found
+ 130 | ERROR | [x] Expected 2 spaces after parameter name; 1 found
+----------------------------------------------------------------------
+PHPCBF CAN FIX THE 2 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+----------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/src/Service/QuestionServiceInterface.php
+----------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+----------------------------------------------------------------------
+ 46 | ERROR | Doc comment for parameter "$tagId" missing
+----------------------------------------------------------------------
+
+Time: 1.52 secs; Memory: 10MB
 
 
 FILE: /home/wwwroot/app/tests/Repository/AnswerRepositoryTest.php
@@ -32,13 +151,22 @@ FOUND 2 ERRORS AFFECTING 1 LINE
 
 
 FILE: /home/wwwroot/app/tests/Repository/QuestionRepositoryTest.php
-----------------------------------------------------------------------
-FOUND 3 ERRORS AFFECTING 1 LINE
-----------------------------------------------------------------------
- 170 | ERROR | Doc comment for parameter "$object" missing
- 170 | ERROR | Doc comment for parameter "$property" missing
- 170 | ERROR | Doc comment for parameter "$value" missing
-----------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+FOUND 10 ERRORS AND 1 WARNING AFFECTING 11 LINES
+---------------------------------------------------------------------------------------------
+   3 | WARNING | The license block has to be present at the top
+     |         |                 of every PHP file, before the namespace
+  15 | ERROR   | Missing doc comment for class QuestionRepositoryTest
+  22 | ERROR   | Missing doc comment for function setUp()
+  49 | ERROR   | Missing doc comment for function testQueryWithFiltersDefaultSort()
+  58 | ERROR   | Missing doc comment for function testQueryWithFiltersWithSearch()
+  71 | ERROR   | Missing doc comment for function testQueryWithFiltersWithCategory()
+  84 | ERROR   | Missing doc comment for function testQueryWithFiltersWithTag()
+  97 | ERROR   | Missing doc comment for function testQueryWithFiltersValidSort()
+ 107 | ERROR   | Missing doc comment for function testQueryWithFiltersInvalidSortFallsBack()
+ 117 | ERROR   | Missing doc comment for function testSave()
+ 127 | ERROR   | Missing doc comment for function testDelete()
+---------------------------------------------------------------------------------------------
 
 
 FILE: /home/wwwroot/app/tests/Repository/TagRepositoryTest.php
@@ -51,22 +179,45 @@ FOUND 2 ERRORS AFFECTING 1 LINE
 
 
 FILE: /home/wwwroot/app/tests/Repository/UserRepositoryTest.php
-----------------------------------------------------------------------
-FOUND 7 ERRORS AFFECTING 6 LINES
-----------------------------------------------------------------------
- 109 | ERROR | Missing @return tag in function comment
- 114 | ERROR | Use parentheses when instantiating classes
- 119 | ERROR | Missing @return tag in function comment
- 125 | ERROR | Missing doc comment for function getSalt()
- 130 | ERROR | Missing doc comment for function eraseCredentials()
- 172 | ERROR | Doc comment for parameter "$object" missing
- 172 | ERROR | Doc comment for parameter "$value" missing
-----------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+FOUND 9 ERRORS AFFECTING 8 LINES
+---------------------------------------------------------------------------------------------
+ 109 | ERROR | [ ] Missing @return tag in function comment
+ 114 | ERROR | [ ] Use parentheses when instantiating classes
+ 119 | ERROR | [ ] Missing @return tag in function comment
+ 125 | ERROR | [ ] Missing doc comment for function getSalt()
+ 130 | ERROR | [ ] Missing doc comment for function eraseCredentials()
+ 172 | ERROR | [ ] Doc comment for parameter "$object" missing
+ 172 | ERROR | [ ] Doc comment for parameter "$value" missing
+ 198 | ERROR | [ ] Declare public methods first,then protected ones and finally private ones
+ 272 | ERROR | [x] The closing brace for the class must go on the next line after the body
+---------------------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+---------------------------------------------------------------------------------------------
 
-Time: 2.98 secs; Memory: 10MB
+
+FILE: /home/wwwroot/app/tests/Service/UserServiceTest.php
+-----------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+-----------------------------------------------------------------------------------
+ 251 | ERROR | Missing doc comment for function testGetUsersReturnsPaginatedData()
+-----------------------------------------------------------------------------------
+
+
+FILE: /home/wwwroot/app/tests/Service/AnswerServiceTest.php
+--------------------------------------------------------------------------------------------------
+FOUND 2 ERRORS AFFECTING 2 LINES
+--------------------------------------------------------------------------------------------------
+ 304 | ERROR | [ ] Missing doc comment for function testCreateThrowsExceptionIfQuestionNotFound()
+ 325 | ERROR | [x] The closing brace for the class must go on the next line after the body
+--------------------------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------------------------
+
+Time: 2.16 secs; Memory: 10MB
 
 [notice] Migrating up to DoctrineMigrations\Version20250805120257
-[notice] finished in 1233.4ms, used 16M memory, 1 migrations executed, 12 sql queries
+[notice] finished in 1145.1ms, used 16M memory, 1 migrations executed, 12 sql queries
 
  [OK] Successfully migrated to version: DoctrineMigrations\Version20250805120257                                        
 

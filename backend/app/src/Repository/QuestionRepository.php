@@ -32,15 +32,12 @@ class QuestionRepository extends ServiceEntityRepository
      * @param string|null $search     Filter by question title or content
      * @param string|null $sort       Sort field and direction, e.g. "title_ASC"
      * @param int|null    $categoryId Filter by category ID
+     * @param int|null    $tagId      Filter by tag ID
      *
      * @return QueryBuilder The Doctrine QueryBuilder instance
      */
-    public function queryWithFilters(
-        ?string $search = null,
-        ?string $sort = null,
-        ?int $categoryId = null,
-        ?int $tagId = null,
-    ): QueryBuilder {
+    public function queryWithFilters(?string $search = null, ?string $sort = null, ?int $categoryId = null, ?int $tagId = null): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('q')
             ->select('DISTINCT q')
             ->leftJoin('q.category', 'c')->addSelect('c')
@@ -57,7 +54,6 @@ class QuestionRepository extends ServiceEntityRepository
         }
 
         if ($tagId) {
-            // 🔥 tu filtrujemy po tagu, ale wciąż selectujemy wszystkie tagi pytania
             $qb->andWhere(':tagId MEMBER OF q.tags')
                 ->setParameter('tagId', $tagId);
         }
@@ -77,7 +73,6 @@ class QuestionRepository extends ServiceEntityRepository
 
         return $qb;
     }
-
 
     /**
      * Persists a Question entity.

@@ -16,7 +16,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -25,7 +24,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class UserControllerTest.
  *
- * Tests CRUD operations for UserController.
+ * Tests CRUD operations and additional endpoints for UserController.
  *
  * @covers \App\Controller\UserController
  */
@@ -48,7 +47,7 @@ class UserControllerTest extends TestCase
         $this->serializerMock = $this->createMock(SerializerInterface::class);
 
         $this->controller = $this->getMockBuilder(UserController::class)
-            ->onlyMethods(['denyAccessUnlessGranted', 'json'])
+            ->onlyMethods(['denyAccessUnlessGranted', 'json', 'getUser'])
             ->setConstructorArgs([$this->serviceMock, $this->validatorMock, $this->serializerMock])
             ->getMock();
 
@@ -68,7 +67,6 @@ class UserControllerTest extends TestCase
      * Tests creating a new user successfully.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testCreate(): void
     {
@@ -92,7 +90,7 @@ class UserControllerTest extends TestCase
     /**
      * Tests creating a user with validation errors.
      *
-     * @throws \Exception|ExceptionInterface
+     * @throws \Exception
      */
     public function testCreateValidationError(): void
     {
@@ -113,7 +111,6 @@ class UserControllerTest extends TestCase
      * Tests showing a single user.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testShow(): void
     {
@@ -133,7 +130,6 @@ class UserControllerTest extends TestCase
      * Tests updating a user successfully.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testUpdate(): void
     {
@@ -161,7 +157,6 @@ class UserControllerTest extends TestCase
      * Tests updating a user with validation errors.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testUpdateValidationError(): void
     {
@@ -198,7 +193,6 @@ class UserControllerTest extends TestCase
      * Tests that creating a user throws InvalidArgumentException.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testCreateThrowsInvalidArgumentException(): void
     {
@@ -221,7 +215,6 @@ class UserControllerTest extends TestCase
      * Tests that updating a user throws InvalidArgumentException.
      *
      * @throws \Exception
-     * @throws ExceptionInterface
      */
     public function testUpdateThrowsInvalidArgumentException(): void
     {
@@ -239,5 +232,105 @@ class UserControllerTest extends TestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('Cannot update user', $data['error']);
         $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * Tests listing users with default pagination.
+     *
+     * @throws \Exception
+     */
+    public function testListDefaultPagination(): void
+    {
+        $expectedData = ['users' => [['email' => 'u1@example.com']]];
+        $this->serviceMock->expects($this->once())
+            ->method('getUsers')
+            ->with(1, 20, null)
+            ->willReturn($expectedData);
+
+        $this->serializerMock->method('serialize')->willReturn(json_encode($expectedData));
+
+        $request = new Request(); // no query params → defaults
+        $response = $this->controller->list($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(json_encode($expectedData), $response->getContent());
+    }
+
+    /**
+     * Tests listing users with custom pagination and search.
+     *
+     * @throws \Exception
+     */
+    public function testListCustomPaginationAndSearch(): void
+    {
+        $expectedData = ['users' => [['email' => 'search@example.com']]];
+        $this->serviceMock->expects($this->once())
+            ->method('getUsers')
+            ->with(2, 50, 'abc')
+            ->willReturn($expectedData);
+
+        $this->serializerMock->method('serialize')->willReturn(json_encode($expectedData));
+
+        $request = new Request(['page' => 2, 'limit' => 50, 'search' => 'abc']);
+        $response = $this->controller->list($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(json_encode($expectedData), $response->getContent());
+    }
+
+    /**
+     * Tests listing users clamps limit to max 100.
+     *
+     * @throws \Exception
+     */
+    public function testListClampsLimit(): void
+    {
+        $this->serviceMock->expects($this->once())
+            ->method('getUsers')
+            ->with(1, 100, null)
+            ->willReturn(['ok' => true]);
+
+        $this->serializerMock->method('serialize')->willReturn(json_encode(['ok' => true]));
+
+        $request = new Request(['limit' => 999]); // too big
+        $response = $this->controller->list($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * Tests "me" endpoint returns 401 when no authenticated user.
+     *
+     * @throws \Exception
+     */
+    public function testMeNotAuthenticated(): void
+    {
+        $this->controller->method('getUser')->willReturn(null);
+
+        $response = $this->controller->me();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals('Not authenticated', $data['error']);
+    }
+
+    /**
+     * Tests "me" endpoint returns authenticated user data.
+     *
+     * @throws \Exception
+     */
+    public function testMeAuthenticated(): void
+    {
+        $user = new User();
+        $user->setEmail('me@example.com');
+
+        $this->controller->method('getUser')->willReturn($user);
+        $this->serializerMock->method('serialize')->willReturn(json_encode(['email' => $user->getEmail()]));
+
+        $response = $this->controller->me();
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('me@example.com', $data['email']);
     }
 }

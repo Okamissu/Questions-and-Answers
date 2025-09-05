@@ -22,7 +22,7 @@ class CreateQuestionDto
     public ?string $content = null;
 
     #[Assert\NotNull]
-    public ?int $categoryId = null; // <-- tylko ID
+    public ?int $categoryId = null;
 
     /**
      * Optional tags for the question.

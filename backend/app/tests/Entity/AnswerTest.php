@@ -7,6 +7,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Answer;
+use App\Entity\Question;
 use App\Entity\User;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +15,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class AnswerTest.
  *
- * Tests basic getters and setters of the Answer entity.
+ * Tests all getters and setters of the Answer entity.
+ *
+ * @covers \App\Entity\Answer
  */
 class AnswerTest extends TestCase
 {
@@ -115,5 +118,65 @@ class AnswerTest extends TestCase
         $reflection->setValue($answer, $date);
 
         $this->assertSame($date, $answer->getCreatedAt());
+    }
+
+    /**
+     * Test setting and getting the Question entity.
+     *
+     * @test
+     */
+    public function testGetSetQuestion(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getQuestion());
+
+        $question = new Question();
+        $answer->setQuestion($question);
+
+        $this->assertSame($question, $answer->getQuestion());
+    }
+
+    /**
+     * Test setting and getting the Author (User entity).
+     *
+     * @test
+     */
+    public function testGetSetAuthor(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getAuthor());
+
+        $user = new User();
+        $answer->setAuthor($user);
+
+        $this->assertSame($user, $answer->getAuthor());
+    }
+
+    /**
+     * Test setting and getting the Author Nickname.
+     *
+     * @test
+     */
+    public function testGetSetAuthorNickname(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getAuthorNickname());
+
+        $answer->setAuthorNickname('AnonNick');
+        $this->assertSame('AnonNick', $answer->getAuthorNickname());
+    }
+
+    /**
+     * Test setting and getting the Author Email.
+     *
+     * @test
+     */
+    public function testGetSetAuthorEmail(): void
+    {
+        $answer = new Answer();
+        $this->assertNull($answer->getAuthorEmail());
+
+        $answer->setAuthorEmail('anon@example.com');
+        $this->assertSame('anon@example.com', $answer->getAuthorEmail());
     }
 }

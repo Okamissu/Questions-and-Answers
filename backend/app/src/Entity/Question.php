@@ -12,12 +12,15 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Entity\Answer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Represents a question posted by a user.
+ *
+ * @ORM\Entity(repositoryClass=QuestionRepository::class)
+ *
+ * @ORM\Table(name="questions")
  */
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
 #[ORM\Table(name: 'questions')]
@@ -79,66 +82,131 @@ class Question
 
     // ---------- Getters & Setters ----------
 
+    /**
+     * Get the ID of the question.
+     *
+     * @return int|null The ID of the question
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Get the title of the question.
+     *
+     * @return string|null The title of the question
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
+    /**
+     * Set the title of the question.
+     *
+     * @param string|null $title The title of the question
+     */
     public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
 
+    /**
+     * Get the content of the question.
+     *
+     * @return string|null The content of the question
+     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
+    /**
+     * Set the content of the question.
+     *
+     * @param string|null $content The content of the question
+     */
     public function setContent(?string $content): void
     {
         $this->content = $content;
     }
 
+    /**
+     * Get the creation date of the question.
+     *
+     * @return \DateTimeImmutable|null The creation date of the question
+     */
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Get the last updated date of the question.
+     *
+     * @return \DateTimeImmutable|null The last updated date of the question
+     */
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
+    /**
+     * Get the author of the question.
+     *
+     * @return User|null The author of the question
+     */
     public function getAuthor(): ?User
     {
         return $this->author;
     }
 
+    /**
+     * Set the author of the question.
+     *
+     * @param User|null $author The author of the question
+     */
     public function setAuthor(?User $author): void
     {
         $this->author = $author;
     }
 
+    /**
+     * Get the category of the question.
+     *
+     * @return Category|null The category of the question
+     */
     public function getCategory(): ?Category
     {
         return $this->category;
     }
 
+    /**
+     * Set the category of the question.
+     *
+     * @param Category|null $category The category of the question
+     */
     public function setCategory(?Category $category): void
     {
         $this->category = $category;
     }
 
+    /**
+     * Get the tags associated with the question.
+     *
+     * @return Collection The tags associated with the question
+     */
     public function getTags(): Collection
     {
         return $this->tags;
     }
 
+    /**
+     * Add a tag to the question.
+     *
+     * @param Tag $tag The tag to add
+     */
     public function addTag(Tag $tag): void
     {
         if (!$this->tags->contains($tag)) {
@@ -146,6 +214,11 @@ class Question
         }
     }
 
+    /**
+     * Remove a tag from the question.
+     *
+     * @param Tag $tag The tag to remove
+     */
     public function removeTag(Tag $tag): void
     {
         $this->tags->removeElement($tag);
@@ -154,7 +227,7 @@ class Question
     /**
      * Get all answers for this question.
      *
-     * @return Collection<int, Answer>
+     * @return Collection<int, Answer> The answers for the question
      */
     public function getAnswers(): Collection
     {
@@ -163,6 +236,8 @@ class Question
 
     /**
      * Add an answer to this question.
+     *
+     * @param Answer $answer The answer to add
      */
     public function addAnswer(Answer $answer): void
     {
@@ -174,6 +249,8 @@ class Question
 
     /**
      * Remove an answer from this question.
+     *
+     * @param Answer $answer The answer to remove
      */
     public function removeAnswer(Answer $answer): void
     {

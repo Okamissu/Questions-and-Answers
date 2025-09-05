@@ -29,11 +29,12 @@ class QuestionListFiltersDtoResolverTest extends TestCase
      */
     public function testResolve(): void
     {
-        $request = new Request([
-            'search' => 'question',
-            'sort' => 'desc',
-            'limit' => 15,
-            'category' => 5,
+        // Pass parameters as query parameters
+        $request = new Request(query: [
+            'search'   => 'question',
+            'sort'     => 'desc',
+            'limit'    => 15,
+            'categoryId' => 5,
         ]);
 
         $argumentMetadata = $this->createMock(ArgumentMetadata::class);

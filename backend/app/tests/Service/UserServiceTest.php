@@ -247,4 +247,35 @@ class UserServiceTest extends TestCase
 
         $this->userService->findUserByEmailOrFail($email);
     }
+
+    public function testGetUsersReturnsPaginatedData(): void
+    {
+        $page = 2;
+        $limit = 10;
+        $search = 'term';
+
+        // Mock the repository
+        $repositoryMock = $this->createMock(UserRepository::class);
+
+        $expectedResult = [
+            'items' => [new User(), new User()],
+            'pagination' => [
+                'currentPage' => $page,
+                'totalPages' => 3,
+                'totalItems' => 25,
+                'limit' => $limit,
+            ],
+        ];
+
+        $repositoryMock->expects($this->once())
+            ->method('findAllPaginated')
+            ->with($page, $limit, $search)
+            ->willReturn($expectedResult);
+
+        $service = new UserService($repositoryMock, $this->createMock(UserPasswordHasherInterface::class), $this->createMock(ValidatorInterface::class));
+
+        $result = $service->getUsers($page, $limit, $search);
+
+        $this->assertSame($expectedResult, $result);
+    }
 }

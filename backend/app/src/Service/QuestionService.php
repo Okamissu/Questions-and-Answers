@@ -75,6 +75,14 @@ class QuestionService implements QuestionServiceInterface
         return $question;
     }
 
+    /**
+     * Updates an existing Question entity with new data.
+     *
+     * @param Question          $question The question entity to update
+     * @param UpdateQuestionDto $dto      DTO containing the updated data
+     *
+     * @return Question The updated Question entity
+     */
     public function update(Question $question, UpdateQuestionDto $dto): Question
     {
         if (null !== $dto->title) {
@@ -115,7 +123,6 @@ class QuestionService implements QuestionServiceInterface
         return $question;
     }
 
-
     /**
      * Deletes the given Question entity.
      *
@@ -139,17 +146,12 @@ class QuestionService implements QuestionServiceInterface
      * @param string|null $search     Optional search string
      * @param string|null $sort       Optional sort string (e.g., "createdAt_DESC")
      * @param int|null    $categoryId Optional category ID filter
+     * @param int|null    $tagId      Optional tag ID filter (if null, no filter will be applied)
      *
      * @return array{items: Question[], totalItems: int} Paginated questions and total count
      */
-    public function getPaginatedList(
-        int $page,
-        int $limit,
-        ?string $search = null,
-        ?string $sort = null,
-        ?int $categoryId = null,
-        ?int $tagId = null
-    ): array {
+    public function getPaginatedList(int $page, int $limit, ?string $search = null, ?string $sort = null, ?int $categoryId = null, ?int $tagId = null): array
+    {
         $qb = $this->questionRepository->queryWithFilters($search, $sort, $categoryId, $tagId);
 
         $qb->setFirstResult(($page - 1) * $limit)

@@ -12,6 +12,7 @@ use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\User;
 use App\Repository\AnswerRepository;
+use App\Repository\QuestionRepository;
 use App\Service\AnswerService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -41,7 +42,12 @@ class AnswerServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->answerRepository = $this->createMock(AnswerRepository::class);
-        $this->answerService = new AnswerService($this->answerRepository);
+        $this->questionRepository = $this->createMock(QuestionRepository::class);
+
+        $this->answerService = new AnswerService(
+            $this->answerRepository,
+            $this->questionRepository
+        );
     }
 
     // ----------------------
@@ -82,9 +88,10 @@ class AnswerServiceTest extends TestCase
         $mockPaginator->method('count')->willReturn(2);
 
         $service = $this->getMockBuilder(AnswerService::class)
-            ->setConstructorArgs([$this->answerRepository])
+            ->setConstructorArgs([$this->answerRepository, $this->questionRepository])
             ->onlyMethods(['createPaginator'])
             ->getMock();
+
         $service->method('createPaginator')->willReturn($mockPaginator);
 
         $result = $service->getPaginatedList(1, 10);
@@ -106,24 +113,34 @@ class AnswerServiceTest extends TestCase
      */
     public function testCreateSavesAndReturnsAnswer(): void
     {
+        $question = $this->createMock(Question::class);
+
         $dto = new CreateAnswerDto();
         $dto->content = 'Treść odpowiedzi musi mieć więcej niż 10 znaków';
-        $dto->question = $this->createMock(Question::class);
+        $dto->questionId = 123; // Use ID, not object
         $dto->author = $this->createMock(User::class);
         $dto->authorNickname = 'nick123';
         $dto->authorEmail = 'mail@example.com';
         $dto->isBest = true;
 
+        // Make repository return the Question for the given ID
+        $this->questionRepository
+            ->expects($this->once())
+            ->method('find')
+            ->with($dto->questionId)
+            ->willReturn($question);
+
         $this->answerRepository
             ->expects($this->once())
             ->method('save')
-            ->with($this->callback(function ($arg) use ($dto) {
+            ->with($this->callback(function ($arg) use ($dto, $question) {
                 if (!$arg instanceof Answer) {
                     return false;
                 }
+
                 $this->assertSame($dto->content, $arg->getContent());
-                $this->assertEquals($dto->question, $arg->getQuestion());
-                $this->assertEquals($dto->author, $arg->getAuthor());
+                $this->assertSame($question, $arg->getQuestion()); // compare to actual Question object
+                $this->assertSame($dto->author, $arg->getAuthor());
                 $this->assertSame($dto->authorNickname, $arg->getAuthorNickname());
                 $this->assertSame($dto->authorEmail, $arg->getAuthorEmail());
 
@@ -133,11 +150,12 @@ class AnswerServiceTest extends TestCase
         $result = $this->answerService->create($dto);
 
         $this->assertSame($dto->content, $result->getContent());
-        $this->assertEquals($dto->question, $result->getQuestion());
-        $this->assertEquals($dto->author, $result->getAuthor());
+        $this->assertSame($question, $result->getQuestion());
+        $this->assertSame($dto->author, $result->getAuthor());
         $this->assertSame($dto->authorNickname, $result->getAuthorNickname());
         $this->assertSame($dto->authorEmail, $result->getAuthorEmail());
     }
+
 
     // ----------------------
     // Update
@@ -281,5 +299,26 @@ class AnswerServiceTest extends TestCase
         $result = $this->answerService->markAsBest($mainAnswer);
 
         $this->assertSame($mainAnswer, $result);
+    }
+
+    public function testCreateThrowsExceptionIfQuestionNotFound(): void
+    {
+        $dto = new CreateAnswerDto();
+        $dto->content = 'Some content';
+        $dto->questionId = 999; // ID that doesn't exist
+        $dto->author = $this->createMock(User::class);
+        $dto->authorNickname = 'nick123';
+        $dto->authorEmail = 'mail@example.com';
+        $dto->isBest = false;
+
+        $this->questionRepository
+            ->method('find')
+            ->with($dto->questionId)
+            ->willReturn(null);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Question not found');
+
+        $this->answerService->create($dto);
     }
 }

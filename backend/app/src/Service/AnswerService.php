@@ -20,23 +20,32 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
  * including creation, update, deletion, pagination,
  * and handling "best answer" logic.
  */
-
 class AnswerService implements AnswerServiceInterface
 {
     private AnswerRepository $answerRepository;
-    private QuestionRepository $questionRepository; // poprawne typowanie
+    private QuestionRepository $questionRepository;
 
-    public function __construct(
-        AnswerRepository $answerRepository,
-        QuestionRepository $questionRepository // wstrzykujemy repozytorium
-    ) {
+    /**
+     * AnswerService constructor.
+     *
+     * @param AnswerRepository   $answerRepository   Repository for persisting Answer entities
+     * @param QuestionRepository $questionRepository Repository for persisting Question entities
+     */
+    public function __construct(AnswerRepository $answerRepository, QuestionRepository $questionRepository)
+    {
         $this->answerRepository = $answerRepository;
         $this->questionRepository = $questionRepository;
     }
 
+    /**
+     * Creates a new Answer entity from the given DTO.
+     *
+     * @param CreateAnswerDto $dto DTO containing the answer data
+     *
+     * @return Answer The newly created Answer entity
+     */
     public function create(CreateAnswerDto $dto): Answer
     {
-        // Znajdź Question po ID z DTO
         $question = $this->questionRepository->find($dto->questionId);
         if (!$question) {
             throw new \InvalidArgumentException('Question not found');
@@ -55,8 +64,6 @@ class AnswerService implements AnswerServiceInterface
 
         return $answer;
     }
-
-
 
     /**
      * Updates an existing Answer entity with values from the given DTO.

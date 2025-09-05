@@ -55,11 +55,8 @@ class AnswerController extends AbstractController
      * @return JsonResponse Returns paginated answers along with metadata
      */
     #[Route('/question/{question}', methods: ['GET'])]
-    public function list(
-        Question $question,
-        #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters,
-        #[MapQueryParameter] int $page = 1,
-    ): JsonResponse {
+    public function list(Question $question, #[MapQueryString(resolver: ListFiltersDtoResolver::class)] ListFiltersDto $filters, #[MapQueryParameter] int $page = 1): JsonResponse
+    {
         $limit = max(1, min(100, $filters->limit ?? 10));
         $search = $filters->search ?? null;
         $sort = $filters->sort ?? null;

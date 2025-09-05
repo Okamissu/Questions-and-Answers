@@ -6,7 +6,6 @@
 
 namespace App\Dto;
 
-use App\Entity\Question;
 use App\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 

@@ -187,4 +187,84 @@ class UserRepositoryTest extends TestCase
         $refProperty = $refObject->getProperty('em');
         $refProperty->setValue($object, $value);
     }
+
+    /**
+     * Test findAllPaginated with search term.
+     *
+     * @test
+     *
+     * @throws Exception
+     */
+    public function testFindAllPaginatedWithSearch(): void
+    {
+        $search = 'term';
+        $page = 2;
+        $limit = 10;
+
+        // Mock query for items
+        $query = $this->createMock(Query::class);
+        $query->expects($this->once())
+            ->method('getResult')
+            ->willReturn(['user1', 'user2']);
+
+        $qbItems = $this->createMock(QueryBuilder::class);
+        $qbItems->expects($this->once())
+            ->method('andWhere')
+            ->with('u.email LIKE :search OR u.nickname LIKE :search')
+            ->willReturnSelf();
+        $qbItems->expects($this->once())
+            ->method('setParameter')
+            ->with('search', '%'.$search.'%')
+            ->willReturnSelf();
+        $qbItems->expects($this->once())
+            ->method('orderBy')
+            ->with('u.createdAt', 'DESC')
+            ->willReturnSelf();
+        $qbItems->expects($this->once())
+            ->method('setFirstResult')
+            ->with(($page - 1) * $limit)
+            ->willReturnSelf();
+        $qbItems->expects($this->once())
+            ->method('setMaxResults')
+            ->with($limit)
+            ->willReturnSelf();
+        $qbItems->expects($this->once())
+            ->method('getQuery')
+            ->willReturn($query);
+
+        // Mock query for count
+        $countQuery = $this->createMock(Query::class);
+        $countQuery->expects($this->once())
+            ->method('getSingleScalarResult')
+            ->willReturn(25);
+
+        $qbCount = $this->createMock(QueryBuilder::class);
+        $qbCount->expects($this->once())
+            ->method('select')
+            ->with('COUNT(u.id)')
+            ->willReturnSelf();
+        $qbCount->expects($this->once())
+            ->method('andWhere')
+            ->with('u.email LIKE :search OR u.nickname LIKE :search')
+            ->willReturnSelf();
+        $qbCount->expects($this->once())
+            ->method('setParameter')
+            ->with('search', '%'.$search.'%')
+            ->willReturnSelf();
+        $qbCount->expects($this->once())
+            ->method('getQuery')
+            ->willReturn($countQuery);
+
+        // Repository returns different QB for items vs count
+        $this->repository->method('createQueryBuilder')
+            ->willReturnOnConsecutiveCalls($qbItems, $qbCount);
+
+        $result = $this->repository->findAllPaginated($page, $limit, $search);
+
+        $this->assertSame(['user1', 'user2'], $result['items']);
+        $this->assertSame($page, $result['pagination']['currentPage']);
+        $this->assertSame(3, $result['pagination']['totalPages']); // ceil(25/10)
+        $this->assertSame(25, $result['pagination']['totalItems']);
+        $this->assertSame($limit, $result['pagination']['limit']);
+    }
 }
