@@ -1,9 +1,5 @@
 <?php
 
-/*
- * (c) 2025 Kamil Kobylarz (Uniwersytet Jagielloński, Elektroniczne Przetwarzanie Informacji)
- */
-
 namespace App\Controller;
 
 use App\Dto\CreateUserDto;
@@ -16,51 +12,44 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
-/**
- * Controller responsible for managing User entities.
- *
- * Provides endpoints for creating, retrieving, updating, and deleting users.
- */
 class UserController extends AbstractController
 {
-    /**
-     * UserController constructor.
-     *
-     * @param UserServiceInterface $userService Service for managing users
-     * @param ValidatorInterface   $validator   Validator for DTOs
-     * @param SerializerInterface  $serializer  Serializer for DTOs
-     */
-    public function __construct(private readonly UserServiceInterface $userService, private readonly ValidatorInterface $validator, private readonly SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly UserServiceInterface $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly SerializerInterface $serializer,
+    ) {
     }
 
-    /**
-     * Create a new user.
-     *
-     * @param Request $request HTTP request containing the user payload
-     *
-     * @return JsonResponse Returns the created user or validation errors
-     *
-     * @throws ExceptionInterface
-     */
+    #[Route('', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, min(100, (int) $request->query->get('limit', 20)));
+        $search = $request->query->get('search', null);
+
+        $usersData = $this->userService->getUsers($page, $limit, $search);
+        $json = $this->serializer->serialize($usersData, 'json', ['groups' => ['user:read']]);
+
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
+    }
+
     #[Route('', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $dto = $this->serializer->deserialize($request->getContent(), CreateUserDto::class, 'json');
+
         $errors = $this->validator->validate($dto);
-
         if (count($errors) > 0) {
-            $errorsArray = [];
-            foreach ($errors as $error) {
-                $errorsArray[] = ['field' => $error->getPropertyPath(), 'message' => $error->getMessage()];
-            }
-
-            return $this->json(['errors' => $errorsArray], Response::HTTP_BAD_REQUEST);
+            return $this->json([
+                'errors' => array_map(fn ($e) => ['field' => $e->getPropertyPath(), 'message' => $e->getMessage()], iterator_to_array($errors)),
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -77,7 +66,7 @@ class UserController extends AbstractController
     #[Route('/me', methods: ['GET'])]
     public function me(): JsonResponse
     {
-        $user = $this->getUser(); // Symfony returns currently authenticated User
+        $user = $this->getUser();
         if (!$user instanceof User) {
             return $this->json(['error' => 'Not authenticated'], Response::HTTP_UNAUTHORIZED);
         }
@@ -87,15 +76,6 @@ class UserController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    /**
-     * Retrieve a single user by its ID.
-     *
-     * @param User $user The User entity to retrieve
-     *
-     * @return JsonResponse Returns the requested user
-     *
-     * @throws ExceptionInterface
-     */
     #[Route('/{id}', methods: ['GET'])]
     public function show(User $user): JsonResponse
     {
@@ -105,31 +85,18 @@ class UserController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    /**
-     * Update an existing user.
-     *
-     * @param Request $request HTTP request containing updated data
-     * @param User    $user    User entity to update
-     *
-     * @return JsonResponse Returns the updated user or validation errors
-     *
-     * @throws ExceptionInterface
-     */
     #[Route('/{id}', methods: ['PUT'])]
     public function update(Request $request, User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::UPDATE, $user);
 
         $dto = $this->serializer->deserialize($request->getContent(), UpdateUserDto::class, 'json');
+
         $errors = $this->validator->validate($dto);
-
         if (count($errors) > 0) {
-            $errorsArray = [];
-            foreach ($errors as $error) {
-                $errorsArray[] = ['field' => $error->getPropertyPath(), 'message' => $error->getMessage()];
-            }
-
-            return $this->json(['errors' => $errorsArray], Response::HTTP_BAD_REQUEST);
+            return $this->json([
+                'errors' => array_map(fn ($e) => ['field' => $e->getPropertyPath(), 'message' => $e->getMessage()], iterator_to_array($errors)),
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -143,13 +110,6 @@ class UserController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    /**
-     * Delete an existing user.
-     *
-     * @param User $user User entity to delete
-     *
-     * @return Response Returns HTTP 204 No Content on success
-     */
     #[Route('/{id}', methods: ['DELETE'])]
     public function delete(User $user): Response
     {

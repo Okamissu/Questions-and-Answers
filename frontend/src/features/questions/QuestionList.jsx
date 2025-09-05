@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { questionsApi } from '../../api/questions'
 import { categoriesApi } from '../../api/categories'
 import { tagsApi } from '../../api/tags'
@@ -9,6 +10,8 @@ import QuestionForm from './QuestionForm'
 
 export default function QuestionsList({ currentUser }) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+
   const [questions, setQuestions] = useState([])
   const [categories, setCategories] = useState([])
   const [tags, setTags] = useState([])
@@ -18,9 +21,9 @@ export default function QuestionsList({ currentUser }) {
   const [tagId, setTagId] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [refreshKey, setRefreshKey] = useState(0) // triggers refetch & remounts form
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [showForm, setShowForm] = useState(false)
 
-  // Fetch questions with filters
   const fetchQuestions = useCallback(() => {
     questionsApi
       .list({ page, search, sort, categoryId, tagId })
@@ -33,26 +36,24 @@ export default function QuestionsList({ currentUser }) {
         )
         setTotalPages(data.pagination.totalPages)
       })
+      .catch((err) => console.error('Failed to fetch questions:', err))
   }, [page, search, sort, categoryId, tagId, currentUser])
 
-  // Fetch categories and tags once
   useEffect(() => {
     categoriesApi.list({}, true).then((res) => setCategories(res.items))
     tagsApi.list({}, true).then((res) => setTags(res.items))
   }, [])
 
-  // Refetch questions when filters, page, refreshKey, or currentUser change
   useEffect(() => {
     fetchQuestions()
   }, [fetchQuestions, refreshKey, currentUser])
 
-  // Force remount QuestionForm on login/logout
   useEffect(() => {
     setRefreshKey((k) => k + 1)
   }, [currentUser])
 
   const handleDelete = (id) => {
-    if (confirm('Are you sure?')) {
+    if (confirm(t('confirmDelete') || 'Are you sure?')) {
       questionsApi.delete(id).then(() => setRefreshKey((k) => k + 1))
     }
   }
@@ -61,19 +62,49 @@ export default function QuestionsList({ currentUser }) {
     navigate(`/questions/${id}/edit`)
   }
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-2">Questions</h1>
+  const filtered = questions.filter((q) => {
+    const matchesSearch = q.title.toLowerCase().includes(search.toLowerCase())
+    const matchesCategory = categoryId ? q.category?.id === categoryId : true
+    const matchesTag = tagId ? q.tags?.some((tag) => tag.id === tagId) : true
+    return matchesSearch && matchesCategory && matchesTag
+  })
 
-      {currentUser ? (
+  const sorted = filtered.slice().sort((a, b) => {
+    if (sort === 'newest') return new Date(b.createdAt) - new Date(a.createdAt)
+    if (sort === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt)
+    if (sort === 'name') return a.title.localeCompare(b.title)
+    return 0
+  })
+
+  return (
+    <div className="space-y-6">
+      {/* Heading + Create Button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          {t('questions')}
+        </h1>
+        {currentUser && (
+          <button
+            onClick={() => setShowForm((prev) => !prev)}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          >
+            {showForm ? t('cancel') : t('createQuestion')}
+          </button>
+        )}
+      </div>
+
+      {/* Question form */}
+      {showForm && currentUser && (
         <QuestionForm
-          key={`question-form-${refreshKey}`} // remount on login/logout or refresh
-          onSuccess={() => setRefreshKey((k) => k + 1)}
+          key={`question-form-${refreshKey}`}
+          onSuccess={() => {
+            setShowForm(false)
+            setRefreshKey((k) => k + 1)
+          }}
         />
-      ) : (
-        <p className="text-gray-500 mb-4">Log in to post a question</p>
       )}
 
+      {/* Filters */}
       <FiltersBar
         search={search}
         setSearch={setSearch}
@@ -92,22 +123,29 @@ export default function QuestionsList({ currentUser }) {
         }}
       />
 
+      {/* Question list */}
       <EntityList
-        items={questions}
+        items={sorted}
         currentUser={currentUser}
         onDelete={handleDelete}
         onEdit={handleEdit}
         renderMetadata={(q) => (
-          <>
-            {q.author && <>Author: {q.author.nickname} </>}
-            {q.createdAt && (
-              <> | Created: {new Date(q.createdAt).toLocaleDateString()}</>
+          <div className="text-sm text-gray-600 dark:text-gray-300">
+            {q.author && (
+              <>
+                {t('author')}: {q.author.nickname}{' '}
+              </>
             )}
-          </>
+            {q.createdAt && (
+              <>
+                | {t('created')}: {new Date(q.createdAt).toLocaleDateString()}
+              </>
+            )}
+          </div>
         )}
         renderCategory={(q) =>
           q.category ? (
-            <span className="text-blue-600 cursor-pointer text-sm ml-1">
+            <span className="text-blue-600 dark:text-blue-400 cursor-pointer text-sm ml-1">
               [{q.category.name}]
             </span>
           ) : null
@@ -118,7 +156,7 @@ export default function QuestionsList({ currentUser }) {
               {q.tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="text-green-600 cursor-pointer text-sm mr-1"
+                  className="text-green-600 dark:text-green-400 cursor-pointer text-sm mr-1"
                 >
                   #{tag.name}
                 </span>
@@ -126,25 +164,29 @@ export default function QuestionsList({ currentUser }) {
             </span>
           ) : null
         }
+        editTitle={t('edit')}
+        deleteTitle={t('delete')}
       />
 
       {/* Pagination */}
-      <div className="mt-4 flex gap-1">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            disabled={page === i + 1}
-            onClick={() => setPage(i + 1)}
-            className={`px-2 py-1 border rounded ${
-              page === i + 1
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-black hover:bg-gray-200'
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
+      {totalPages > 1 && (
+        <div className="flex gap-2 justify-center mt-4">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              disabled={page === i + 1}
+              onClick={() => setPage(i + 1)}
+              className={`px-3 py-1 rounded border transition ${
+                page === i + 1
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

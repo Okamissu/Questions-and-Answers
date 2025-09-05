@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { loginUser } from '../api/auth'
@@ -8,67 +8,110 @@ export default function LoginPage({ setCurrentUser }) {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({ email: '', password: '' })
-  const [error, setError] = useState(null)
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
+  const [isValid, setIsValid] = useState(false)
 
-  // Skip login if token exists
+  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (token) navigate('/') // redirect immediately
+    if (token) navigate('/')
   }, [navigate])
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+    setErrors((prev) => ({ ...prev, [e.target.name]: null })) // clear field error
+  }
+
+  const handleBlur = (e) => setTouched({ ...touched, [e.target.name]: true })
+
+  const validate = useCallback(() => {
+    const newErrors = {}
+    if (!form.email.trim()) newErrors.email = t('requiredField')
+    else if (!/\S+@\S+\.\S+/.test(form.email))
+      newErrors.email = t('invalidEmail')
+
+    if (!form.password.trim()) newErrors.password = t('requiredField')
+    else if (form.password.length < 6)
+      newErrors.password = t('contentMinLength', { min: 6 })
+
+    setErrors((prev) => ({ form: prev.form || null, ...newErrors }))
+    return Object.keys(newErrors).length === 0
+  }, [form, t])
+
+  useEffect(() => setIsValid(validate()), [form, validate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError(null)
+    setTouched({ email: true, password: true })
+    setErrors((prev) => ({ ...prev, form: null }))
+
+    if (!validate()) return
 
     try {
-      await loginUser(form, setCurrentUser) // <-- update App state immediately
+      await loginUser(form, setCurrentUser)
       navigate('/')
     } catch (err) {
-      setError(
-        err.response?.data?.error || 'Login failed, check your credentials'
-      )
+      setErrors((prev) => ({
+        ...prev,
+        form:
+          err.response?.status === 401
+            ? t('loginFailed') || 'Incorrect email or password'
+            : err.response?.data?.error || t('loginFailed') || 'Login failed',
+      }))
     }
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded-xl space-y-4">
-      <h1 className="text-2xl font-bold">{t('login') || 'Login'}</h1>
+  const showError = (field) =>
+    field === 'form' ? errors.form : errors[field] && touched[field]
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 p-2 rounded">
-          {error}
+  return (
+    <div className="max-w-md mx-auto mt-10 p-6 card space-y-4 transition-colors duration-300">
+      <h1 className="text-2xl font-bold">{t('login')}</h1>
+
+      {errors.form && (
+        <div className="error-text p-2 rounded bg-red-100 dark:bg-red-700 border border-red-400 dark:border-red-500">
+          {errors.form}
         </div>
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder={t('email') || 'Email'}
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+        <div>
+          <input
+            type="email"
+            name="email"
+            placeholder={t('email')}
+            value={form.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="input w-full"
+          />
+          {showError('email') && <p className="error-text">{errors.email}</p>}
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder={t('password') || 'Password'}
-          value={form.password}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+        <div>
+          <input
+            type="password"
+            name="password"
+            placeholder={t('password')}
+            value={form.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="input w-full"
+          />
+          {showError('password') && (
+            <p className="error-text">{errors.password}</p>
+          )}
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          disabled={!isValid}
+          className={`button ${
+            isValid ? 'button-enabled' : 'button-disabled'
+          } `}
         >
-          {t('login') || 'Login'}
+          {t('login')}
         </button>
       </form>
     </div>

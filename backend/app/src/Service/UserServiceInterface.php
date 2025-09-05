@@ -51,4 +51,15 @@ interface UserServiceInterface
      * @return User The found user entity
      */
     public function findUserByEmailOrFail(string $email): User;
+
+    /**
+     *  Gets all of users.
+     *
+     * @param int         $page   pagination
+     * @param int         $limit  page limit
+     * @param string|null $search search query
+     *
+     * @return array Array of found users
+     */
+    public function getUsers(int $page = 1, int $limit = 20, ?string $search = null): array;
 }

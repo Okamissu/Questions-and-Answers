@@ -1,5 +1,113 @@
 @import 'tailwindcss';
 
-main {
-  margin: 1rem;
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  @apply bg-white text-black dark:bg-gray-900 dark:text-white;
+}
+
+/* Wrapper for sections */
+.container {
+  @apply bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl shadow transition-colors duration-300;
+}
+
+/* Labels and placeholders */
+label {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  @apply text-gray-400 dark:text-gray-300;
+}
+
+/* Inputs and Textareas */
+.input,
+.textarea {
+  @apply border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500
+         bg-white text-black border-gray-300
+         dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600
+         transition-colors duration-300;
+}
+
+/* Buttons */
+.button {
+  @apply bg-gray-200 text-black border border-gray-400 rounded px-3 py-1
+         hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500
+         transition-colors duration-300;
+}
+
+.button-enabled {
+  @apply bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700;
+}
+
+.button-disabled {
+  @apply bg-gray-400 cursor-not-allowed;
+}
+
+/* Navbar buttons */
+.navButton {
+  @apply px-2 py-1 border rounded transition-colors duration-300
+         hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-100;
+}
+
+.authButton {
+  @apply px-3 py-1 rounded text-white transition-colors duration-300;
+}
+
+.authLogin {
+  @apply bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700;
+}
+
+.authRegister {
+  @apply bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700;
+}
+
+.authLogout {
+  @apply bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700;
+}
+
+.nav-button {
+  @apply px-3 py-1 border rounded text-sm transition-colors duration-300
+         bg-white dark:bg-gray-700 dark:text-gray-100
+         hover:bg-gray-200 dark:hover:bg-gray-600;
+}
+
+.nav-auth-button {
+  @apply px-3 py-1 rounded text-sm text-white transition-colors duration-300;
+}
+
+.nav-auth-login {
+  @apply bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700;
+}
+
+.nav-auth-register {
+  @apply bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700;
+}
+
+.nav-auth-logout {
+  @apply bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700;
+}
+
+/* Error text */
+.error-text {
+  @apply text-red-500 dark:text-red-400 text-sm mt-1;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 1.5s ease-in-out 1;
 }

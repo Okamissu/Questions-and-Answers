@@ -1,93 +1,107 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { logoutAndRedirect } from '../api/auth'
+import { useState, useEffect } from 'react'
 
 export default function Navbar({ currentUser, setCurrentUser }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const [isDark, setIsDark] = useState(false)
 
   const isActive = (path) => location.pathname.startsWith(path)
   const isAdmin = currentUser?.roles?.includes('ROLE_ADMIN')
 
+  // Load theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+      setIsDark(true)
+    } else {
+      document.documentElement.classList.remove('dark')
+      setIsDark(false)
+    }
+  }, [])
+
+  const toggleDarkMode = () => {
+    document.documentElement.classList.toggle('dark')
+    const dark = document.documentElement.classList.contains('dark')
+    setIsDark(dark)
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
+  }
+
+  const navLinkClass = (active) =>
+    `px-3 py-1 rounded text-sm font-medium transition-colors duration-300 ${
+      active
+        ? 'font-bold text-blue-600 dark:text-blue-400'
+        : 'text-gray-900 dark:text-gray-100'
+    }`
+
+  const buttonClass =
+    'px-3 py-1 rounded text-sm transition-colors duration-300 flex items-center justify-center'
+
   return (
-    <nav className="flex items-center gap-4 p-4 border-b border-gray-300 bg-white shadow">
-      <div className="flex items-center gap-4">
-        <Link
-          to="/questions"
-          className={`hover:underline ${
-            isActive('/questions') ? 'font-bold' : ''
-          }`}
-        >
+    <nav className="flex items-center justify-between p-4 shadow-md bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300">
+      {/* Left links */}
+      <div className="flex items-center gap-3">
+        <Link to="/questions" className={navLinkClass(isActive('/questions'))}>
           {t('questions') || 'Questions'}
         </Link>
 
         {currentUser && (
-          <Link
-            to="/profile"
-            className={`hover:underline ${
-              isActive('/profile') ? 'font-bold' : ''
-            }`}
-          >
+          <Link to="/profile" className={navLinkClass(isActive('/profile'))}>
             {t('profile') || 'Profile'}
           </Link>
         )}
 
         {isAdmin && (
           <>
-            <Link
-              to="/users"
-              className={`hover:underline ${
-                isActive('/users') ? 'font-bold' : ''
-              }`}
-            >
+            <Link to="/users" className={navLinkClass(isActive('/users'))}>
               {t('users') || 'Users'}
             </Link>
             <Link
               to="/categories"
-              className={`hover:underline ${
-                isActive('/categories') ? 'font-bold' : ''
-              }`}
+              className={navLinkClass(isActive('/categories'))}
             >
               {t('categories') || 'Categories'}
             </Link>
-            <Link
-              to="/tags"
-              className={`hover:underline ${
-                isActive('/tags') ? 'font-bold' : ''
-              }`}
-            >
+            <Link to="/tags" className={navLinkClass(isActive('/tags'))}>
               {t('tags') || 'Tags'}
-            </Link>
-            <Link
-              to="/dashboard"
-              className={`hover:underline ${
-                isActive('/dashboard') ? 'font-bold' : ''
-              }`}
-            >
-              {t('dashboard') || 'Dashboard'}
             </Link>
           </>
         )}
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      {/* Right buttons */}
+      <div className="flex items-center gap-2">
+        {/* Language buttons */}
         <button
-          className="px-2 py-1 border rounded hover:bg-gray-100"
+          className={`${buttonClass} bg-gray-200 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600`}
           onClick={() => i18n.changeLanguage('pl')}
         >
           PL
         </button>
         <button
-          className="px-2 py-1 border rounded hover:bg-gray-100"
+          className={`${buttonClass} bg-gray-200 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600`}
           onClick={() => i18n.changeLanguage('en')}
         >
           EN
         </button>
 
+        {/* Dark/Light toggle */}
+        <button
+          className={`${buttonClass} bg-gray-200 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600`}
+          onClick={toggleDarkMode}
+          title="Toggle dark mode"
+        >
+          {isDark ? '🌙' : '🌞'}
+        </button>
+
+        {/* Auth buttons */}
         {currentUser ? (
           <button
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+            className={`${buttonClass} bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white`}
             onClick={() => logoutAndRedirect(setCurrentUser, navigate)}
           >
             {t('logout') || 'Logout'}
@@ -95,13 +109,13 @@ export default function Navbar({ currentUser, setCurrentUser }) {
         ) : (
           <>
             <Link
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className={`${buttonClass} bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white`}
               to="/login"
             >
               {t('login') || 'Login'}
             </Link>
             <Link
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              className={`${buttonClass} bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white`}
               to="/register"
             >
               {t('register') || 'Register'}

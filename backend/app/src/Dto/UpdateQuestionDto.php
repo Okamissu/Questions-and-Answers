@@ -16,7 +16,7 @@ class UpdateQuestionDto
     #[Assert\Length(min: 3, max: 255)]
     public ?string $title = null;
 
-    #[Assert\Length(min: 3)]
+    #[Assert\Length(min: 10)]
     public ?string $content = null;
 
     #[Assert\NotNull]

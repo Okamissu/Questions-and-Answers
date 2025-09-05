@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function FiltersBar({
   search,
@@ -13,34 +14,41 @@ export default function FiltersBar({
   setTagId,
   onClear,
 }) {
+  const { t } = useTranslation()
+
   return (
-    <div className="flex flex-wrap gap-2 my-4">
+    <div className="container flex flex-wrap gap-2 md:gap-4 my-4 py-2 items-center">
+      {/* Search */}
       <input
         type="text"
         value={search}
-        onChange={(e) => {
-          setSearch(e.target.value)
-        }}
-        placeholder="Search..."
-        className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder={t('search')}
+        className="input flex-1 min-w-[150px]"
+        aria-label={t('search')}
       />
 
+      {/* Sort */}
       <select
         value={sort}
         onChange={(e) => setSort(e.target.value)}
-        className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="input min-w-[120px]"
+        aria-label={t('sort')}
       >
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
+        <option value="newest">{t('newest')}</option>
+        <option value="oldest">{t('oldest')}</option>
+        <option value="name">{t('sortName')}</option>
       </select>
 
+      {/* Categories */}
       {categories.length > 0 && (
         <select
           value={categoryId}
-          onChange={(e) => setCategoryId(Number(e.target.value))}
-          className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setCategoryId(Number(e.target.value) || '')}
+          className="input min-w-[150px]"
+          aria-label={t('category')}
         >
-          <option value="">All Categories</option>
+          <option value="">{t('allCategories')}</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
@@ -49,13 +57,15 @@ export default function FiltersBar({
         </select>
       )}
 
+      {/* Tags */}
       {tags.length > 0 && (
         <select
           value={tagId}
-          onChange={(e) => setTagId(Number(e.target.value) || '')} // '' for "All Tags"
-          className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setTagId(Number(e.target.value) || '')}
+          className="input min-w-[150px]"
+          aria-label={t('tag')}
         >
-          <option value="">All Tags</option>
+          <option value="">{t('allTags')}</option>
           {tags.map((tag) => (
             <option key={tag.id} value={tag.id}>
               {tag.name}
@@ -64,12 +74,13 @@ export default function FiltersBar({
         </select>
       )}
 
+      {/* Clear filters */}
       {(categoryId || tagId) && (
         <button
           onClick={onClear}
-          className="bg-gray-200 border border-gray-400 rounded px-3 py-1 hover:bg-gray-300"
+          className="button bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300"
         >
-          Clear filters
+          {t('clearFilters')}
         </button>
       )}
     </div>

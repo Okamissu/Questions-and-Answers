@@ -30,6 +30,43 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    public function findAllPaginated(int $page = 1, int $limit = 20, ?string $search = null): array
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        if ($search) {
+            $qb->andWhere('u.email LIKE :search OR u.nickname LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $qb->orderBy('u.createdAt', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        $items = $qb->getQuery()->getResult();
+
+        // Get total count for pagination
+        $countQb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)');
+        if ($search) {
+            $countQb->andWhere('u.email LIKE :search OR u.nickname LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+        $totalItems = (int) $countQb->getQuery()->getSingleScalarResult();
+        $totalPages = (int) ceil($totalItems / $limit);
+
+        return [
+            'items' => $items,
+            'pagination' => [
+                'currentPage' => $page,
+                'totalPages' => $totalPages,
+                'totalItems' => $totalItems,
+                'limit' => $limit,
+            ],
+        ];
+    }
+
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      *
@@ -88,4 +125,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+
 }

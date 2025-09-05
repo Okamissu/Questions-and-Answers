@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { api } from '../api/api' // your axios instance
+import { api } from '../api/api'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
@@ -12,81 +12,121 @@ export default function RegisterPage() {
     email: '',
     plainPassword: '',
   })
-
-  const [errors, setErrors] = useState([])
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
+  const [isValid, setIsValid] = useState(false)
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
+  const handleBlur = (e) => setTouched({ ...touched, [e.target.name]: true })
+
+  const validate = useCallback(() => {
+    const newErrors = {}
+    if (!form.nickname.trim()) newErrors.nickname = t('requiredField')
+    else if (form.nickname.trim().length < 3)
+      newErrors.nickname = t('contentMinLength', { min: 3 })
+
+    if (!form.email.trim()) newErrors.email = t('requiredField')
+    else if (!/\S+@\S+\.\S+/.test(form.email))
+      newErrors.email = t('invalidEmail')
+
+    if (!form.plainPassword.trim()) newErrors.plainPassword = t('requiredField')
+    else if (form.plainPassword.length < 6)
+      newErrors.plainPassword = t('contentMinLength', { min: 6 })
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }, [form, t])
+
+  useEffect(() => setIsValid(validate()), [form, validate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setErrors([])
+    setTouched({ nickname: true, email: true, plainPassword: true })
+    if (!validate()) return
 
     try {
       await api.post('/users', form)
-      navigate('/login') // redirect to login after successful registration
+      navigate('/login')
     } catch (err) {
       if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors)
+        const apiErrors = {}
+        err.response.data.errors.forEach(
+          (e) => (apiErrors[e.field || 'form'] = e.message)
+        )
+        setErrors(apiErrors)
       } else if (err.response?.data?.error) {
-        setErrors([{ message: err.response.data.error }])
+        setErrors({ form: err.response.data.error })
       } else {
-        setErrors([{ message: 'Unknown error' }])
+        setErrors({ form: 'Unknown error' })
       }
     }
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded-xl space-y-4">
-      <h1 className="text-2xl font-bold">{t('register') || 'Register'}</h1>
+  const showError = (field) => errors[field] && touched[field]
 
-      {errors.length > 0 && (
-        <ul className="bg-red-100 border border-red-400 text-red-700 p-2 rounded space-y-1">
-          {errors.map((err, idx) => (
-            <li key={idx}>
-              {err.field ? `${err.field}: ` : ''}
-              {err.message}
-            </li>
-          ))}
-        </ul>
+  return (
+    <div className="max-w-md mx-auto mt-10 p-6 card space-y-4 transition-colors duration-300">
+      <h1 className="text-2xl font-bold">{t('register')}</h1>
+
+      {showError('form') && (
+        <div className="error-text p-2 rounded bg-red-100 dark:bg-red-700 border border-red-400 dark:border-red-500">
+          {errors.form}
+        </div>
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="nickname"
-          placeholder={t('nickname') || 'Nickname'}
-          value={form.nickname}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+        <div>
+          <input
+            type="text"
+            name="nickname"
+            placeholder={t('nickname')}
+            value={form.nickname}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="input w-full"
+          />
+          {showError('nickname') && (
+            <p className="error-text">{errors.nickname}</p>
+          )}
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder={t('email') || 'Email'}
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+        <div>
+          <input
+            type="email"
+            name="email"
+            placeholder={t('email')}
+            value={form.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="input w-full"
+          />
+          {showError('email') && <p className="error-text">{errors.email}</p>}
+        </div>
 
-        <input
-          type="password"
-          name="plainPassword"
-          placeholder={t('password') || 'Password'}
-          value={form.plainPassword}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+        <div>
+          <input
+            type="password"
+            name="plainPassword"
+            placeholder={t('password')}
+            value={form.plainPassword}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="input w-full"
+          />
+          {showError('plainPassword') && (
+            <p className="error-text">{errors.plainPassword}</p>
+          )}
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          disabled={!isValid}
+          className={`button ${
+            isValid ? 'button-enabled' : 'button-disabled'
+          }`}
         >
-          {t('register') || 'Register'}
+          {t('register')}
         </button>
       </form>
     </div>

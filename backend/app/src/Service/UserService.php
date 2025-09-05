@@ -123,4 +123,17 @@ class UserService implements UserServiceInterface
 
         return $user;
     }
+    /**
+     * Returns paginated users with optional search.
+     *
+     * @param int         $page  Page number
+     * @param int         $limit Number of items per page
+     * @param string|null $search Optional search term
+     *
+     * @return array Paginated users and pagination info
+     */
+    public function getUsers(int $page = 1, int $limit = 20, ?string $search = null): array
+    {
+        return $this->userRepository->findAllPaginated($page, $limit, $search);
+    }
 }

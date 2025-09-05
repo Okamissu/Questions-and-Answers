@@ -1,117 +1,190 @@
-// src/features/users/UserForm.jsx
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { api } from '../../api/api'
+import { usersApi } from '../../api/users'
 
-export default function UserForm() {
+export default function UserForm({ user, onSaved, onCancel }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const { id } = useParams()
-  const isEdit = !!id
-
   const [form, setForm] = useState({
-    nickname: '',
     email: '',
-    plainPassword: '',
+    nickname: '',
+    password: '',
   })
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
+  const [allUsers, setAllUsers] = useState([])
 
-  const [errors, setErrors] = useState([])
+  // fetch all existing users for uniqueness checks
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await usersApi.list()
+        setAllUsers(res.items)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchUsers()
+  }, [])
 
   useEffect(() => {
-    if (isEdit) {
-      api.get(`/users/${id}`).then((res) =>
-        setForm({
-          nickname: res.data.nickname,
-          email: res.data.email,
-          plainPassword: '',
-        })
-      )
+    if (user) {
+      setForm({
+        email: user.email || '',
+        nickname: user.nickname || '',
+        password: '',
+      })
     }
-  }, [id, isEdit])
+  }, [user])
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value })
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    setErrors((prev) => ({ ...prev, [name]: null }))
+  }
+
+  const handleBlur = (e) => {
+    const { name } = e.target
+    setTouched((prev) => ({ ...prev, [name]: true }))
+    validateField(name)
+  }
+
+  const validateField = (field) => {
+    const value = form[field]
+    let error = null
+
+    if (field === 'email') {
+      if (!value.trim()) error = t('requiredField')
+      else if (!/\S+@\S+\.\S+/.test(value)) error = t('invalidEmail')
+      else if (!user || user.email !== value) {
+        if (allUsers.some((u) => u.email === value)) error = t('emailTaken')
+      }
+    }
+
+    if (field === 'nickname') {
+      if (!value.trim()) error = t('requiredField')
+      else if (value.length < 3) error = t('contentMinLength', { min: 3 })
+      else if (!user || user.nickname !== value) {
+        if (allUsers.some((u) => u.nickname === value))
+          error = t('nicknameTaken')
+      }
+    }
+
+    if (field === 'password') {
+      if (!user && !value) error = t('requiredField') // create → required
+      else if (value && value.length < 6)
+        error = t('contentMinLength', { min: 6 }) // optional on edit
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: error }))
+    return !error
+  }
+
+  const validateForm = () =>
+    ['email', 'nickname', 'password'].every(validateField)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setErrors([])
+    setTouched({ email: true, nickname: true, password: true })
+
+    if (!validateForm()) return
 
     try {
-      if (isEdit) {
-        await api.put(`/users/${id}`, form)
-      } else {
-        await api.post('/users', form)
+      const payload = {
+        email: form.email,
+        nickname: form.nickname,
       }
-      navigate('/users')
+      if (form.password) payload.plainPassword = form.password
+
+      if (user?.id) await usersApi.update(user.id, payload)
+      else await usersApi.create(payload)
+
+      onSaved?.()
     } catch (err) {
-      if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors)
-      } else if (err.response?.data?.error) {
-        setErrors([{ message: err.response.data.error }])
-      } else {
-        setErrors([{ message: 'Unknown error' }])
-      }
+      console.error(err)
+      alert(err?.response?.data?.error || 'Something went wrong')
     }
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded-xl space-y-4">
-      <h1 className="text-2xl font-bold">
-        {isEdit
-          ? t('editUser') || 'Edit User'
-          : t('createUser') || 'Create User'}
-      </h1>
+  const showError = (field) => errors[field] && touched[field]
 
-      {errors.length > 0 && (
-        <ul className="bg-red-100 border border-red-400 text-red-700 p-2 rounded space-y-1">
-          {errors.map((err, idx) => (
-            <li key={idx}>
-              {err.field ? `${err.field}: ` : ''}
-              {err.message}
-            </li>
-          ))}
-        </ul>
+  // disable submit if any error exists or required fields empty
+  const hasErrors =
+    Object.values(errors).some((e) => e) ||
+    !form.email ||
+    !form.nickname ||
+    (!user && !form.password)
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 p-4 border rounded shadow"
+    >
+      <input
+        name="nickname"
+        placeholder={t('nickname')}
+        value={form.nickname}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={`p-2 border rounded ${
+          showError('nickname') ? 'border-red-500' : 'border-gray-300'
+        }`}
+        required
+      />
+      {showError('nickname') && (
+        <p className="text-red-500 text-sm">{errors.nickname}</p>
       )}
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="nickname"
-          placeholder={t('nickname') || 'Nickname'}
-          value={form.nickname}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+      <input
+        name="email"
+        type="email"
+        placeholder={t('email')}
+        value={form.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={`p-2 border rounded ${
+          showError('email') ? 'border-red-500' : 'border-gray-300'
+        }`}
+        required
+      />
+      {showError('email') && (
+        <p className="text-red-500 text-sm">{errors.email}</p>
+      )}
 
-        <input
-          type="email"
-          name="email"
-          placeholder={t('email') || 'Email'}
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required
-        />
+      <input
+        name="password"
+        type="password"
+        placeholder={user?.id ? t('passwordPlaceholder') : t('password')}
+        value={form.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={`p-2 border rounded ${
+          showError('password') ? 'border-red-500' : 'border-gray-300'
+        }`}
+      />
+      {showError('password') && (
+        <p className="text-red-500 text-sm">{errors.password}</p>
+      )}
 
-        <input
-          type="password"
-          name="plainPassword"
-          placeholder={t('password') || 'Password'}
-          value={form.plainPassword}
-          onChange={handleChange}
-          className="w-full p-2 border rounded border-gray-300"
-          required={!isEdit}
-        />
-
+      <div className="flex gap-2">
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          disabled={hasErrors}
+          className={`px-4 py-2 rounded text-white ${
+            hasErrors
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
-          {isEdit ? t('update') || 'Update' : t('create') || 'Create'}
+          {user?.id ? t('editUser') : t('createUser')}
         </button>
-      </form>
-    </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-300 rounded"
+        >
+          {t('cancel')}
+        </button>
+      </div>
+    </form>
   )
 }
