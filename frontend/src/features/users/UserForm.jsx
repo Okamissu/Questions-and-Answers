@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { usersApi } from '../../api/users'
 import { logoutUser } from '../../api/auth'
-import { useNavigate } from 'react-router-dom'
 
 export default function UserForm({
-  user, // user being edited
+  user, // user being edited (undefined for create)
   currentUser, // logged-in user
-  setCurrentUser, // function to update current user
-  onSaved, // callback after save
-  onCancel, // cancel callback
+  setCurrentUser, // for logout
+  onSaved,
+  onCancel,
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -19,7 +19,7 @@ export default function UserForm({
   const [touched, setTouched] = useState({})
   const [allUsers, setAllUsers] = useState([])
 
-  // fetch all users for uniqueness check
+  // Fetch all users for uniqueness checks
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -32,7 +32,7 @@ export default function UserForm({
     fetchUsers()
   }, [])
 
-  // populate form when user prop is available
+  // Populate form when `user` prop changes
   useEffect(() => {
     if (user) {
       setForm({
@@ -40,9 +40,12 @@ export default function UserForm({
         nickname: user.nickname || '',
         password: '',
       })
+    } else {
+      setForm({ email: '', nickname: '', password: '' })
     }
   }, [user])
 
+  // Form field changes
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
@@ -55,29 +58,35 @@ export default function UserForm({
     validateField(name)
   }
 
+  // Field validation
   const validateField = (field) => {
-    const value = form[field]
+    const value = form[field]?.trim()
     let error = null
 
     if (field === 'email') {
-      if (!value.trim()) error = t('requiredField')
+      if (!value) error = t('requiredField')
       else if (!/\S+@\S+\.\S+/.test(value)) error = t('invalidEmail')
-      else if (!user || user.email !== value) {
-        if (allUsers.some((u) => u.email === value)) error = t('emailTaken')
+      else if (
+        (!user || user.email !== value) &&
+        allUsers.some((u) => u.email === value)
+      ) {
+        error = t('emailTaken')
       }
     }
 
     if (field === 'nickname') {
-      if (!value.trim()) error = t('requiredField')
+      if (!value) error = t('requiredField')
       else if (value.length < 3) error = t('contentMinLength', { min: 3 })
-      else if (!user || user.nickname !== value) {
-        if (allUsers.some((u) => u.nickname === value))
-          error = t('nicknameTaken')
+      else if (
+        (!user || user.nickname !== value) &&
+        allUsers.some((u) => u.nickname === value)
+      ) {
+        error = t('nicknameTaken')
       }
     }
 
     if (field === 'password') {
-      if (!user && !value) error = t('requiredField') // required on create
+      if (!user && !value) error = t('requiredField')
       else if (value && value.length < 6)
         error = t('contentMinLength', { min: 6 })
     }
@@ -89,6 +98,7 @@ export default function UserForm({
   const validateForm = () =>
     ['email', 'nickname', 'password'].every(validateField)
 
+  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
     setTouched({ email: true, nickname: true, password: true })
@@ -96,25 +106,34 @@ export default function UserForm({
     if (!validateForm()) return
 
     try {
-      const payload = { email: form.email, nickname: form.nickname }
+      const payload = {
+        email: form.email.trim(),
+        nickname: form.nickname.trim(),
+      }
       if (form.password) payload.plainPassword = form.password
 
-      if (user?.id) await usersApi.update(user.id, payload)
-      else await usersApi.create(payload)
+      if (user?.id) {
+        await usersApi.update(user.id, payload)
+      } else {
+        await usersApi.create(payload)
+      }
 
-      // logout if current user edited their email or password
-      const emailChanged =
-        currentUser?.id === user?.id &&
-        form.email.trim() !== currentUser.email.trim()
-      const passwordChanged = currentUser?.id === user?.id && !!form.password
+      // --- LOGOUT IF CURRENT USER CHANGED EMAIL, NICKNAME, OR PASSWORD
+      const isCurrentUserEditingSelf = user?.id === currentUser?.id
+      const emailChanged = form.email.trim() !== currentUser?.email
+      const nicknameChanged = form.nickname.trim() !== currentUser?.nickname
+      const passwordChanged = Boolean(form.password)
 
-      if (emailChanged || passwordChanged) {
+      if (
+        isCurrentUserEditingSelf &&
+        (emailChanged || nicknameChanged || passwordChanged)
+      ) {
         alert(
           t('profileUpdatedLogout') ||
-            'Profile updated! You will be logged out to apply changes.'
+            'Profile updated successfully! You will be logged out to apply changes.'
         )
         logoutUser(setCurrentUser)
-        navigate('/login')
+        navigate('/login', { replace: true })
         return
       }
 
@@ -126,11 +145,10 @@ export default function UserForm({
   }
 
   const showError = (field) => errors[field] && touched[field]
-
   const hasErrors =
     Object.values(errors).some(Boolean) ||
-    !form.email ||
-    !form.nickname ||
+    !form.email.trim() ||
+    !form.nickname.trim() ||
     (!user && !form.password)
 
   return (
@@ -138,7 +156,6 @@ export default function UserForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 p-4 border rounded shadow"
     >
-      {/* Nickname */}
       <input
         name="nickname"
         placeholder={t('nickname')}
@@ -154,7 +171,6 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.nickname}</p>
       )}
 
-      {/* Email */}
       <input
         name="email"
         type="email"
@@ -171,7 +187,6 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.email}</p>
       )}
 
-      {/* Password */}
       <input
         name="password"
         type="password"
@@ -187,7 +202,6 @@ export default function UserForm({
         <p className="text-red-500 text-sm">{errors.password}</p>
       )}
 
-      {/* Actions */}
       <div className="flex gap-2">
         <button
           type="submit"

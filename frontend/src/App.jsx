@@ -225,7 +225,11 @@ export default function App() {
                 path="/users"
                 element={
                   <ProtectedRoute currentUser={currentUser} adminOnly>
-                    <UsersList currentUserRoles={currentUser?.roles || []} />
+                    <UsersList
+                      currentUser={currentUser}
+                      setCurrentUser={setCurrentUser}
+                      currentUserRoles={currentUser?.roles || []}
+                    />
                   </ProtectedRoute>
                 }
               />
@@ -234,6 +238,8 @@ export default function App() {
                 element={
                   <ProtectedRoute currentUser={currentUser} adminOnly>
                     <UserForm
+                      currentUser={currentUser}
+                      setCurrentUser={setCurrentUser}
                       currentUserRoles={currentUser?.roles || []}
                       onSaved={() => {}}
                     />

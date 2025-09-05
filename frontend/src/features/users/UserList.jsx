@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { usersApi } from '../../api/users'
 import UserForm from './UserForm'
 
-export default function UserList({ currentUserRoles = [] }) {
+export default function UserList({
+  currentUser,
+  setCurrentUser,
+  currentUserRoles = [],
+}) {
   const { t } = useTranslation()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -28,26 +32,18 @@ export default function UserList({ currentUserRoles = [] }) {
   }, [])
 
   const handleDelete = async (userId) => {
-    if (
-      !window.confirm(
-        t('confirmDelete') || 'Are you sure you want to delete this user?'
-      )
-    )
-      return
+    if (!window.confirm(t('confirmDelete') || 'Are you sure?')) return
 
     try {
       await usersApi.delete(userId)
       setUsers((prev) => prev.filter((u) => u.id !== userId))
     } catch (err) {
       console.error(err)
-      // Check for linked content error
       if (
         err?.response?.status === 400 ||
         err?.response?.data?.error === 'cannotDeleteLinked'
       ) {
-        alert(
-          t('cannotDeleteLinked') 
-        )
+        alert(t('cannotDeleteLinked'))
       } else {
         alert(err?.response?.data?.error || t('failedDeleteUser'))
       }
@@ -71,22 +67,6 @@ export default function UserList({ currentUserRoles = [] }) {
 
   if (loading) return <p>{t('loading') || 'Loading...'}</p>
 
-  const roleBadge = (role) => {
-    const color =
-      role === 'ROLE_ADMIN'
-        ? 'bg-red-600 dark:bg-red-500'
-        : 'bg-blue-600 dark:bg-blue-500'
-    const label = t(role) || role
-    return (
-      <span
-        key={role}
-        className={`${color} text-white text-xs px-2 py-1 rounded-full mr-1`}
-      >
-        {label}
-      </span>
-    )
-  }
-
   return (
     <div className="container mx-auto my-4 space-y-4">
       <div className="flex justify-between items-center mb-4">
@@ -104,6 +84,8 @@ export default function UserList({ currentUserRoles = [] }) {
       {showForm && (
         <UserForm
           user={editingUser}
+          currentUser={currentUser}
+          setCurrentUser={setCurrentUser}
           onSaved={handleSaved}
           onCancel={() => setShowForm(false)}
         />
@@ -121,7 +103,20 @@ export default function UserList({ currentUserRoles = [] }) {
                 {user.email}
               </div>
               <div className="mt-1 flex flex-wrap">
-                {user.roles.map(roleBadge)}
+                {user.roles.map((role) => {
+                  const color =
+                    role === 'ROLE_ADMIN'
+                      ? 'bg-red-600 dark:bg-red-500'
+                      : 'bg-blue-600 dark:bg-blue-500'
+                  return (
+                    <span
+                      key={role}
+                      className={`${color} text-white text-xs px-2 py-1 rounded-full mr-1`}
+                    >
+                      {t(role) || role}
+                    </span>
+                  )
+                })}
               </div>
             </div>
             <div className="flex gap-2">
