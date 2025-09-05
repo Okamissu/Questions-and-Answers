@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usersApi } from '../../api/users'
+import { logoutUser } from '../../api/auth'
+import { useNavigate } from 'react-router-dom'
 
-export default function UserForm({ user, onSaved, onCancel }) {
+export default function UserForm({
+  user,
+  currentUser,
+  onSaved,
+  onCancel,
+  setCurrentUser,
+}) {
   const { t } = useTranslation()
-  const [form, setForm] = useState({
-    email: '',
-    nickname: '',
-    password: '',
-  })
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', nickname: '', password: '' })
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
   const [allUsers, setAllUsers] = useState([])
 
-  // fetch all existing users for uniqueness checks
+  // fetch all users for uniqueness check
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -26,6 +31,7 @@ export default function UserForm({ user, onSaved, onCancel }) {
     fetchUsers()
   }, [])
 
+  // populate form
   useEffect(() => {
     if (user) {
       setForm({
@@ -70,9 +76,9 @@ export default function UserForm({ user, onSaved, onCancel }) {
     }
 
     if (field === 'password') {
-      if (!user && !value) error = t('requiredField') // create → required
+      if (!user && !value) error = t('requiredField') // required on create
       else if (value && value.length < 6)
-        error = t('contentMinLength', { min: 6 }) // optional on edit
+        error = t('contentMinLength', { min: 6 })
     }
 
     setErrors((prev) => ({ ...prev, [field]: error }))
@@ -89,14 +95,25 @@ export default function UserForm({ user, onSaved, onCancel }) {
     if (!validateForm()) return
 
     try {
-      const payload = {
-        email: form.email,
-        nickname: form.nickname,
-      }
+      const payload = { email: form.email, nickname: form.nickname }
       if (form.password) payload.plainPassword = form.password
 
       if (user?.id) await usersApi.update(user.id, payload)
       else await usersApi.create(payload)
+
+      // if current user changed their email or password → logout
+      if (
+        currentUser?.id === user?.id &&
+        (form.email !== currentUser.email || form.password)
+      ) {
+        alert(
+          t('profileUpdatedLogout') ||
+            'Profile updated successfully! You will be logged out to apply changes.'
+        )
+        logoutUser(setCurrentUser)
+        navigate('/login')
+        return
+      }
 
       onSaved?.()
     } catch (err) {
@@ -106,8 +123,6 @@ export default function UserForm({ user, onSaved, onCancel }) {
   }
 
   const showError = (field) => errors[field] && touched[field]
-
-  // disable submit if any error exists or required fields empty
   const hasErrors =
     Object.values(errors).some((e) => e) ||
     !form.email ||
