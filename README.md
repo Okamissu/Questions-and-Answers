@@ -1,5 +1,4 @@
 # Questions-and-Answers
-# Questions-and-Answers
 
 Projekt zaliczeniowy z przedmiotu **Zaawansowane Techniki Programowania 2** (UJ, Elektroniczne Przetwarzanie Informacji)
 
@@ -11,19 +10,22 @@ Projekt zaliczeniowy z przedmiotu **Zaawansowane Techniki Programowania 2** (UJ,
 > Połączona wersja aplikacji dostępna jest pod adresem:  
 > [https://wierzba.wzks.uj.edu.pl/~20_kobylarz/qa-app/](https://wierzba.wzks.uj.edu.pl/~20_kobylarz/qa-app/)
 
-W gałęzi `wierzba-setup` repozytorium znajdują się pliki przystosowane do serwera Wierzba (WZIKS UJ).  
+W gałęzi `wierzba-setup` repozytorium znajdują się pliki przystosowane do serwera Wierzba (WZIKS UJ).
 
 ### Pliki do ustawienia przy przenoszeniu projektu na inny serwer:
 
 **Front-end:**
+
 - `App.jsx` (basename)
 - `api.js` (baseURL)
 
 **Back-end:**
+
 - `.htaccess`
 - `index.php`
 
 > Następnie należy wykonać:
+
 ```bash
 $ npm run build
 ```
@@ -46,7 +48,7 @@ $ composer install
 $ composer init-app
 ```
 
-* Backend w załączonej konfiguracji Dockera domyślnie uruchamia się na **porcie 8000**.
+- Backend w załączonej konfiguracji Dockera domyślnie uruchamia się na **porcie 8000**.
 
 ### 2. Frontend
 
@@ -57,14 +59,14 @@ $ npm install
 $ npm run dev
 ```
 
-* Frontend w konfiguracji Vite uruchamia się na **porcie 5173**.
+- Frontend w konfiguracji Vite uruchamia się na **porcie 5173**.
 
 ---
 
 ## Dokumentacja i raporty
 
-* W katalogu `backend/docs` znajduje się dokumentacja projektu.
-* W katalogu `backend/coverage` znajduje się raport pokrycia kodu testami (\~92% linii kodu).
+- W katalogu `backend/docs` znajduje się dokumentacja projektu.
+- W katalogu `backend/coverage` znajduje się raport pokrycia kodu testami (\~92% linii kodu).
 
 ---
 
@@ -87,5 +89,3 @@ Poniższe konta są generowane przez `UserFixtures` w celu testów:
 | [admin0@example.com](mailto:admin0@example.com) | adminnick0 | admin1234 |
 | [admin1@example.com](mailto:admin1@example.com) | adminnick1 | admin1234 |
 | [admin2@example.com](mailto:admin2@example.com) | adminnick2 | admin1234 |
-
-
