@@ -58,10 +58,32 @@ function TagFormWrapper() {
   return <TagForm id={id} />
 }
 
-function UserFormWrapper({ currentUserRoles }) {
+function UserFormWrapper({ currentUser, setCurrentUser, currentUserRoles }) {
   const { id } = useParams()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await usersApi.get(id)
+        setUser(data)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    if (id) fetchUser()
+  }, [id])
+
+  if (!user) return <p>Loading...</p>
+
   return (
-    <UserForm id={id} currentUserRoles={currentUserRoles} onSaved={() => {}} />
+    <UserForm
+      user={user} // user being edited
+      currentUser={currentUser} // logged-in user
+      setCurrentUser={setCurrentUser} // for logout if needed
+      currentUserRoles={currentUserRoles}
+      onSaved={() => {}}
+    />
   )
 }
 
@@ -107,7 +129,7 @@ export default function App() {
       }
     >
       <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
-        <BrowserRouter basename='/~20_kobylarz/qa-app'>
+        <BrowserRouter basename="/~20_kobylarz/qa-app">
           <Navbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
           <main className="p-4">
             <Routes>
@@ -223,6 +245,8 @@ export default function App() {
                 element={
                   <ProtectedRoute currentUser={currentUser} adminOnly>
                     <UserFormWrapper
+                      currentUser={currentUser}
+                      setCurrentUser={setCurrentUser}
                       currentUserRoles={currentUser?.roles || []}
                     />
                   </ProtectedRoute>
