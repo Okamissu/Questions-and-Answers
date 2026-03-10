@@ -11,8 +11,6 @@ A full-stack Q&A web application with a **Symfony backend API** and **React fron
 The combined application is deployed on the **Wierzba server (WZIKS UJ)**:
 [https://wierzba.wzks.uj.edu.pl/~20_kobylarz/qa-app/](https://wierzba.wzks.uj.edu.pl/~20_kobylarz/qa-app/)
 
-> **Note:** For development purposes, the front-end and back-end are kept as separate applications.
-
 The `wierzba-setup` branch contains files adapted for deployment on the Wierzba server.
 
 ---
